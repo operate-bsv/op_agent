@@ -1,0 +1,5 @@
+%{
+  "jason": {:hex, :jason, "1.1.2", "b03dedea67a99223a2eaf9f1264ce37154564de899fd3d8b9a21b1a6fd64afe7", [:mix], [{:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm"},
+  "luerl": {:hex, :luerl, "0.4.0", "6d3191f529286b77b765e790a70cc36b6b27d91e97363afa89e0b7394f5116bd", [:rebar3], [], "hexpm"},
+  "sandbox": {:hex, :sandbox, "0.3.0", "ddf21746a24abaa582b639359c0c069548d6639d219241d7a627431ba2d42837", [:mix], [{:luerl, "~> 0.4.0", [hex: :luerl, repo: "hexpm", optional: false]}], "hexpm"},
+}
