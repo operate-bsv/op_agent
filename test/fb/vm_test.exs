@@ -92,6 +92,11 @@ defmodule FB.VMTest do
       res = VM.eval!(ctx.vm, "return {'foo', 'bar'}")
       assert res == ["foo", "bar"]
     end
+
+    test "must decode flat table containing nested tables as list", ctx do
+      res = VM.eval!(ctx.vm, "return {'foo', 'bar', {'a', 'b'}, {baz = 'qux'}}")
+      assert res == ["foo", "bar", ["a", "b"], %{"baz" => "qux"}]
+    end
     
     test "must decode associative table as map", ctx do
       res = VM.eval!(ctx.vm, "return {foo=1, bar='qux'}")

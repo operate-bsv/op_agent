@@ -185,8 +185,8 @@ defmodule FB.VM do
 
   def decode(val) when is_list(val) do
     case lua_table_type(val) do
-      :list -> Enum.map(val, &(elem(decode(&1), 1)))
-      :map  -> Enum.reduce(val, %{}, fn({k,v},map) -> Map.put(map, k, decode(v)) end)
+      :list -> Enum.map(val, &(elem(&1, 1) |> decode))
+      :map  -> Enum.reduce(val, %{}, fn({k,v}, map) -> Map.put(map, k, decode(v)) end)
       _     -> Enum.map(val, &decode/1)
     end
   end
@@ -199,7 +199,7 @@ defmodule FB.VM do
   defp lua_table_type(table) do
     cond do
       Enum.all?(table, &(is_tuple(&1))) ->
-        case Enum.all?(table, fn {k, v} -> is_integer(k) && !is_list(v) end) do
+        case Enum.all?(table, &(elem(&1, 0) |> is_integer)) do
           true  -> :list
           false -> :map
         end
