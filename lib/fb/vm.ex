@@ -1,6 +1,7 @@
 defmodule FB.VM do
   @moduledoc """
-  Functional Bitcoin VM module. Responsible for initalizing the Lua state and executing scripts.
+  Functional Bitcoin VM module. Responsible for initalizing the Lua state and
+  executing scripts.
   """
 
   @typedoc "Functional Bitcoin VM state"
@@ -74,7 +75,10 @@ defmodule FB.VM do
   def eval(vm, code) do
     case :luerl.eval(code, vm) do
       {:ok, result} -> {:ok, decode(result)}
-      {:error, err} -> {:error, "Lua Sandbox error: #{inspect err}"}
+      {:error, err} ->
+        #{err_type, err, _vm} = err.original
+        #{:error, "Lua Error: #{inspect {err_type, err}}"}
+        {:error, "Lua Error: #{inspect err}"}
     end
   end
 
@@ -133,7 +137,10 @@ defmodule FB.VM do
       |> elem(0)
       {:ok, decode(result)}
     rescue
-      err -> {:error, "Lua Sandbox error: #{inspect err.original}"}
+      err -> 
+        #{err_type, err, _vm} = err.original
+        #{:error, "Lua Error: #{inspect {err_type, err}}"}
+        {:error, "Lua Error: #{inspect err}"}
     end
   end
 

@@ -7,6 +7,7 @@ defmodule FB.VMTest do
     %{ vm: FB.VM.init }
   end
 
+
   describe "FB.VM.init/1" do
     test "must return a VM state" do
       vm = FB.VM.init
@@ -14,6 +15,7 @@ defmodule FB.VMTest do
       assert elem(vm, 0) == :luerl
     end
   end
+
 
   describe "FB.VM.eval/1" do
     test "must evaluate the script and return a value", ctx do
@@ -24,9 +26,10 @@ defmodule FB.VMTest do
     test "must evaluate the script and return an error message", ctx do
       res = VM.eval(ctx.vm, "return 'test' {& 'invalid'")
       assert elem(res, 0) == :error
-      assert elem(res, 1) =~ "Lua Sandbox error"
+      assert elem(res, 1) =~ "Lua Error"
     end
   end
+
 
   describe "FB.VM.eval!/1" do
     test "must evaluate the script and return a value", ctx do
@@ -35,11 +38,12 @@ defmodule FB.VMTest do
     end
 
     test "must evaluate the script and raise an exception", ctx do
-      assert_raise RuntimeError, ~r/Lua Sandbox error/, fn ->
+      assert_raise RuntimeError, ~r/Lua Error/, fn ->
         VM.eval!(ctx.vm, "return 'test' {& 'invalid'")
       end
     end
   end
+
 
   describe "FB.VM.exec/1" do
     test "must execute the script and return a value", ctx do
@@ -55,9 +59,10 @@ defmodule FB.VMTest do
     test "must return an error message when no script", ctx do
       res = VM.exec(ctx.vm, "function foo() 123 end", [])
       assert elem(res, 0) == :error
-      assert elem(res, 1) =~ "Lua Sandbox error"
+      assert elem(res, 1) =~ "Lua Error"
     end
   end
+
 
   describe "FB.VM.exec!/1" do
     test "must execute the script and return a value", ctx do
@@ -66,11 +71,12 @@ defmodule FB.VMTest do
     end
 
     test "must raise an error when no script", ctx do
-      assert_raise RuntimeError, ~r/Lua Sandbox error/, fn ->
+      assert_raise RuntimeError, ~r/Lua Error/, fn ->
         VM.exec!(ctx.vm, "function foo() 123 end", [])
       end
     end
   end
+
 
   describe "FB.VM.decode/1" do
     test "must decode strings", ctx do
@@ -118,4 +124,5 @@ defmodule FB.VMTest do
       assert res == ["foo", %{"foo" => "bar", "qux" => [1,2,3]}]
     end
   end
+
 end
