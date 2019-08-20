@@ -105,8 +105,8 @@ defmodule FB.VMTest do
     end
     
     test "must decode associative table as map", ctx do
-      res = VM.eval!(ctx.vm, "return {foo=1, bar='qux'}")
-      assert res == %{"foo" => 1, "bar" => "qux"}
+      res = VM.eval!(ctx.vm, "return {foo={bar=1, baz=2}}")
+      assert res == %{"foo" => %{"bar" => 1, "baz" => 2}}
     end
 
     test "must decode complex associative table as map", ctx do

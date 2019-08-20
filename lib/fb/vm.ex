@@ -180,7 +180,7 @@ defmodule FB.VM do
       %{"foo" => 1, "bar" => 2}
   """
   @spec decode(binary | number | list) :: binary | number | list | map
-  def decode([{key, val}]), do: %{key => val}
+  def decode([{key, val}]), do: %{key => decode(val)}
   def decode([val]), do: decode(val)
 
   def decode(val) when is_float(val) do
