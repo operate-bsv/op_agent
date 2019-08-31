@@ -6,7 +6,7 @@ defmodule FB.CellTest do
 
   setup_all do
     script = """
-    function main(ctx, y)
+    return function(ctx, y)
       x = ctx or 0
       return math.pow(x, y)
     end

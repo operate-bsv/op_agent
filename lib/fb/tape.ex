@@ -10,21 +10,22 @@ defmodule FB.Tape do
   ## Examples
 
       iex> {:ok, tape} = %FB.Tape{cells: [
-      ...>   %FB.Cell{script: "function main(ctx, a) return (ctx or 0) + a end", params: [2]},
-      ...>   %FB.Cell{script: "function main(ctx, a) return (ctx or 0) + a end", params: [3]},
-      ...>   %FB.Cell{script: "function main(ctx, a) return (ctx or 0) + a end", params: [4]}
+      ...>   %FB.Cell{script: "return function(ctx, a) return (ctx or 0) + a end", params: [2]},
+      ...>   %FB.Cell{script: "return function(ctx, a) return (ctx or 0) + a end", params: [3]},
+      ...>   %FB.Cell{script: "return function(ctx, a) return (ctx or 0) + a end", params: [4]}
       ...> ]}
       ...> |> FB.Tape.run(FB.VM.init)
       ...> tape.result
       9
   """
+  alias FB.VM
   alias FB.Cell
 
   @typedoc "Execution Tape"
   @type t :: %__MODULE__{
     tx: map,
-    cells: list,
-    result: any,
+    cells: [Cell.t, ...],
+    result: VM.lua_output,
     error: binary
   }
 
@@ -46,9 +47,9 @@ defmodule FB.Tape do
   ## Examples
 
       iex> {:ok, tape} = %FB.Tape{cells: [
-      ...>   %FB.Cell{script: "function main(ctx, a) return (ctx or '') .. a end", params: ["b"]},
-      ...>   %FB.Cell{script: "function main(ctx, a) return (ctx or '') .. a end", params: ["c"]},
-      ...>   %FB.Cell{script: "function main(ctx) return string.reverse(ctx) end", params: []}
+      ...>   %FB.Cell{script: "return function(ctx, a) return (ctx or '') .. a end", params: ["b"]},
+      ...>   %FB.Cell{script: "return function(ctx, a) return (ctx or '') .. a end", params: ["c"]},
+      ...>   %FB.Cell{script: "return function(ctx) return string.reverse(ctx) end", params: []}
       ...> ]}
       ...> |> FB.Tape.run(FB.VM.init, context: "a")
       ...> tape.result

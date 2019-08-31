@@ -7,7 +7,12 @@ defmodule FB.VM do
   @typedoc "Functional Bitcoin VM state"
   @type vm :: tuple
 
-  @default_handler :main
+  @typedoc "Function reference. Either a dot-delimited string or list of strings or atoms."
+  @type lua_path :: atom | String.t | list
+
+  @typedoc "Functional Bitcoin return value"
+  @type lua_output :: binary | number | list | map
+
   @extensions [
     FB.VM.JsonExtension
   ]
@@ -59,7 +64,7 @@ defmodule FB.VM do
 
 
   @doc """
-  Evaluates the given script within the VM state and returns its result.
+  Evaluates the given script within the VM state and returns the result.
 
   ## Examples
 
@@ -71,7 +76,7 @@ defmodule FB.VM do
       ...> |> FB.VM.eval("return 2 / 3")
       {:ok, 0.6666666666666666}
   """
-  @spec eval(vm, binary) :: {:ok, binary | number | list | map} | {:error, binary}
+  @spec eval(vm, String.t) :: {:ok, lua_output} | {:error, String.t}
   def eval(vm, code) do
     case :luerl.eval(code, vm) do
       {:ok, result} -> {:ok, decode(result)}
@@ -92,7 +97,7 @@ defmodule FB.VM do
       ...> |> FB.VM.eval!("return 'hello world'")
       "hello world"
   """
-  @spec eval!(vm, binary) :: binary | number | list | map
+  @spec eval!(vm, String.t) :: lua_output
   def eval!(vm, code) do
     case eval(vm, code) do
       {:ok, result} -> result
@@ -102,37 +107,38 @@ defmodule FB.VM do
 
 
   @doc """
-  Evaluates the given script within the VM state, and executes a handler function.
-
-  ## Options
-
-  The accepted options are:
-
-  * `:handler` - Specify the handler function. Defaults to `:main`.
+  Calls a function within the VM state at the given lua path and returns the result.
 
   ## Examples
 
       iex> FB.VM.init
-      ...> |> FB.VM.exec("function main() return 'hello world' end")
+      ...> |> Sandbox.play!("function main() return 'hello world' end")
+      ...> |> FB.VM.call(:main)
       {:ok, "hello world"}
 
       iex> FB.VM.init
-      ...> |> FB.VM.exec("function main(a, b) return a * b end", [2, 3])
+      ...> |> Sandbox.play!("function main(a, b) return a * b end")
+      ...> |> FB.VM.call("main", [2, 3])
       {:ok, 6}
 
       iex> FB.VM.init
-      ...> |> FB.VM.exec("function sum(a, b) return a + b end", [2, 3], handler: :sum)
+      ...> |> Sandbox.play!("function sum(a, b) return a + b end")
+      ...> |> FB.VM.call(:sum, [2, 3])
       {:ok, 5}
   """
-  @spec exec(vm, binary, list, keyword) :: {:ok, binary | number | list | map} | {:error, binary}
-  def exec(vm, script, args \\ [], options \\ []) do
-    path = case Keyword.get(options, :handler, @default_handler) do
-      handler when is_atom(handler) -> [handler]
-      handler when is_list(handler) -> handler
-    end
+  @spec call(vm, lua_path, list) :: {:ok, lua_output} | {:error, String.t}
+  def call(vm, path, args \\ [])
 
+  def call(vm, path, args) when is_binary(path) do
+    call(vm, String.split(path, "."), args)
+  end
+
+  def call(vm, path, args) when is_atom(path) do
+    call(vm, [path], args)
+  end
+
+  def call(vm, path, args) when is_list(path) do
     try do
-      vm = Sandbox.play!(vm, script)
       result = :luerl.call_function(path, args, vm)
       |> elem(0)
       {:ok, decode(result)}
@@ -146,17 +152,60 @@ defmodule FB.VM do
 
 
   @doc """
-  As `f:FB.VM.exec/4`, but returns the result or raises an exception.
+  As `f:FB.VM.call/3`, but returns the result or raises an exception.
   
   ## Examples
 
       iex> FB.VM.init
-      ...> |> FB.VM.exec!("function main() return 'hello world' end")
+      ...> |> Sandbox.play!("function main() return 'hello world' end")
+      ...> |> FB.VM.call!(:main)
       "hello world"
   """
-  @spec exec!(vm, binary, list, keyword) :: binary | number | list | map
-  def exec!(vm, code, args \\ [], options \\ []) do
-    case exec(vm, code, args, options) do
+  @spec call!(vm, lua_path, list) :: lua_output
+  def call!(vm, path, args \\ []) do
+    case call(vm, path, args) do
+      {:ok, result} -> result
+      {:error, err} -> raise err
+    end
+  end
+
+
+  @doc """
+  Executes the given function with the given arguments.
+
+  ## Examples
+
+      iex> FB.VM.init
+      ...> |> FB.VM.eval!("return function(a,b) return a * b end")
+      ...> |> FB.VM.exec([3,4])
+      {:ok, 12}
+  """
+  @spec exec(function, list) :: {:ok, lua_output} | {:error, String.t}
+  def exec(function, args \\ []) do
+    try do
+      result = apply(function, [args])
+      |> decode
+      {:ok, result}
+    rescue
+      err ->
+        {:error, "Lua Error: #{inspect err}"}
+    end
+  end
+
+
+  @doc """
+  As `f:FB.VM.exec/2`, but returns the result or raises an exception.
+
+  ## Examples
+
+      iex> FB.VM.init
+      ...> |> FB.VM.eval!("return function(a,b) return a .. ' ' .. b end")
+      ...> |> FB.VM.exec!(["hello", "world"])
+      "hello world"
+  """
+  @spec exec!(function, list) :: lua_output
+  def exec!(function, args \\ []) do
+    case exec(function, args) do
       {:ok, result} -> result
       {:error, err} -> raise err
     end
@@ -179,7 +228,7 @@ defmodule FB.VM do
       iex> FB.VM.decode([{"foo", 1}, {"bar", 2}])
       %{"foo" => 1, "bar" => 2}
   """
-  @spec decode(binary | number | list) :: binary | number | list | map
+  @spec decode(binary | number | list) :: lua_output
   def decode([{key, val}]), do: %{key => decode(val)}
   def decode([val]), do: decode(val)
 
