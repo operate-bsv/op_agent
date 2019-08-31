@@ -6,14 +6,16 @@ defmodule FB.CellTest do
 
   setup_all do
     script = """
-    function main(ctx, y)
+    local m = {}
+    m.main = function(ctx, y)
       x = ctx or 0
       return math.pow(x, y)
     end
+    return m
     """
     %{
       vm: VM.init,
-      cell: %Cell{ref: "test", params: ["2"], script: script}
+      cell: %Cell{ref: "test", script: script, params: ["2"]}
     }
   end
 

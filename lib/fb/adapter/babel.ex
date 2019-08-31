@@ -21,7 +21,7 @@ defmodule FB.Adapter.Babel do
   Fetches a transaction by the given txid, and maps it into a tape.
   """
   @impl FB.Adapter
-  @spec get_tape(String.t, keyword) :: FB.Tape.t
+  @spec get_tape(String.t, keyword) :: Tape.t
   def get_tape(txid, options \\ []) do
     api_key = Keyword.get(options, :api_key)
     path = FB.Util.encode_query(%{

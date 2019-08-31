@@ -47,17 +47,20 @@ defmodule FB.VMTest do
 
   describe "FB.VM.exec/1" do
     test "must execute the script and return a value", ctx do
-      res = VM.exec(ctx.vm, "function main(a, b) return table.concat({a, b}, ' ') end", ["hello", "world"])
+      res = Sandbox.play!(ctx.vm, "function main(a, b) return table.concat({a, b}, ' ') end")
+      |> VM.exec(:main, ["hello", "world"])
       assert res == {:ok, "hello world"}
     end
 
     test "must execute the named handler function", ctx do
-      res = VM.exec(ctx.vm, "function test() return 32 / 6 end", [], handler: :test)
+      res = Sandbox.play!(ctx.vm, "function test() return 32 / 6 end")
+      |> VM.exec(:test, [])
       assert res == {:ok, 5.3333333333333333}
     end
 
     test "must return an error message when no script", ctx do
-      res = VM.exec(ctx.vm, "function foo() 123 end", [])
+      res = Sandbox.play!(ctx.vm, "function foo() 123 end")
+      |> VM.exec("foo", [])
       assert elem(res, 0) == :error
       assert elem(res, 1) =~ "Lua Error"
     end
@@ -66,13 +69,15 @@ defmodule FB.VMTest do
 
   describe "FB.VM.exec!/1" do
     test "must execute the script and return a value", ctx do
-      res = VM.exec!(ctx.vm, "function main(a, b) return table.concat({a, b}, ' ') end", ["hello", "world"])
+      res = Sandbox.play!(ctx.vm, "function main(a, b) return table.concat({a, b}, ' ') end")
+      |> VM.exec!(:main, ["hello", "world"])
       assert res == "hello world"
     end
 
     test "must raise an error when no script", ctx do
       assert_raise RuntimeError, ~r/Lua Error/, fn ->
-        VM.exec!(ctx.vm, "function foo() 123 end", [])
+        Sandbox.play!(ctx.vm, "function foo() 123 end")
+        VM.exec!(:main, [])
       end
     end
   end

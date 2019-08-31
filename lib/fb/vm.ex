@@ -7,7 +7,12 @@ defmodule FB.VM do
   @typedoc "Functional Bitcoin VM state"
   @type vm :: tuple
 
-  @default_handler :main
+  @typedoc "Functional Bitcoin return value"
+  @type lua_output :: binary | number | list | map
+
+  @typedoc "Function reference. Either a dot-delimited string or list of strings or atoms."
+  @type lua_path :: atom | String.t | list
+
   @extensions [
     FB.VM.JsonExtension
   ]
@@ -34,6 +39,7 @@ defmodule FB.VM do
     |> Enum.concat(Keyword.get(options, :extend_with, []))
 
     Sandbox.init
+    |> Sandbox.set!("_cell", [])
     |> extend(extensions)
   end
 
@@ -59,6 +65,37 @@ defmodule FB.VM do
 
 
   @doc """
+  TODO
+
+  ## Examples
+
+      FB.VM.init
+      FB.VM.require("m", "local m = {}; m.hello = function(txt) return 'Hello '..txt end; return m")
+      {:ok, {:luerl, ...}}
+  """
+  @spec require(vm, String.t, String.t) :: vm
+  def require(vm, name, code) do
+    Sandbox.play(vm, "_cell['#{name}'] = (function()\n#{code}\nend)()")
+  end
+
+
+  @doc """
+  TODO
+
+  ## Examples
+
+      iex> FB.VM.init
+      ...> |> FB.VM.require!("m", "local m = {}; m.hello = function(txt) return 'Hello '..txt end; return m")
+      ...> |> FB.VM.exec("_cell.m.hello", ["world"])
+      {:ok, "Hello world"}
+  """
+  @spec require!(vm, String.t, String.t) :: vm
+  def require!(vm, name, code) do
+    Sandbox.play!(vm, "_cell['#{name}'] = (function()\n#{code}\nend)()")
+  end
+
+
+  @doc """
   Evaluates the given script within the VM state and returns its result.
 
   ## Examples
@@ -71,7 +108,7 @@ defmodule FB.VM do
       ...> |> FB.VM.eval("return 2 / 3")
       {:ok, 0.6666666666666666}
   """
-  @spec eval(vm, binary) :: {:ok, binary | number | list | map} | {:error, binary}
+  @spec eval(vm, String.t) :: {:ok, lua_output} | {:error, String.t}
   def eval(vm, code) do
     case :luerl.eval(code, vm) do
       {:ok, result} -> {:ok, decode(result)}
@@ -92,7 +129,7 @@ defmodule FB.VM do
       ...> |> FB.VM.eval!("return 'hello world'")
       "hello world"
   """
-  @spec eval!(vm, binary) :: binary | number | list | map
+  @spec eval!(vm, String.t) :: lua_output
   def eval!(vm, code) do
     case eval(vm, code) do
       {:ok, result} -> result
@@ -113,26 +150,33 @@ defmodule FB.VM do
   ## Examples
 
       iex> FB.VM.init
-      ...> |> FB.VM.exec("function main() return 'hello world' end")
+      ...> |> Sandbox.play!("function main() return 'hello world' end")
+      ...> |> FB.VM.exec(:main)
       {:ok, "hello world"}
 
       iex> FB.VM.init
-      ...> |> FB.VM.exec("function main(a, b) return a * b end", [2, 3])
+      ...> |> Sandbox.play!("function main(a, b) return a * b end")
+      ...> |> FB.VM.exec("main", [2, 3])
       {:ok, 6}
 
       iex> FB.VM.init
-      ...> |> FB.VM.exec("function sum(a, b) return a + b end", [2, 3], handler: :sum)
+      ...> |> Sandbox.play!("function sum(a, b) return a + b end")
+      ...> |> FB.VM.exec(:sum, [2, 3])
       {:ok, 5}
   """
-  @spec exec(vm, binary, list, keyword) :: {:ok, binary | number | list | map} | {:error, binary}
-  def exec(vm, script, args \\ [], options \\ []) do
-    path = case Keyword.get(options, :handler, @default_handler) do
-      handler when is_atom(handler) -> [handler]
-      handler when is_list(handler) -> handler
-    end
+  @spec exec(vm, atom | String.t | list, list) :: {:ok, lua_output} | {:error, String.t}
+  def exec(vm, path, args \\ [])
 
+  def exec(vm, path, args) when is_binary(path) do
+    exec(vm, String.split(path, "."), args)
+  end
+
+  def exec(vm, path, args) when is_atom(path) do
+    exec(vm, [path], args)
+  end
+
+  def exec(vm, path, args) when is_list(path) do
     try do
-      vm = Sandbox.play!(vm, script)
       result = :luerl.call_function(path, args, vm)
       |> elem(0)
       {:ok, decode(result)}
@@ -151,12 +195,13 @@ defmodule FB.VM do
   ## Examples
 
       iex> FB.VM.init
-      ...> |> FB.VM.exec!("function main() return 'hello world' end")
+      ...> |> Sandbox.play!("function main() return 'hello world' end")
+      ...> |> FB.VM.exec!(:main)
       "hello world"
   """
-  @spec exec!(vm, binary, list, keyword) :: binary | number | list | map
-  def exec!(vm, code, args \\ [], options \\ []) do
-    case exec(vm, code, args, options) do
+  @spec exec!(vm, atom | String.t | list, list) :: lua_output
+  def exec!(vm, path, args \\ []) do
+    case exec(vm, path, args) do
       {:ok, result} -> result
       {:error, err} -> raise err
     end
@@ -179,7 +224,7 @@ defmodule FB.VM do
       iex> FB.VM.decode([{"foo", 1}, {"bar", 2}])
       %{"foo" => 1, "bar" => 2}
   """
-  @spec decode(binary | number | list) :: binary | number | list | map
+  @spec decode(binary | number | list) :: lua_output
   def decode([{key, val}]), do: %{key => decode(val)}
   def decode([val]), do: decode(val)
 

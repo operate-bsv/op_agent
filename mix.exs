@@ -24,7 +24,7 @@ defmodule FB.MixProject do
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:jason, "~> 1.1"},
       {:tesla, "~> 1.2.1"},
-      {:sandbox, "~> 0.3.0"}
+      {:sandbox, "~> 0.5.0"}
     ]
   end
 end

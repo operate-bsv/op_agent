@@ -6,7 +6,11 @@ defmodule FB.Cell do
 
   ## Examples
 
-      iex> %FB.Cell{script: "function main(ctx, a, b) return ctx + a + b end", params: [3, 5]}
+      iex> %FB.Cell{
+      ...>   ref: "test",
+      ...>   script: "local m = {}; m.main = function(ctx, a, b) return ctx + a + b end; return m",
+      ...>   params: [3, 5]
+      ...> }
       ...> |> FB.Cell.exec(FB.VM.init, context: 0)
       {:ok, 8}
   """
@@ -14,12 +18,12 @@ defmodule FB.Cell do
 
   @typedoc "Procedure Cell"
   @type t :: %__MODULE__{
-    ref: binary,
-    script: binary,
+    ref: String.t,
+    script: String.t,
     params: list
   }
 
-  defstruct ref: nil, params: [], script: nil
+  defstruct ref: nil, script: nil, params: []
 
   @doc """
   Executes the given cell in the given VM state.
@@ -33,14 +37,24 @@ defmodule FB.Cell do
 
   ## Examples
 
-      iex> %FB.Cell{script: "function main(ctx) return ctx..' world' end", params: []}
+      iex> %FB.Cell{
+      ...>   ref: "test",
+      ...>   script: "local m = {}; m.main = function(ctx) return ctx..' world' end; return m",
+      ...>   params: []
+      ...> }
       ...> |> FB.Cell.exec(FB.VM.init, context: "hello")
       {:ok, "hello world"}
   """
-  @spec exec(t, Vm.vm, keyword) :: {:ok, binary | number | list | map} | {:error, binary}
+  @spec exec(t, VM.vm, keyword) :: {:ok, VM.lua_output} | {:error, String.t}
   def exec(cell, vm, options \\ []) do
+    path = Keyword.get(options, :path, "main")
     ctx = Keyword.get(options, :context, nil)
-    VM.exec(vm, cell.script, [ctx | cell.params])
+    #ref = "cell_#{cell.ref}"
+
+    case VM.require(vm, cell.ref, cell.script) do
+      {:ok, vm} -> VM.exec(vm, [:_cell, cell.ref, path], [ctx | cell.params])
+      err -> err
+    end
   end
 
   
@@ -56,11 +70,15 @@ defmodule FB.Cell do
 
   ## Examples
 
-      iex> %FB.Cell{script: "function main(ctx) return ctx..' world' end", params: []}
+      iex> %FB.Cell{
+      ...>   ref: "test",
+      ...>   script: "local m = {}; m.main = function(ctx) return ctx..' world' end; return m",
+      ...>   params: []
+      ...> }
       ...> |> FB.Cell.exec!(FB.VM.init, context: "hello")
       "hello world"
   """
-  @spec exec!(t, VM.vm, keyword) :: binary | number | list | map
+  @spec exec!(t, VM.vm, keyword) :: VM.lua_output
   def exec!(cell, vm, options \\ []) do
     case exec(cell, vm, options) do
       {:ok, result} -> result

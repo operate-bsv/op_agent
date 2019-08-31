@@ -21,6 +21,7 @@ defmodule FB.Adapter.Bob do
   Fetches a transaction by the given txid, and maps it into a tape.
   """
   @impl FB.Adapter
+  @spec get_tape(String.t, keyword) :: Tape.t
   def get_tape(txid, options \\ []) do
     api_key = Keyword.get(options, :api_key)
     path = FB.Util.encode_query(%{
@@ -50,7 +51,7 @@ defmodule FB.Adapter.Bob do
     cells = out["tape"]
     |> Enum.reject(&op_return_cell?/1)
     |> Enum.map(&to_cell/1)
-    %Tape{ tx: tx, cells: cells }
+    %Tape{tx: tx, cells: cells}
   end
 
 
