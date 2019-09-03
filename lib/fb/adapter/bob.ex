@@ -5,7 +5,7 @@ defmodule FB.Adapter.Bob do
   ## Examples
 
       FB.Adapter.Bob.get_tape(txid)
-      # => %FB.Tape{}
+      # => {:ok, %FB.Tape{}}
   """
   alias FB.Tape
   alias FB.Cell
@@ -21,7 +21,7 @@ defmodule FB.Adapter.Bob do
   Fetches a transaction by the given txid, and maps it into a tape.
   """
   @impl FB.Adapter
-  @spec get_tape(String.t, keyword) :: Tape.t
+  @spec get_tape(String.t, keyword) :: {:ok, Tape.t} | {:error, String.t}
   def get_tape(txid, options \\ []) do
     api_key = Keyword.get(options, :api_key)
     path = FB.Util.encode_query(%{
@@ -44,6 +44,35 @@ defmodule FB.Adapter.Bob do
       res         -> res
     end
   end
+
+
+  @doc """
+  As `f:FB.Adapter.Bob.get_tape/2`, but returns the tape or raises an exception.
+  """
+  @impl FB.Adapter
+  @spec get_tape!(String.t, keyword) :: Tape.t
+  def get_tape!(txid, options \\ []) do
+    case get_tape(txid, options) do
+      {:ok, tape} -> tape
+      {:error, err} -> raise err
+    end
+  end
+
+
+  @doc """
+  Not implemented.
+  """
+  @impl FB.Adapter
+  @spec get_procs(list, keyword) :: Tape.t
+  def get_procs(_refs, _options \\ []), do: raise "FB.Adapter.Bob.get_procs/2 not implemented"
+
+
+  @doc """
+  Not implemented.
+  """
+  @impl FB.Adapter
+  @spec get_procs!(list, keyword) :: Tape.t
+  def get_procs!(_refs, _options \\ []), do: raise "FB.Adapter.Bob.get_procs!/2 not implemented"
   
 
   defp to_tape(tx) do

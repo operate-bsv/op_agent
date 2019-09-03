@@ -11,6 +11,8 @@ defmodule FB.Adapter do
   """
 
   @callback get_tape(String.t, keyword) :: {:ok, FB.Tape.t} | {:error, String.t}
-  #@callback get_procs(list, keyword) :: {:ok, FB.Tape.t} | {:error, String.t}
+  @callback get_tape!(String.t, keyword) :: FB.Tape.t
+  @callback get_procs(list | FB.Tape.t, keyword) :: {:ok, list | FB.Tape.t} | {:error, String.t}
+  @callback get_procs!(list | FB.Tape.t, keyword) :: list | FB.Tape.t
   
 end
