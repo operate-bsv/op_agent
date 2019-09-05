@@ -57,6 +57,7 @@ defmodule FB.Tape do
   """
   @spec run(t, VM.vm, keyword) :: {:ok, t} | {:error, t}
   def run(tape, vm, options \\ []) do
+    vm = Sandbox.set!(vm, "tx", %{txid: get_in(tape.tx, ["tx", "h"])})
     context = Keyword.get(options, :context, nil)
     strict = Keyword.get(options, :strict, true)
     case Enum.reduce_while(tape.cells, context, fn(cell, ctx) ->

@@ -229,7 +229,14 @@ defmodule FB.VM do
       %{"foo" => 1, "bar" => 2}
   """
   @spec decode(binary | number | list) :: lua_output
-  def decode([{key, val}]), do: %{key => decode(val)}
+
+  def decode([{key, val}]) do
+    case is_integer(key) do
+      true -> [decode(val)]
+      false -> %{key => decode(val)}
+    end
+  end
+
   def decode([val]), do: decode(val)
 
   def decode(val) when is_float(val) do
