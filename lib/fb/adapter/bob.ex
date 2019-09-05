@@ -85,9 +85,10 @@ defmodule FB.Adapter.Bob do
 
 
   defp to_cell(%{"cell" => [head | tail]}) do
-    ref = case String.length(head["h"] || "") do
-      64  -> head["h"]
-      _   -> head["s"]
+    str = Base.decode64!(head["b"])
+    ref = case String.valid?(str) do
+      true  -> str
+      false -> Base.encode16(str, case: :lower)
     end
     params = Enum.map(tail, &(&1["ls"] || &1["s"]))
     %Cell{ref: ref, params: params}
