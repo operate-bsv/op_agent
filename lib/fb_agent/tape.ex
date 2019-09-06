@@ -95,6 +95,15 @@ defmodule FBAgent.Tape do
 
 
   @doc """
+  Todoc
+  """
+  def valid?(tape) do
+    tape.cells
+    |> Enum.all?(&(Cell.valid?(&1)))
+  end
+
+
+  @doc """
   Returns a list of procedure references from the given tape's cells.
   """
   def procedure_refs(tape) do

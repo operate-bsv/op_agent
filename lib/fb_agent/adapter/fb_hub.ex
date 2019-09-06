@@ -54,6 +54,7 @@ defmodule FBAgent.Adapter.FBHub do
     refs = tape
     |> Tape.procedure_refs
     |> Enum.map(&(Map.get(aliases, &1, &1)))
+    |> Enum.uniq
 
     case get_procs(refs, options) do
       {:ok, functions} ->
@@ -82,17 +83,20 @@ defmodule FBAgent.Adapter.FBHub do
       _ -> func["ref"]
     end
 
-    with i when is_number(i) <- Enum.find_index(tape.cells, &(&1.ref == ref)),
-         cell <- Enum.at(tape.cells, i) |> Map.put(:script, func["script"]),
-         cells <- List.replace_at(tape.cells, i, cell)
-    do
-      Map.put(tape, :cells, cells)
-      |> add_tape_procs(tail, aliases)
-    else
-      _err -> add_tape_procs(tape, tail, aliases) 
-    end
+    cells = tape.cells
+    |> Enum.map(&(put_cell_script(&1, ref, func["script"])))
+
+    Map.put(tape, :cells, cells)
+    |> add_tape_procs(tail, aliases)
   end
 
   defp add_tape_procs(tape, [], _aliases), do: tape
+
+  defp put_cell_script(cell, ref, script) do
+    case cell.ref do
+      ^ref -> Map.put(cell, :script, script)
+      _ -> cell
+    end
+  end
 
 end

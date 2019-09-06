@@ -1,6 +1,8 @@
 defmodule FBAgent.Adapter.FBHubTest do
   use ExUnit.Case
   alias FBAgent.Adapter.FBHub
+  alias FBAgent.Tape
+  alias FBAgent.Cell
   doctest FBAgent.Adapter.FBHub
 
   setup do
@@ -21,14 +23,26 @@ defmodule FBAgent.Adapter.FBHubTest do
 
   describe "FBAgent.Adapter.FBHub.get_procs/2 with tape" do
     test "must return tape with function scripts" do
-      {:ok, tape} = %FBAgent.Tape{cells: [
-        %FBAgent.Cell{ref: "0b9574b5", params: ["foo.bar", 1, "foo.baz", 2]},
-        %FBAgent.Cell{ref: "77bbf52e", params: ["baz", "qux", 3]}
+      {:ok, tape} = %Tape{cells: [
+        %Cell{ref: "0b9574b5", params: ["foo.bar", 1, "foo.baz", 2]},
+        %Cell{ref: "77bbf52e", params: ["baz", "qux", 3]}
       ]}
       |> FBHub.get_procs
       [cell_1 | [cell_2]] = tape.cells
       assert String.match?(cell_1.script, ~r/return function\(ctx/)
       assert String.match?(cell_2.script, ~r/return function\(ctx/)
+    end
+
+    test "must handle cells with duplicate refs" do
+      tape = %Tape{cells: [
+        %Cell{ref: "0b9574b5", params: ["foo.bar", 1, "foo.baz", 2]},
+        %Cell{ref: "77bbf52e", params: ["baz", "qux", 3]},
+        %Cell{ref: "77bbf52e", params: ["bish", "bash", "bosh"]}
+      ]}
+      assert Tape.valid?(tape) == false
+
+      {:ok, tape} = FBHub.get_procs(tape)
+      assert Tape.valid?(tape) == true
     end
   end
 

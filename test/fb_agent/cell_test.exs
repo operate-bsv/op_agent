@@ -45,4 +45,22 @@ defmodule FBAgent.CellTest do
     end
   end
 
+
+  describe "FBAgent.Cell.valid?/1" do
+    test "must be valid with ref and script" do
+      assert %Cell{ref: "test", script: "testing"}
+      |> Cell.valid? == true
+    end
+
+    test "wont be valid without ref" do
+      assert %Cell{script: "testing"}
+      |> Cell.valid? == false
+    end
+
+    test "wont be valid without script" do
+      assert %Cell{ref: "test"}
+      |> Cell.valid? == false
+    end
+  end
+
 end

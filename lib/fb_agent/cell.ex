@@ -70,5 +70,21 @@ defmodule FBAgent.Cell do
       {:error, err} -> raise err
     end
   end
+
+
+  @doc """
+  TODOC
+  """
+  def valid?(cell) do
+    validate_presence(cell.ref) && validate_presence(cell.script)
+  end
+
+  defp validate_presence(val) do
+    case val do
+      v when is_binary(v) -> String.trim(v) != ""
+      nil -> false
+      _ -> true
+    end
+  end
   
 end

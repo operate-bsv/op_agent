@@ -67,4 +67,17 @@ defmodule FBAgent.TapeTest do
     end
   end
 
+
+  describe "FBAgent.Tape.valid?/1" do
+    test "must be valid with all scripts", ctx do
+      assert %Tape{cells: [ctx.cell, ctx.cell]}
+      |> Tape.valid? == true
+    end
+
+    test "wont be valid without any scripts", ctx do
+      assert %Tape{cells: [Map.put(ctx.cell, :script, nil), Map.put(ctx.cell, :script, nil)]}
+      |> Tape.valid? == false
+    end
+  end
+
 end
