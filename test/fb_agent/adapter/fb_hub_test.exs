@@ -1,7 +1,7 @@
-defmodule FBAgent.Adapter.HubTest do
+defmodule FBAgent.Adapter.FBHubTest do
   use ExUnit.Case
-  alias FBAgent.Adapter.Hub
-  doctest FBAgent.Adapter.Hub
+  alias FBAgent.Adapter.FBHub
+  doctest FBAgent.Adapter.FBHub
 
   setup do
     Tesla.Mock.mock fn
@@ -10,22 +10,22 @@ defmodule FBAgent.Adapter.HubTest do
     :ok
   end
 
-  describe "FBAgent.Adapter.Hub.get_procs/2 with list of references" do
+  describe "FBAgent.Adapter.FBHub.get_procs/2 with list of references" do
     test "must return list of functions" do
-      {:ok, functions} = Hub.get_procs(["0b9574b5", "77bbf52e"])
+      {:ok, functions} = FBHub.get_procs(["0b9574b5", "77bbf52e"])
       assert is_list(functions)
       assert Enum.any?(functions, &(&1["ref"] == "0b9574b5"))
       assert Enum.any?(functions, &(&1["ref"] == "77bbf52e"))
     end
   end
 
-  describe "FBAgent.Adapter.Hub.get_procs/2 with tape" do
+  describe "FBAgent.Adapter.FBHub.get_procs/2 with tape" do
     test "must return tape with function scripts" do
       {:ok, tape} = %FBAgent.Tape{cells: [
         %FBAgent.Cell{ref: "0b9574b5", params: ["foo.bar", 1, "foo.baz", 2]},
         %FBAgent.Cell{ref: "77bbf52e", params: ["baz", "qux", 3]}
       ]}
-      |> Hub.get_procs
+      |> FBHub.get_procs
       [cell_1 | [cell_2]] = tape.cells
       assert String.match?(cell_1.script, ~r/return function\(ctx/)
       assert String.match?(cell_2.script, ~r/return function\(ctx/)

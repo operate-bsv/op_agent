@@ -40,8 +40,10 @@ defmodule FBAgent.Adapter.Bob do
       }
     })
     case get(path, headers: [key: api_key]) do
-      {:ok, res}  -> (res.body["u"] ++ res.body["c"]) |> List.first |> to_tape
-      res         -> res
+      {:ok, res} ->
+        tape = to_tape(res.body) |> List.first
+        {:ok, tape}
+      error -> error
     end
   end
 
@@ -74,6 +76,10 @@ defmodule FBAgent.Adapter.Bob do
   @spec get_procs!(list, keyword) :: Tape.t
   def get_procs!(_refs, _options \\ []), do: raise "FBAgent.Adapter.Bob.get_procs!/2 not implemented"
   
+
+  defp to_tape(%{"u" => u, "c" => c}) do
+    Enum.map(u ++ c, &to_tape/1)
+  end
 
   defp to_tape(tx) do
     out = Enum.find(tx["out"], &op_return_output?/1)

@@ -1,4 +1,4 @@
-defmodule FBAgent.Adapter.Hub do
+defmodule FBAgent.Adapter.FBHub do
   @moduledoc """
   Adapter module for loading procedure scripts from the [Functional Bitcoin Hub](http://functions.chronoslabs.net).
 
@@ -50,9 +50,14 @@ defmodule FBAgent.Adapter.Hub do
   end
 
   def get_procs(%Tape{} = tape, options) do
-    case get_procs(Tape.procedure_refs(tape), options) do
+    aliases = Keyword.get(options, :aliases, %{})
+    refs = tape
+    |> Tape.procedure_refs
+    |> Enum.map(&(Map.get(aliases, &1, &1)))
+
+    case get_procs(refs, options) do
       {:ok, functions} ->
-        {:ok, add_tape_procs(tape, functions)}
+        {:ok, add_tape_procs(tape, functions, aliases)}
       err -> err
     end
   end
@@ -71,18 +76,23 @@ defmodule FBAgent.Adapter.Hub do
   end
 
 
-  defp add_tape_procs(tape, [func | tail]) do
-    with i when is_number(i) <- Enum.find_index(tape.cells, &(&1.ref == func["ref"])),
+  defp add_tape_procs(tape, [func | tail], aliases) do
+    ref = case Enum.find(aliases, fn {_k, v} -> v == func["ref"] end) do
+      {k, _v} -> k
+      _ -> func["ref"]
+    end
+
+    with i when is_number(i) <- Enum.find_index(tape.cells, &(&1.ref == ref)),
          cell <- Enum.at(tape.cells, i) |> Map.put(:script, func["script"]),
          cells <- List.replace_at(tape.cells, i, cell)
     do
       Map.put(tape, :cells, cells)
-      |> add_tape_procs(tail)
+      |> add_tape_procs(tail, aliases)
     else
-      _err -> add_tape_procs(tape, tail) 
+      _err -> add_tape_procs(tape, tail, aliases) 
     end
   end
 
-  defp add_tape_procs(tape, []), do: tape
+  defp add_tape_procs(tape, [], _aliases), do: tape
 
 end

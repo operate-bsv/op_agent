@@ -25,7 +25,7 @@ defmodule FBAgent.VM do
 
   The accepted options are:
 
-  * `:extend_with` - Provide a list of modules with which to extend the VM state.
+  * `:extensions` - Provide a list of modules with which to extend the VM state.
 
   ## Examples
 
@@ -36,7 +36,7 @@ defmodule FBAgent.VM do
   @spec init(keyword) :: vm
   def init(options \\ []) do
     extensions = @extensions
-    |> Enum.concat(Keyword.get(options, :extend_with, []))
+    |> Enum.concat(Keyword.get(options, :extensions, []))
 
     Sandbox.init
     |> extend(extensions)
