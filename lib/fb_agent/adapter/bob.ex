@@ -62,6 +62,15 @@ defmodule FBAgent.Adapter.Bob do
 
 
   @doc """
+  TODOC
+  """
+  def cache_get_tape(txid, options \\ []) do
+    key = "t:#{txid}"
+    ConCache.fetch_or_store(:fb_agent, key, fn -> get_tape(txid, options) end)
+  end
+
+
+  @doc """
   Not implemented.
   """
   @impl FBAgent.Adapter
