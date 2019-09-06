@@ -1,43 +1,43 @@
-defmodule FB.Adapter.Hub do
+defmodule FBAgent.Adapter.Hub do
   @moduledoc """
   Adapter module for loading procedure scripts from the [Functional Bitcoin Hub](http://functions.chronoslabs.net).
 
   ## Examples
 
-      FB.Adapter.Bob.get_tape(txid)
-      |> FB.Adapter.Hub.get_procs
-      # => {:ok, %FB.Tape{}}
+      FBAgent.Adapter.Bob.get_tape(txid)
+      |> FBAgent.Adapter.Hub.get_procs
+      # => {:ok, %FBAgent.Tape{}}
   """
-  alias FB.Tape
+  alias FBAgent.Tape
   use Tesla, only: [:get], docs: false
 
   plug Tesla.Middleware.BaseUrl, "http://functions.chronoslabs.net/api/"
   plug Tesla.Middleware.JSON
 
-  @behaviour FB.Adapter
+  @behaviour FBAgent.Adapter
 
 
   @doc """
   Not implemented.
   """
-  @impl FB.Adapter
+  @impl FBAgent.Adapter
   @spec get_tape(String.t, keyword) :: Tape.t
-  def get_tape(_txid, _options \\ []), do: raise "FB.Adapter.Hub.get_tape/2 not implemented"
+  def get_tape(_txid, _options \\ []), do: raise "FBAgent.Adapter.Hub.get_tape/2 not implemented"
 
 
   @doc """
   Not implemented.
   """
-  @impl FB.Adapter
+  @impl FBAgent.Adapter
   @spec get_tape!(String.t, keyword) :: Tape.t
-  def get_tape!(_txid, _options \\ []), do: raise "FB.Adapter.Hub.get_tape!/2 not implemented"
+  def get_tape!(_txid, _options \\ []), do: raise "FBAgent.Adapter.Hub.get_tape!/2 not implemented"
 
 
   @doc """
   Fetches procedure scripts by the given list of references or tape, returning
   either a list of functions or a tape with cells prepared for execution.
   """
-  @impl FB.Adapter
+  @impl FBAgent.Adapter
   @spec get_procs(list | Tape.t, keyword) :: {:ok, list | Tape.t} | {:error, String.t}
   def get_procs(refs_or_tape, options \\ [])
 
@@ -59,9 +59,9 @@ defmodule FB.Adapter.Hub do
 
 
   @doc """
-  As `f:FB.Adapter.Hub.get_procs/2`, but returns the result or raises an exception.
+  As `f:FBAgent.Adapter.Hub.get_procs/2`, but returns the result or raises an exception.
   """
-  @impl FB.Adapter
+  @impl FBAgent.Adapter
   @spec get_procs!(list | Tape.t, keyword) :: list | Tape.t
   def get_procs!(refs_or_tape, options \\ []) do
     case get_procs(refs_or_tape, options) do

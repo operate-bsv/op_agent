@@ -1,23 +1,23 @@
-defmodule FB.VMTest do
+defmodule FBAgent.VMTest do
   use ExUnit.Case
-  alias FB.VM
-  doctest FB.VM
+  alias FBAgent.VM
+  doctest FBAgent.VM
 
   setup_all do
-    %{ vm: FB.VM.init }
+    %{ vm: FBAgent.VM.init }
   end
 
 
-  describe "FB.VM.init/1" do
+  describe "FBAgent.VM.init/1" do
     test "must return a VM state" do
-      vm = FB.VM.init
+      vm = FBAgent.VM.init
       assert is_tuple(vm)
       assert elem(vm, 0) == :luerl
     end
   end
 
 
-  describe "FB.VM.eval/2" do
+  describe "FBAgent.VM.eval/2" do
     test "must evaluate the script and return a value", ctx do
       res = VM.eval(ctx.vm, "return table.concat({'hello', 'world'}, ' ')")
       assert res == {:ok, "hello world"}
@@ -31,7 +31,7 @@ defmodule FB.VMTest do
   end
 
 
-  describe "FB.VM.eval!/2" do
+  describe "FBAgent.VM.eval!/2" do
     test "must evaluate the script and return a value", ctx do
       res = VM.eval!(ctx.vm, "return table.concat({'hello', 'world'}, ' ')")
       assert res == "hello world"
@@ -45,7 +45,7 @@ defmodule FB.VMTest do
   end
 
 
-  describe "FB.VM.call/3" do
+  describe "FBAgent.VM.call/3" do
     test "must execute the script and return a value", ctx do
       res = Sandbox.play!(ctx.vm, "function main(a, b) return table.concat({a, b}, ' ') end")
       |> VM.call(:main, ["hello", "world"])
@@ -66,7 +66,7 @@ defmodule FB.VMTest do
   end
 
 
-  describe "FB.VM.call!/3" do
+  describe "FBAgent.VM.call!/3" do
     test "must execute the script and return a value", ctx do
       res = Sandbox.play!(ctx.vm, "function main(a, b) return table.concat({a, b}, ' ') end")
       |> VM.call!(:main, ["hello", "world"])
@@ -82,7 +82,7 @@ defmodule FB.VMTest do
   end
 
 
-  describe "FB.VM.exec/2" do
+  describe "FBAgent.VM.exec/2" do
     test "must call the function and return a value", ctx do
       res = VM.eval!(ctx.vm, "return function(a,b) return a * b end")
       |> VM.exec([3,5])
@@ -115,7 +115,7 @@ defmodule FB.VMTest do
     end
   end
 
-  describe "FB.VM.exec!/2" do
+  describe "FBAgent.VM.exec!/2" do
     test "must call the function and return a value", ctx do
       res = VM.eval!(ctx.vm, "return function(a,b) return a * b end")
       |> VM.exec!([3, 5])
@@ -131,7 +131,7 @@ defmodule FB.VMTest do
   end
 
 
-  describe "FB.VM.decode/1" do
+  describe "FBAgent.VM.decode/1" do
     test "must decode strings", ctx do
       res = VM.eval!(ctx.vm, "return 'hello world'")
       assert res == "hello world"

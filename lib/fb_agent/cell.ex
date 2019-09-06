@@ -1,16 +1,16 @@
-defmodule FB.Cell do
+defmodule FBAgent.Cell do
   @moduledoc """
   A Functional Bitcoin Cell module. A cell represents a single atomic procude
-  call. A `t:FB.Cell.t`contains the procedure script and the the procedure's
+  call. A `t:FBAgent.Cell.t`contains the procedure script and the the procedure's
   parameters. When the cell is executed it returns a result.
 
   ## Examples
 
-      iex> %FB.Cell{script: "return function(ctx, a, b) return ctx + a + b end", params: [3, 5]}
-      ...> |> FB.Cell.exec(FB.VM.init, context: 0)
+      iex> %FBAgent.Cell{script: "return function(ctx, a, b) return ctx + a + b end", params: [3, 5]}
+      ...> |> FBAgent.Cell.exec(FBAgent.VM.init, context: 0)
       {:ok, 8}
   """
-  alias FB.VM
+  alias FBAgent.VM
 
   @typedoc "Procedure Cell"
   @type t :: %__MODULE__{
@@ -33,8 +33,8 @@ defmodule FB.Cell do
 
   ## Examples
 
-      iex> %FB.Cell{script: "return function(ctx) return ctx..' world' end", params: []}
-      ...> |> FB.Cell.exec(FB.VM.init, context: "hello")
+      iex> %FBAgent.Cell{script: "return function(ctx) return ctx..' world' end", params: []}
+      ...> |> FBAgent.Cell.exec(FBAgent.VM.init, context: "hello")
       {:ok, "hello world"}
   """
   @spec exec(t, VM.vm, keyword) :: {:ok, VM.lua_output} | {:error, String.t}
@@ -48,7 +48,7 @@ defmodule FB.Cell do
 
   
   @doc """
-  As `f:FB.Cell.exec/3`, but returns the result or raises an exception.
+  As `f:FBAgent.Cell.exec/3`, but returns the result or raises an exception.
 
   ## Options
 
@@ -59,8 +59,8 @@ defmodule FB.Cell do
 
   ## Examples
 
-      iex> %FB.Cell{script: "return function(ctx) return ctx..' world' end", params: []}
-      ...> |> FB.Cell.exec!(FB.VM.init, context: "hello")
+      iex> %FBAgent.Cell{script: "return function(ctx) return ctx..' world' end", params: []}
+      ...> |> FBAgent.Cell.exec!(FBAgent.VM.init, context: "hello")
       "hello world"
   """
   @spec exec!(t, VM.vm, keyword) :: VM.lua_output

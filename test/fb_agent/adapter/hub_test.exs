@@ -1,7 +1,7 @@
-defmodule FB.Adapter.HubTest do
+defmodule FBAgent.Adapter.HubTest do
   use ExUnit.Case
-  alias FB.Adapter.Hub
-  doctest FB.Adapter.Hub
+  alias FBAgent.Adapter.Hub
+  doctest FBAgent.Adapter.Hub
 
   setup do
     Tesla.Mock.mock fn
@@ -10,7 +10,7 @@ defmodule FB.Adapter.HubTest do
     :ok
   end
 
-  describe "FB.Adapter.Hub.get_procs/2 with list of references" do
+  describe "FBAgent.Adapter.Hub.get_procs/2 with list of references" do
     test "must return list of functions" do
       {:ok, functions} = Hub.get_procs(["0b9574b5", "77bbf52e"])
       assert is_list(functions)
@@ -19,11 +19,11 @@ defmodule FB.Adapter.HubTest do
     end
   end
 
-  describe "FB.Adapter.Hub.get_procs/2 with tape" do
+  describe "FBAgent.Adapter.Hub.get_procs/2 with tape" do
     test "must return tape with function scripts" do
-      {:ok, tape} = %FB.Tape{cells: [
-        %FB.Cell{ref: "0b9574b5", params: ["foo.bar", 1, "foo.baz", 2]},
-        %FB.Cell{ref: "77bbf52e", params: ["baz", "qux", 3]}
+      {:ok, tape} = %FBAgent.Tape{cells: [
+        %FBAgent.Cell{ref: "0b9574b5", params: ["foo.bar", 1, "foo.baz", 2]},
+        %FBAgent.Cell{ref: "77bbf52e", params: ["baz", "qux", 3]}
       ]}
       |> Hub.get_procs
       [cell_1 | [cell_2]] = tape.cells

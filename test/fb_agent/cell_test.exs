@@ -1,8 +1,8 @@
-defmodule FB.CellTest do
+defmodule FBAgent.CellTest do
   use ExUnit.Case
-  alias FB.VM
-  alias FB.Cell
-  doctest FB.Cell
+  alias FBAgent.VM
+  alias FBAgent.Cell
+  doctest FBAgent.Cell
 
   setup_all do
     script = """
@@ -18,7 +18,7 @@ defmodule FB.CellTest do
   end
 
 
-  describe "FB.Cell.exec/3" do
+  describe "FBAgent.Cell.exec/3" do
     test "must return a result", ctx do
       res = Cell.exec(ctx.cell, ctx.vm, context: 2)
       assert res == {:ok, 4}
@@ -32,7 +32,7 @@ defmodule FB.CellTest do
   end
 
 
-  describe "FB.Cell.exec!/3" do
+  describe "FBAgent.Cell.exec!/3" do
     test "must return a result", ctx do
       res = Cell.exec!(ctx.cell, ctx.vm, context: 2)
       assert res == 4

@@ -1,9 +1,9 @@
-defmodule FB.Adapter.BobTest do
+defmodule FBAgent.Adapter.BobTest do
   use ExUnit.Case
-  alias FB.Adapter.Bob
-  doctest FB.Adapter.Bob
+  alias FBAgent.Adapter.Bob
+  doctest FBAgent.Adapter.Bob
 
-  describe "FB.Adapter.Bob.get_tape/1" do
+  describe "FBAgent.Adapter.Bob.get_tape/1" do
 
     setup do
       Tesla.Mock.mock fn

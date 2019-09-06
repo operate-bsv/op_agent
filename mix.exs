@@ -1,9 +1,9 @@
-defmodule FB.MixProject do
+defmodule FBAgent.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :fb,
+      app: :fb_agent,
       version: "0.1.0-dev.1",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
@@ -23,8 +23,8 @@ defmodule FB.MixProject do
     [
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:jason, "~> 1.1"},
-      {:tesla, "~> 1.2.1"},
-      {:sandbox, "~> 0.3.0"}
+      {:sandbox, "~> 0.3.0"},
+      {:tesla, "~> 1.2.1"}
     ]
   end
 end

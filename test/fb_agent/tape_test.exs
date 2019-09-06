@@ -1,9 +1,9 @@
-defmodule FB.TapeTest do
+defmodule FBAgent.TapeTest do
   use ExUnit.Case
-  alias FB.VM
-  alias FB.Tape
-  alias FB.Cell
-  doctest FB.Tape
+  alias FBAgent.VM
+  alias FBAgent.Tape
+  alias FBAgent.Cell
+  doctest FBAgent.Tape
 
   setup_all do
     script = """
@@ -19,7 +19,7 @@ defmodule FB.TapeTest do
   end
 
 
-  describe "FB.Tape.run/3" do
+  describe "FBAgent.Tape.run/3" do
     test "must return a tape with result", ctx do
       {:ok, tape} = %Tape{cells: [ctx.cell]}
       |> Tape.run(ctx.vm, context: 3)
@@ -46,7 +46,7 @@ defmodule FB.TapeTest do
   end
 
 
-  describe "FB.Tape.run!/3" do
+  describe "FBAgent.Tape.run!/3" do
     test "must pipe cells and return a tape with result", ctx do
       tape = %Tape{cells: [ctx.cell, ctx.cell, ctx.cell]}
       |> Tape.run!(ctx.vm, context: 3)

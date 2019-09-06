@@ -1,4 +1,4 @@
-defmodule FB.Tape do
+defmodule FBAgent.Tape do
   @moduledoc """
   A Functional Bitcoin Tape module. A tape is is made up of one or more cells,
   where each cell contains a single atomic procedure call.
@@ -9,17 +9,17 @@ defmodule FB.Tape do
 
   ## Examples
 
-      iex> {:ok, tape} = %FB.Tape{cells: [
-      ...>   %FB.Cell{script: "return function(ctx, a) return (ctx or 0) + a end", params: [2]},
-      ...>   %FB.Cell{script: "return function(ctx, a) return (ctx or 0) + a end", params: [3]},
-      ...>   %FB.Cell{script: "return function(ctx, a) return (ctx or 0) + a end", params: [4]}
+      iex> {:ok, tape} = %FBAgent.Tape{cells: [
+      ...>   %FBAgent.Cell{script: "return function(ctx, a) return (ctx or 0) + a end", params: [2]},
+      ...>   %FBAgent.Cell{script: "return function(ctx, a) return (ctx or 0) + a end", params: [3]},
+      ...>   %FBAgent.Cell{script: "return function(ctx, a) return (ctx or 0) + a end", params: [4]}
       ...> ]}
-      ...> |> FB.Tape.run(FB.VM.init)
+      ...> |> FBAgent.Tape.run(FBAgent.VM.init)
       ...> tape.result
       9
   """
-  alias FB.VM
-  alias FB.Cell
+  alias FBAgent.VM
+  alias FBAgent.Cell
 
   @typedoc "Execution Tape"
   @type t :: %__MODULE__{
@@ -46,12 +46,12 @@ defmodule FB.Tape do
 
   ## Examples
 
-      iex> {:ok, tape} = %FB.Tape{cells: [
-      ...>   %FB.Cell{script: "return function(ctx, a) return (ctx or '') .. a end", params: ["b"]},
-      ...>   %FB.Cell{script: "return function(ctx, a) return (ctx or '') .. a end", params: ["c"]},
-      ...>   %FB.Cell{script: "return function(ctx) return string.reverse(ctx) end", params: []}
+      iex> {:ok, tape} = %FBAgent.Tape{cells: [
+      ...>   %FBAgent.Cell{script: "return function(ctx, a) return (ctx or '') .. a end", params: ["b"]},
+      ...>   %FBAgent.Cell{script: "return function(ctx, a) return (ctx or '') .. a end", params: ["c"]},
+      ...>   %FBAgent.Cell{script: "return function(ctx) return string.reverse(ctx) end", params: []}
       ...> ]}
-      ...> |> FB.Tape.run(FB.VM.init, context: "a")
+      ...> |> FBAgent.Tape.run(FBAgent.VM.init, context: "a")
       ...> tape.result
       "cba"
   """
@@ -74,7 +74,7 @@ defmodule FB.Tape do
 
 
   @doc """
-  As `f:FB.Tape.run/3`, but returns the tape or raises an exception.
+  As `f:FBAgent.Tape.run/3`, but returns the tape or raises an exception.
 
   ## Options
 

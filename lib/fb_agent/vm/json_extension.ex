@@ -1,8 +1,8 @@
-defmodule FB.VM.JsonExtension do
+defmodule FBAgent.VM.JsonExtension do
   @moduledoc """
   Extends the VM state with functions for encoding and decoding JSON.
   """
-  alias FB.VM
+  alias FBAgent.VM
 
 
   @doc """

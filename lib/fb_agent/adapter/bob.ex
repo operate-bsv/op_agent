@@ -1,30 +1,30 @@
-defmodule FB.Adapter.Bob do
+defmodule FBAgent.Adapter.Bob do
   @moduledoc """
   Adapter module for loading tapes and procedure scripts from [BOB](https://bob.planaria.network).
 
   ## Examples
 
-      FB.Adapter.Bob.get_tape(txid)
-      # => {:ok, %FB.Tape{}}
+      FBAgent.Adapter.Bob.get_tape(txid)
+      # => {:ok, %FBAgent.Tape{}}
   """
-  alias FB.Tape
-  alias FB.Cell
+  alias FBAgent.Tape
+  alias FBAgent.Cell
   use Tesla, only: [:get], docs: false
 
   plug Tesla.Middleware.BaseUrl, "https://bob.planaria.network/q/1GgmC7Cg782YtQ6R9QkM58voyWeQJmJJzG/"
   plug Tesla.Middleware.JSON
 
-  @behaviour FB.Adapter
+  @behaviour FBAgent.Adapter
 
 
   @doc """
   Fetches a transaction by the given txid, and maps it into a tape.
   """
-  @impl FB.Adapter
+  @impl FBAgent.Adapter
   @spec get_tape(String.t, keyword) :: {:ok, Tape.t} | {:error, String.t}
   def get_tape(txid, options \\ []) do
     api_key = Keyword.get(options, :api_key)
-    path = FB.Util.encode_query(%{
+    path = FBAgent.Util.encode_query(%{
       "v" => "3",
       "q" => %{
         "find" => %{
@@ -47,9 +47,9 @@ defmodule FB.Adapter.Bob do
 
 
   @doc """
-  As `f:FB.Adapter.Bob.get_tape/2`, but returns the tape or raises an exception.
+  As `f:FBAgent.Adapter.Bob.get_tape/2`, but returns the tape or raises an exception.
   """
-  @impl FB.Adapter
+  @impl FBAgent.Adapter
   @spec get_tape!(String.t, keyword) :: Tape.t
   def get_tape!(txid, options \\ []) do
     case get_tape(txid, options) do
@@ -62,17 +62,17 @@ defmodule FB.Adapter.Bob do
   @doc """
   Not implemented.
   """
-  @impl FB.Adapter
+  @impl FBAgent.Adapter
   @spec get_procs(list, keyword) :: Tape.t
-  def get_procs(_refs, _options \\ []), do: raise "FB.Adapter.Bob.get_procs/2 not implemented"
+  def get_procs(_refs, _options \\ []), do: raise "FBAgent.Adapter.Bob.get_procs/2 not implemented"
 
 
   @doc """
   Not implemented.
   """
-  @impl FB.Adapter
+  @impl FBAgent.Adapter
   @spec get_procs!(list, keyword) :: Tape.t
-  def get_procs!(_refs, _options \\ []), do: raise "FB.Adapter.Bob.get_procs!/2 not implemented"
+  def get_procs!(_refs, _options \\ []), do: raise "FBAgent.Adapter.Bob.get_procs!/2 not implemented"
   
 
   defp to_tape(tx) do

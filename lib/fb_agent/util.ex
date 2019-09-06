@@ -1,4 +1,4 @@
-defmodule FB.Util do
+defmodule FBAgent.Util do
   @moduledoc """
   Utility module containing commonly used helper functions.
   """
@@ -11,7 +11,7 @@ defmodule FB.Util do
   ## Examples
 
       iex> %{"find" => %{"txid" => "abcdef"}}
-      ...> |> FB.Util.encode_query
+      ...> |> FBAgent.Util.encode_query
       "eyJmaW5kIjp7InR4aWQiOiJhYmNkZWYifX0="
   """
   @spec encode_query(map) :: String.t

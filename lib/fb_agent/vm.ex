@@ -1,4 +1,4 @@
-defmodule FB.VM do
+defmodule FBAgent.VM do
   @moduledoc """
   Functional Bitcoin VM module. Responsible for initalizing the Lua state and
   executing scripts.
@@ -14,7 +14,7 @@ defmodule FB.VM do
   @type lua_output :: binary | number | list | map
 
   @extensions [
-    FB.VM.JsonExtension
+    FBAgent.VM.JsonExtension
   ]
   
 
@@ -29,7 +29,7 @@ defmodule FB.VM do
 
   ## Examples
 
-      iex> vm = FB.VM.init
+      iex> vm = FBAgent.VM.init
       ...> elem(vm, 0) == :luerl
       true
   """
@@ -48,7 +48,7 @@ defmodule FB.VM do
 
   ## Examples
 
-      FB.VM.extend(vm, [MyLuaExtension, OtherExtension])
+      FBAgent.VM.extend(vm, [MyLuaExtension, OtherExtension])
   """
   @spec extend(vm, [module] | module) :: vm
   def extend(vm, [module | tail]) do
@@ -68,12 +68,12 @@ defmodule FB.VM do
 
   ## Examples
 
-      iex> FB.VM.init
-      ...> |> FB.VM.eval("return 'hello world'")
+      iex> FBAgent.VM.init
+      ...> |> FBAgent.VM.eval("return 'hello world'")
       {:ok, "hello world"}
 
-      iex> FB.VM.init
-      ...> |> FB.VM.eval("return 2 / 3")
+      iex> FBAgent.VM.init
+      ...> |> FBAgent.VM.eval("return 2 / 3")
       {:ok, 0.6666666666666666}
   """
   @spec eval(vm, String.t) :: {:ok, lua_output} | {:error, String.t}
@@ -89,12 +89,12 @@ defmodule FB.VM do
 
 
   @doc """
-  As `f:FB.VM.eval/2`, but returns the result or raises an exception.
+  As `f:FBAgent.VM.eval/2`, but returns the result or raises an exception.
   
   ## Examples
 
-      iex> FB.VM.init
-      ...> |> FB.VM.eval!("return 'hello world'")
+      iex> FBAgent.VM.init
+      ...> |> FBAgent.VM.eval!("return 'hello world'")
       "hello world"
   """
   @spec eval!(vm, String.t) :: lua_output
@@ -111,19 +111,19 @@ defmodule FB.VM do
 
   ## Examples
 
-      iex> FB.VM.init
+      iex> FBAgent.VM.init
       ...> |> Sandbox.play!("function main() return 'hello world' end")
-      ...> |> FB.VM.call(:main)
+      ...> |> FBAgent.VM.call(:main)
       {:ok, "hello world"}
 
-      iex> FB.VM.init
+      iex> FBAgent.VM.init
       ...> |> Sandbox.play!("function main(a, b) return a * b end")
-      ...> |> FB.VM.call("main", [2, 3])
+      ...> |> FBAgent.VM.call("main", [2, 3])
       {:ok, 6}
 
-      iex> FB.VM.init
+      iex> FBAgent.VM.init
       ...> |> Sandbox.play!("function sum(a, b) return a + b end")
-      ...> |> FB.VM.call(:sum, [2, 3])
+      ...> |> FBAgent.VM.call(:sum, [2, 3])
       {:ok, 5}
   """
   @spec call(vm, lua_path, list) :: {:ok, lua_output} | {:error, String.t}
@@ -152,13 +152,13 @@ defmodule FB.VM do
 
 
   @doc """
-  As `f:FB.VM.call/3`, but returns the result or raises an exception.
+  As `f:FBAgent.VM.call/3`, but returns the result or raises an exception.
   
   ## Examples
 
-      iex> FB.VM.init
+      iex> FBAgent.VM.init
       ...> |> Sandbox.play!("function main() return 'hello world' end")
-      ...> |> FB.VM.call!(:main)
+      ...> |> FBAgent.VM.call!(:main)
       "hello world"
   """
   @spec call!(vm, lua_path, list) :: lua_output
@@ -175,9 +175,9 @@ defmodule FB.VM do
 
   ## Examples
 
-      iex> FB.VM.init
-      ...> |> FB.VM.eval!("return function(a,b) return a * b end")
-      ...> |> FB.VM.exec([3,4])
+      iex> FBAgent.VM.init
+      ...> |> FBAgent.VM.eval!("return function(a,b) return a * b end")
+      ...> |> FBAgent.VM.exec([3,4])
       {:ok, 12}
   """
   @spec exec(function, list) :: {:ok, lua_output} | {:error, String.t}
@@ -194,13 +194,13 @@ defmodule FB.VM do
 
 
   @doc """
-  As `f:FB.VM.exec/2`, but returns the result or raises an exception.
+  As `f:FBAgent.VM.exec/2`, but returns the result or raises an exception.
 
   ## Examples
 
-      iex> FB.VM.init
-      ...> |> FB.VM.eval!("return function(a,b) return a .. ' ' .. b end")
-      ...> |> FB.VM.exec!(["hello", "world"])
+      iex> FBAgent.VM.init
+      ...> |> FBAgent.VM.eval!("return function(a,b) return a .. ' ' .. b end")
+      ...> |> FBAgent.VM.exec!(["hello", "world"])
       "hello world"
   """
   @spec exec!(function, list) :: lua_output
@@ -219,13 +219,13 @@ defmodule FB.VM do
 
   ## Examples
 
-      iex> FB.VM.decode(23.23)
+      iex> FBAgent.VM.decode(23.23)
       23.23
 
-      iex> FB.VM.decode(23.0)
+      iex> FBAgent.VM.decode(23.0)
       23
 
-      iex> FB.VM.decode([{"foo", 1}, {"bar", 2}])
+      iex> FBAgent.VM.decode([{"foo", 1}, {"bar", 2}])
       %{"foo" => 1, "bar" => 2}
   """
   @spec decode(binary | number | list) :: lua_output
