@@ -11,7 +11,7 @@ defmodule FBAgent.Adapter.FBHub do
   alias FBAgent.Tape
   use Tesla, only: [:get], docs: false
 
-  plug Tesla.Middleware.BaseUrl, "http://functions.chronoslabs.net/api/"
+  plug Tesla.Middleware.BaseUrl, "https://functions.chronoslabs.net/api/"
   plug Tesla.Middleware.JSON
 
   @behaviour FBAgent.Adapter
