@@ -105,9 +105,14 @@ defmodule FBAgent.Adapter.Bob do
       true  -> str
       false -> Base.encode16(str, case: :lower)
     end
-    params = Enum.map(tail, &(&1["ls"] || &1["s"]))
+    params = Enum.map(tail, &decode_param/1)
     %Cell{ref: ref, params: params}
   end
+
+  
+  defp decode_param(%{"lb" => b}), do: Base.decode64!(b)
+  defp decode_param(%{"b" => b}), do: Base.decode64!(b)
+  defp decode_param(_), do: nil
 
 
   defp op_return_output?(out) do
