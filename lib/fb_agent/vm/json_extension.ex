@@ -12,8 +12,8 @@ defmodule FBAgent.VM.JsonExtension do
   def setup(state) do
     state
     |> Sandbox.set!("json", [])
-    |> Sandbox.let_elixir_eval!("json.decode", fn _state, val -> decode(val) end)
-    |> Sandbox.let_elixir_eval!("json.encode", fn _state, val -> encode(val) end)
+    |> Sandbox.let_elixir_eval!("json.decode", fn _state, args -> apply(__MODULE__, :decode, args) end)
+    |> Sandbox.let_elixir_eval!("json.encode", fn _state, args -> apply(__MODULE__, :encode, args) end)
   end
 
   @doc """
