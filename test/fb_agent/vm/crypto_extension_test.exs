@@ -32,6 +32,17 @@ defmodule FBAgent.VM.CryptoExtensionTest do
   end
 
 
+  describe "FBAgent.VM.CryptoExtension.ecies_encrypt/3 and FBAgent.VM.CryptoExtension.ecies_decrypt/3" do
+    test "must encrypt with public key and decrypt with private key", ctx do
+      script = """
+      enc_data = crypto.ecies.encrypt('hello world', ecdsa_pub_key)
+      return crypto.ecies.decrypt(enc_data, ecdsa_priv_key)
+      """
+      assert VM.eval!(ctx.vm, script) == "hello world"
+    end
+  end
+
+
   describe "FBAgent.VM.CryptoExtension.ecdsa_sign/3 and FBAgent.VM.CryptoExtension.ecdsa_verify/4" do
     test "must sign and verify message", ctx do
       script = """

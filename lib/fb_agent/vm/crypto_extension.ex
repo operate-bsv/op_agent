@@ -13,10 +13,13 @@ defmodule FBAgent.VM.CryptoExtension do
     state
     |> Sandbox.set!("crypto.aes", [], true)
     |> Sandbox.set!("crypto.ecdsa", [], true)
+    |> Sandbox.set!("crypto.ecies", [], true)
     |> Sandbox.set!("crypto.rsa", [], true)
     |> Sandbox.set!("crypto.hash", [], true)
     |> Sandbox.let_elixir_eval!("crypto.aes.encrypt", fn _state, args -> apply(__MODULE__, :aes_encrypt, args) end)
     |> Sandbox.let_elixir_eval!("crypto.aes.decrypt", fn _state, args -> apply(__MODULE__, :aes_decrypt, args) end)
+    |> Sandbox.let_elixir_eval!("crypto.ecies.encrypt", fn _state, args -> apply(__MODULE__, :ecies_encrypt, args) end)
+    |> Sandbox.let_elixir_eval!("crypto.ecies.decrypt", fn _state, args -> apply(__MODULE__, :ecies_decrypt, args) end)
     |> Sandbox.let_elixir_eval!("crypto.ecdsa.sign", fn _state, args -> apply(__MODULE__, :ecdsa_sign, args) end)
     |> Sandbox.let_elixir_eval!("crypto.ecdsa.verify", fn _state, args -> apply(__MODULE__, :ecdsa_verify, args) end)
     |> Sandbox.let_elixir_eval!("crypto.rsa.encrypt", fn _state, args -> apply(__MODULE__, :rsa_encrypt, args) end)
@@ -48,6 +51,20 @@ defmodule FBAgent.VM.CryptoExtension do
   """
   def aes_decrypt(data, key, opts \\ %{}) do
     BSV.Crypto.AES.decrypt(data, :gcm, key, parse_opts(opts))
+  end
+
+  @doc """
+  Encrypts the given data with the given ECDSA public key using ECIES.
+  """
+  def ecies_encrypt(data, key, opts \\ %{}) do
+    BSV.Crypto.ECIES.encrypt(data, key, parse_opts(opts))
+  end
+
+  @doc """
+  Decrypts the given data with the given ECDSA private key using ECIES.
+  """
+  def ecies_decrypt(data, key, opts \\ %{}) do
+    BSV.Crypto.ECIES.decrypt(data, key, parse_opts(opts))
   end
 
   @doc """
