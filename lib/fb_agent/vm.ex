@@ -14,7 +14,8 @@ defmodule FBAgent.VM do
   @type lua_output :: binary | number | list | map
 
   @extensions [
-    FBAgent.VM.JsonExtension
+    FBAgent.VM.JsonExtension,
+    FBAgent.VM.CryptoExtension
   ]
   
 
