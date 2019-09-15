@@ -29,10 +29,10 @@ defmodule FBAgent.Adapter.Bob do
       "q" => %{
         "find" => %{
           "tx.h" => txid,
-          "out.tape.cell" => %{
+          "out.tape" => %{
             "$elemMatch" => %{
-              "ii" => 0,
-              "op" => 106
+              "i" => 0,
+              "cell.op" => 106
             }
           }
         },
