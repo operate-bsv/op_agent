@@ -25,6 +25,7 @@ defmodule FBAgent.MixProject do
       {:con_cache, "~> 0.14"},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:jason, "~> 1.1"},
+      {:luerl, git: "https://github.com/libitx/luerl.git", branch: "develop", override: true},
       {:sandbox, "~> 0.3.0"},
       {:tesla, "~> 1.2.1"}
     ]
