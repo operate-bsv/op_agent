@@ -1,7 +1,7 @@
-defmodule FBAgent.VM.CryptoExtensionTest do
+defmodule FBAgent.VM.Extension.CryptoTest do
   use ExUnit.Case
   alias FBAgent.VM
-  doctest FBAgent.VM.CryptoExtension
+  doctest FBAgent.VM.Extension.Crypto
 
   setup_all do
     aes_key = BSV.Test.symetric_key
@@ -9,7 +9,7 @@ defmodule FBAgent.VM.CryptoExtensionTest do
     rsa_priv_key = BSV.Crypto.RSA.PrivateKey.from_sequence(BSV.Test.rsa_key)
     rsa_pub_key = BSV.Crypto.RSA.PrivateKey.get_public_key(rsa_priv_key)
     vm = VM.init
-    |> FBAgent.VM.CryptoExtension.setup
+    |> FBAgent.VM.Extension.Crypto.extend
     |> VM.set!("aes_key", aes_key)
     |> VM.set!("ecdsa_priv_key", ecdsa_key.private_key)
     |> VM.set!("ecdsa_pub_key", ecdsa_key.public_key)
@@ -21,7 +21,7 @@ defmodule FBAgent.VM.CryptoExtensionTest do
   end
 
 
-  describe "FBAgent.VM.CryptoExtension.aes_encrypt/3 and FBAgent.VM.CryptoExtension.aes_decrypt/3" do
+  describe "FBAgent.VM.Extension.Crypto.aes_encrypt/3 and FBAgent.VM.Extension.Crypto.aes_decrypt/3" do
     test "must encrypt with public key and decrypt with private key", ctx do
       script = """
       enc_data = crypto.aes.encrypt('hello world', aes_key)
@@ -32,7 +32,7 @@ defmodule FBAgent.VM.CryptoExtensionTest do
   end
 
 
-  describe "FBAgent.VM.CryptoExtension.ecies_encrypt/3 and FBAgent.VM.CryptoExtension.ecies_decrypt/3" do
+  describe "FBAgent.VM.Extension.Crypto.ecies_encrypt/3 and FBAgent.VM.Extension.Crypto.ecies_decrypt/3" do
     test "must encrypt with public key and decrypt with private key", ctx do
       script = """
       enc_data = crypto.ecies.encrypt('hello world', ecdsa_pub_key)
@@ -43,7 +43,7 @@ defmodule FBAgent.VM.CryptoExtensionTest do
   end
 
 
-  describe "FBAgent.VM.CryptoExtension.ecdsa_sign/3 and FBAgent.VM.CryptoExtension.ecdsa_verify/4" do
+  describe "FBAgent.VM.Extension.Crypto.ecdsa_sign/3 and FBAgent.VM.Extension.Crypto.ecdsa_verify/4" do
     test "must sign and verify message", ctx do
       script = """
       sig = crypto.ecdsa.sign('hello world', ecdsa_priv_key)
@@ -62,7 +62,7 @@ defmodule FBAgent.VM.CryptoExtensionTest do
   end
 
 
-  describe "FBAgent.VM.CryptoExtension.rsa_encrypt/3 and FBAgent.VM.CryptoExtension.rsa_decrypt/3" do
+  describe "FBAgent.VM.Extension.Crypto.rsa_encrypt/3 and FBAgent.VM.Extension.Crypto.rsa_decrypt/3" do
     test "must encrypt with public key and decrypt with private key", ctx do
       script = """
       enc_data = crypto.rsa.encrypt('hello world', rsa_pub_key)
@@ -81,7 +81,7 @@ defmodule FBAgent.VM.CryptoExtensionTest do
   end
 
 
-  describe "FBAgent.VM.CryptoExtension.rsa_sign/3 and FBAgent.VM.CryptoExtension.rsa_verify/4" do
+  describe "FBAgent.VM.Extension.Crypto.rsa_sign/3 and FBAgent.VM.Extension.Crypto.rsa_verify/4" do
     test "must sign and verify message", ctx do
       script = """
       sig = crypto.rsa.sign('hello world', rsa_priv_key)
@@ -100,7 +100,7 @@ defmodule FBAgent.VM.CryptoExtensionTest do
   end
 
 
-  describe "FBAgent.VM.CryptoExtension.hash functions" do
+  describe "FBAgent.VM.Extension.Crypto.hash functions" do
     test "must create a ripemd160 hash", ctx do
       assert VM.eval!(ctx.vm, "return crypto.hash.ripemd160('hello world')") == <<
         152, 198, 21, 120, 76, 203, 95, 229, 147, 111, 188, 12, 190, 157,

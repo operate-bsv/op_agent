@@ -1,15 +1,13 @@
-defmodule FBAgent.VM.CryptoExtension do
+defmodule FBAgent.VM.Extension.Crypto do
   @moduledoc """
   Extends the VM state with common crypto functions.
   """
   alias FBAgent.VM
 
+  @behaviour VM.Extension
 
-  @doc """
-  Sets up the given VM state setting a table with attached function handlers.
-  """
-  @spec setup(VM.vm) :: VM.vm
-  def setup(vm) do
+  @impl VM.Extension
+  def extend(vm) do
     vm
     |> VM.set!("crypto", [])
     |> VM.set!("crypto.aes", [])

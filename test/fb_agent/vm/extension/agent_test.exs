@@ -1,14 +1,14 @@
-defmodule FBAgent.VM.AgentExtensionTest do
+defmodule FBAgent.VM.Extension.AgentTest do
   use ExUnit.Case
   alias FBAgent.VM
-  doctest FBAgent.VM.AgentExtension
+  doctest FBAgent.VM.Extension.Agent
 
   setup_all do
     FBAgent.start_link
-    %{ vm: VM.init |> FBAgent.VM.AgentExtension.setup }
+    %{ vm: VM.init |> FBAgent.VM.Extension.Agent.extend }
   end
 
-  describe "FBAgent.VM.AgentExtension.exec/2" do
+  describe "FBAgent.VM.Extension.Agent.exec/2" do
     setup do
       Tesla.Mock.mock fn env ->
         cond do

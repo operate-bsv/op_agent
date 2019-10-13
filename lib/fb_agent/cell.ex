@@ -37,7 +37,7 @@ defmodule FBAgent.Cell do
       ...> |> FBAgent.Cell.exec(FBAgent.VM.init, context: "hello")
       {:ok, "hello world"}
   """
-  @spec exec(t, VM.vm, keyword) :: {:ok, VM.lua_output} | {:error, String.t}
+  @spec exec(t, VM.t, keyword) :: {:ok, VM.lua_output} | {:error, String.t}
   def exec(cell, vm, options \\ []) do
     ctx = Keyword.get(options, :context, nil)
     case VM.eval(vm, cell.script) do
@@ -63,7 +63,7 @@ defmodule FBAgent.Cell do
       ...> |> FBAgent.Cell.exec!(FBAgent.VM.init, context: "hello")
       "hello world"
   """
-  @spec exec!(t, VM.vm, keyword) :: VM.lua_output
+  @spec exec!(t, VM.t, keyword) :: VM.lua_output
   def exec!(cell, vm, options \\ []) do
     case exec(cell, vm, options) do
       {:ok, result} -> result

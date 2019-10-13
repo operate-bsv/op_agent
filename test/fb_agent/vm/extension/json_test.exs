@@ -1,13 +1,13 @@
-defmodule FBAgent.VM.JsonExtensionTest do
+defmodule FBAgent.VM.Extension.JSONTest do
   use ExUnit.Case
   alias FBAgent.VM
-  doctest FBAgent.VM.JsonExtension
+  doctest FBAgent.VM.Extension.JSON
 
   setup_all do
-    %{ vm: VM.init |> FBAgent.VM.JsonExtension.setup }
+    %{ vm: VM.init |> FBAgent.VM.Extension.JSON.extend }
   end
 
-  describe "FBAgent.VM.JsonExtension.encode/1" do
+  describe "FBAgent.VM.Extension.JSON.encode/1" do
     test "must encode values as JSON strings", ctx do
       assert VM.eval!(ctx.vm, "return json.encode('foo bar')") == ~s("foo bar")
       assert VM.eval!(ctx.vm, "return json.encode(123)") == ~s(123)
@@ -17,7 +17,7 @@ defmodule FBAgent.VM.JsonExtensionTest do
     end
   end
 
-  describe "FBAgent.VM.JsonExtension.decode/1" do
+  describe "FBAgent.VM.Extension.JSON.decode/1" do
     test "must decode JSON strings as Lua types", ctx do
       assert VM.eval!(ctx.vm, "return json.decode('#{ ~s("foo bar") }') == 'foo bar'") == true
       assert VM.eval!(ctx.vm, "return json.decode('#{ ~s(123) }') == 123") == true

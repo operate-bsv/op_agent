@@ -55,7 +55,7 @@ defmodule FBAgent.Tape do
       ...> tape.result
       "cba"
   """
-  @spec run(t, VM.vm, keyword) :: {:ok, t} | {:error, t}
+  @spec run(t, VM.t, keyword) :: {:ok, t} | {:error, t}
   def run(tape, vm, options \\ []) do
     context = Keyword.get(options, :context, nil)
     strict = Keyword.get(options, :strict, true)
@@ -86,7 +86,7 @@ defmodule FBAgent.Tape do
   * `:strict` - By default the tape runs in struct mode - meaning if any cell
   has an error the entire tape fails. Disable strict mode by setting to `false`.
   """
-  @spec run!(t, VM.vm, keyword) :: t
+  @spec run!(t, VM.t, keyword) :: t
   def run!(tape, vm, options \\ []) do
     case run(tape, vm, options) do
       {:ok, tape} -> tape

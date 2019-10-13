@@ -5,7 +5,7 @@ defmodule FBAgent.VM do
   """
 
   @typedoc "Functional Bitcoin VM state"
-  @type vm :: {:luerl, tuple}
+  @type t :: {:luerl, tuple}
 
   @typedoc "Function reference. Either a dot-delimited string or list of strings or atoms."
   @type lua_path :: atom | String.t | list
@@ -14,9 +14,9 @@ defmodule FBAgent.VM do
   @type lua_output :: binary | number | list | map
 
   @extensions [
-    FBAgent.VM.AgentExtension,
-    FBAgent.VM.JsonExtension,
-    FBAgent.VM.CryptoExtension
+    FBAgent.VM.Extension.Agent,
+    FBAgent.VM.Extension.JSON,
+    FBAgent.VM.Extension.Crypto
   ]
   
 
@@ -35,7 +35,7 @@ defmodule FBAgent.VM do
       ...> elem(vm, 0) == :luerl
       true
   """
-  @spec init(keyword) :: vm
+  @spec init(keyword) :: __MODULE__.t
   def init(options \\ []) do
     extensions = @extensions
     |> Enum.concat(Keyword.get(options, :extensions, []))
@@ -52,16 +52,17 @@ defmodule FBAgent.VM do
 
       FBAgent.VM.extend(vm, [MyLuaExtension, OtherExtension])
   """
-  @spec extend(vm, [module] | module) :: vm
+  @spec extend(__MODULE__.t, list | module) :: __MODULE__.t
   def extend(vm, [module | tail]) do
-    extend(vm, module)
+    vm
+    |> extend(module)
     |> extend(tail)
   end
 
   def extend(vm, []), do: vm
 
   def extend(vm, module) when is_atom(module) do
-    apply(module, :setup, [vm])
+    apply(module, :extend, [vm])
   end
 
 
@@ -80,14 +81,14 @@ defmodule FBAgent.VM do
       ...> |> FBAgent.VM.get("foo.bar")
       {:ok, 42}
   """
-  @spec get(vm, lua_path) :: {:ok, lua_output} | {:error, String.t}
-  def get(vm, path) when is_binary(path) do
-    get(vm, String.split(path, "."))
-  end
+  @spec get(__MODULE__.t, __MODULE__.lua_path) ::
+    {:ok, __MODULE__.lua_output} |
+    {:error, String.t}
+  def get(vm, path) when is_binary(path),
+    do: get(vm, String.split(path, "."))
 
-  def get(vm, path) when is_atom(path) do
-    get(vm, [path])
-  end
+  def get(vm, path) when is_atom(path),
+    do: get(vm, [path])
 
   def get(vm, path) when is_list(path) do
     try do
@@ -109,7 +110,7 @@ defmodule FBAgent.VM do
       ...> |> FBAgent.VM.get!("foo.bar")
       42
   """
-  @spec get!(vm, lua_path) :: lua_output
+  @spec get!(__MODULE__.t, __MODULE__.lua_path) :: __MODULE__.lua_output
   def get!(vm, path) do
     case get(vm, path) do
       {:ok, result} -> result
@@ -135,20 +136,19 @@ defmodule FBAgent.VM do
       ...> elem(vm, 0)
       :luerl
   """
-  @spec set(vm, lua_path, any, keyword) :: {:ok, vm} | {:error, String.t}
+  @spec set(__MODULE__.t, __MODULE__.lua_path, any, keyword) ::
+    {:ok, __MODULE__.t} |
+    {:error, String.t}
   def set(vm, path, value, options \\ [])
 
-  def set(vm, path, value, options) when is_binary(path) do
-    set(vm, String.split(path, "."), value, options)
-  end
+  def set(vm, path, value, options) when is_binary(path),
+    do: set(vm, String.split(path, "."), value, options)
   
-  def set(vm, path, value, options) when is_atom(path) do
-    set(vm, [path], value, options)
-  end
+  def set(vm, path, value, options) when is_atom(path),
+    do: set(vm, [path], value, options)
 
-  def set(vm, path, value, options) when is_atom(path) do
-    set(vm, [path], value, options)
-  end
+  def set(vm, path, value, options) when is_atom(path),
+    do: set(vm, [path], value, options)
 
   def set(vm, path, value, options) when is_list(path) do
     force = Keyword.get(options, :force, false)
@@ -183,7 +183,7 @@ defmodule FBAgent.VM do
       ...> elem(vm, 0)
       :luerl
   """
-  @spec set!(vm, lua_path, any, keyword) :: vm
+  @spec set!(__MODULE__.t, __MODULE__.lua_path, any, keyword) :: __MODULE__.t
   def set!(vm, path, value, options \\ []) do
     case set(vm, path, value, options) do
       {:ok, vm} -> vm
@@ -202,8 +202,12 @@ defmodule FBAgent.VM do
 
   * `:force` - Recusively set the value at a deep path that doesn't already exist.
   """
-  @spec set_function(vm, lua_path, function, keyword) :: {:ok, vm} | {:error, String.t}
-  def set_function(vm, path, callback, options \\ []) when is_function(callback) do
+  @spec set_function(__MODULE__.t, __MODULE__.lua_path, function, keyword) ::
+    {:ok, __MODULE__.t} |
+    {:error, String.t}
+  def set_function(vm, path, callback, options \\ [])
+    when is_function(callback)
+  do
     func = fn args, vm ->
       result = callback.(vm, args)
       {[result], vm}
@@ -221,8 +225,11 @@ defmodule FBAgent.VM do
 
   * `:force` - Recusively set the value at a deep path that doesn't already exist.
   """
-  @spec set_function!(vm, lua_path, function, keyword) :: vm
-  def set_function!(vm, path, callback, options \\ []) when is_function(callback) do
+  @spec set_function!(__MODULE__.t, __MODULE__.lua_path, function, keyword) ::
+    __MODULE__.t
+  def set_function!(vm, path, callback, options \\ [])
+    when is_function(callback)
+  do
     case set_function(vm, path, callback, options) do
       {:ok, vm} -> vm
       {:error, err} -> raise err
@@ -243,7 +250,9 @@ defmodule FBAgent.VM do
       ...> |> FBAgent.VM.eval("return 2 / 3")
       {:ok, 0.6666666666666666}
   """
-  @spec eval(vm, String.t) :: {:ok, lua_output} | {:error, String.t}
+  @spec eval(__MODULE__.t, String.t) ::
+    {:ok, __MODULE__.lua_output} |
+    {:error, String.t}
   def eval(vm, code) do
     case :luerl.eval(code, vm) do
       {:ok, result} -> {:ok, decode(result)}
@@ -262,7 +271,7 @@ defmodule FBAgent.VM do
       ...> |> FBAgent.VM.eval!("return 'hello world'")
       "hello world"
   """
-  @spec eval!(vm, String.t) :: lua_output
+  @spec eval!(__MODULE__.t, String.t) :: __MODULE__.lua_output
   def eval!(vm, code) do
     case eval(vm, code) do
       {:ok, result} -> result
@@ -274,7 +283,7 @@ defmodule FBAgent.VM do
   @doc """
   Evaluates the given script within the VM state and returns the modified state.
   """
-  @spec exec(vm, String.t) :: {:ok, vm} | {:error, String.t}
+  @spec exec(__MODULE__.t, String.t) :: {:ok, __MODULE__.t} | {:error, String.t}
   def exec(vm, code) do
     try do
       {_result, vm} = :luerl.do(code, vm)
@@ -289,7 +298,7 @@ defmodule FBAgent.VM do
   @doc """
   As `f:FBAgent.VM.exec/2`, but returns the modified state or raises an exception.
   """
-  @spec exec!(vm, String.t) :: vm
+  @spec exec!(__MODULE__.t, String.t) :: __MODULE__.t
   def exec!(vm, code) do
     case exec(vm, code) do
       {:ok, vm} -> vm
@@ -318,16 +327,16 @@ defmodule FBAgent.VM do
       ...> |> FBAgent.VM.call(:sum, [2, 3])
       {:ok, 5}
   """
-  @spec call(vm, lua_path, list) :: {:ok, lua_output} | {:error, String.t}
+  @spec call(__MODULE__.t, __MODULE__.lua_path, list) ::
+    {:ok, __MODULE__.lua_output} |
+    {:error, String.t}
   def call(vm, path, args \\ [])
 
-  def call(vm, path, args) when is_binary(path) do
-    call(vm, String.split(path, "."), args)
-  end
+  def call(vm, path, args) when is_binary(path),
+    do: call(vm, String.split(path, "."), args)
 
-  def call(vm, path, args) when is_atom(path) do
-    call(vm, [path], args)
-  end
+  def call(vm, path, args) when is_atom(path),
+    do: call(vm, [path], args)
 
   def call(vm, path, args) when is_list(path) do
     try do
@@ -350,7 +359,7 @@ defmodule FBAgent.VM do
       ...> |> FBAgent.VM.call!(:main)
       "hello world"
   """
-  @spec call!(vm, lua_path, list) :: lua_output
+  @spec call!(__MODULE__.t, __MODULE__.lua_path, list) :: __MODULE__.lua_output
   def call!(vm, path, args \\ []) do
     case call(vm, path, args) do
       {:ok, result} -> result
@@ -369,7 +378,9 @@ defmodule FBAgent.VM do
       ...> |> FBAgent.VM.exec_function([3,4])
       {:ok, 12}
   """
-  @spec exec_function(function, list) :: {:ok, lua_output} | {:error, String.t}
+  @spec exec_function(function, list) ::
+    {:ok, __MODULE__.lua_output} |
+    {:error, String.t}
   def exec_function(function, args \\ []) do
     try do
       result = apply(function, [args])
@@ -391,7 +402,7 @@ defmodule FBAgent.VM do
       ...> |> FBAgent.VM.exec_function!(["hello", "world"])
       "hello world"
   """
-  @spec exec_function!(function, list) :: lua_output
+  @spec exec_function!(function, list) :: __MODULE__.lua_output
   def exec_function!(function, args \\ []) do
     case exec_function(function, args) do
       {:ok, result} -> result
@@ -417,7 +428,7 @@ defmodule FBAgent.VM do
       iex> FBAgent.VM.decode([{"foo", 1}, {"bar", 2}])
       %{"foo" => 1, "bar" => 2}
   """
-  @spec decode(binary | number | list) :: lua_output
+  @spec decode(binary | number | list) :: __MODULE__.lua_output
 
   def decode([{key, val}]) do
     case is_integer(key) do

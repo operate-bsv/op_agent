@@ -1,15 +1,13 @@
-defmodule FBAgent.VM.JsonExtension do
+defmodule FBAgent.VM.Extension.JSON do
   @moduledoc """
   Extends the VM state with functions for encoding and decoding JSON.
   """
   alias FBAgent.VM
 
+  @behaviour VM.Extension
 
-  @doc """
-  Sets up the given VM state setting a table with attached function handlers.
-  """
-  @spec setup(VM.vm) :: VM.vm
-  def setup(vm) do
+  @impl VM.Extension
+  def extend(vm) do
     vm
     |> VM.set!("json", [])
     |> VM.set_function!("json.decode", fn _vm, args -> apply(__MODULE__, :decode, args) end)
