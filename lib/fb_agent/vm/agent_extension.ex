@@ -9,10 +9,10 @@ defmodule FBAgent.VM.AgentExtension do
   Sets up the given VM state setting a table with attached function handlers.
   """
   @spec setup(VM.vm) :: VM.vm
-  def setup(state) do
-    state
-    |> Sandbox.set!("agent", [])
-    |> Sandbox.let_elixir_eval!("agent.exec", fn _state, args -> apply(__MODULE__, :exec, args) end)
+  def setup(vm) do
+    vm
+    |> VM.set!("agent", [])
+    |> VM.set_function!("agent.exec", fn _vm, args -> apply(__MODULE__, :exec, args) end)
   end
 
   @doc """

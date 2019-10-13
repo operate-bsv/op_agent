@@ -4,7 +4,7 @@ defmodule FBAgent.VM.JsonExtensionTest do
   doctest FBAgent.VM.JsonExtension
 
   setup_all do
-    %{ vm: Sandbox.init |> FBAgent.VM.JsonExtension.setup }
+    %{ vm: VM.init |> FBAgent.VM.JsonExtension.setup }
   end
 
   describe "FBAgent.VM.JsonExtension.encode/1" do

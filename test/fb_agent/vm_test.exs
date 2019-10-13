@@ -47,19 +47,19 @@ defmodule FBAgent.VMTest do
 
   describe "FBAgent.VM.call/3" do
     test "must execute the script and return a value", ctx do
-      res = Sandbox.play!(ctx.vm, "function main(a, b) return table.concat({a, b}, ' ') end")
+      res = VM.exec!(ctx.vm, "function main(a, b) return table.concat({a, b}, ' ') end")
       |> VM.call(:main, ["hello", "world"])
       assert res == {:ok, "hello world"}
     end
 
     test "must execute the named handler function", ctx do
-      res = Sandbox.play!(ctx.vm, "m = {}; function m.test() return 32 / 6 end")
+      res = VM.exec!(ctx.vm, "m = {}; function m.test() return 32 / 6 end")
       |> VM.call("m.test")
       assert res == {:ok, 5.3333333333333333}
     end
 
     test "must return an error message when no script", ctx do
-      {:error, error} = Sandbox.play!(ctx.vm, "function foo() return 123 end")
+      {:error, error} = VM.exec!(ctx.vm, "function foo() return 123 end")
       |> VM.call(:main)
       assert error =~ "Lua Error"
     end
@@ -68,24 +68,24 @@ defmodule FBAgent.VMTest do
 
   describe "FBAgent.VM.call!/3" do
     test "must execute the script and return a value", ctx do
-      res = Sandbox.play!(ctx.vm, "function main(a, b) return table.concat({a, b}, ' ') end")
+      res = VM.exec!(ctx.vm, "function main(a, b) return table.concat({a, b}, ' ') end")
       |> VM.call!(:main, ["hello", "world"])
       assert res == "hello world"
     end
 
     test "must raise an error when no script", ctx do
       assert_raise RuntimeError, ~r/Lua Error/, fn ->
-        Sandbox.play!(ctx.vm, "function foo() return 123 end")
+        VM.exec!(ctx.vm, "function foo() return 123 end")
         |> VM.call!(:main)
       end
     end
   end
 
 
-  describe "FBAgent.VM.exec/2" do
+  describe "FBAgent.VM.exec_function/2" do
     test "must call the function and return a value", ctx do
       res = VM.eval!(ctx.vm, "return function(a,b) return a * b end")
-      |> VM.exec([3,5])
+      |> VM.exec_function([3,5])
       assert res == {:ok, 15}
     end
 
@@ -106,26 +106,26 @@ defmodule FBAgent.VMTest do
       end
       """
       {:ok, res} = VM.eval!(ctx.vm, script)
-      |> VM.exec([3,5])
+      |> VM.exec_function([3,5])
 
       assert res["a"] == 3
       assert res["b"] == 5
-      assert VM.exec(res["sum"]) == {:ok, 8}
-      assert VM.exec(res["mul"]) == {:ok, 15}
+      assert VM.exec_function(res["sum"]) == {:ok, 8}
+      assert VM.exec_function(res["mul"]) == {:ok, 15}
     end
   end
 
-  describe "FBAgent.VM.exec!/2" do
+  describe "FBAgent.VM.exec_function!/2" do
     test "must call the function and return a value", ctx do
       res = VM.eval!(ctx.vm, "return function(a,b) return a * b end")
-      |> VM.exec!([3, 5])
+      |> VM.exec_function!([3, 5])
       assert res == 15
     end
 
     test "must raise an error when no script", ctx do
       assert_raise RuntimeError, ~r/Lua Error/, fn ->
         VM.eval!(ctx.vm, "return function(a,b) return a * b end")
-        |> VM.exec!(["hello", "world"])
+        |> VM.exec_function!(["hello", "world"])
       end
     end
   end

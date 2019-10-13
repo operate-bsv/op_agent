@@ -9,27 +9,28 @@ defmodule FBAgent.VM.CryptoExtension do
   Sets up the given VM state setting a table with attached function handlers.
   """
   @spec setup(VM.vm) :: VM.vm
-  def setup(state) do
-    state
-    |> Sandbox.set!("crypto.aes", [], true)
-    |> Sandbox.set!("crypto.ecdsa", [], true)
-    |> Sandbox.set!("crypto.ecies", [], true)
-    |> Sandbox.set!("crypto.rsa", [], true)
-    |> Sandbox.set!("crypto.hash", [], true)
-    |> Sandbox.let_elixir_eval!("crypto.aes.encrypt", fn _state, args -> apply(__MODULE__, :aes_encrypt, args) end)
-    |> Sandbox.let_elixir_eval!("crypto.aes.decrypt", fn _state, args -> apply(__MODULE__, :aes_decrypt, args) end)
-    |> Sandbox.let_elixir_eval!("crypto.ecies.encrypt", fn _state, args -> apply(__MODULE__, :ecies_encrypt, args) end)
-    |> Sandbox.let_elixir_eval!("crypto.ecies.decrypt", fn _state, args -> apply(__MODULE__, :ecies_decrypt, args) end)
-    |> Sandbox.let_elixir_eval!("crypto.ecdsa.sign", fn _state, args -> apply(__MODULE__, :ecdsa_sign, args) end)
-    |> Sandbox.let_elixir_eval!("crypto.ecdsa.verify", fn _state, args -> apply(__MODULE__, :ecdsa_verify, args) end)
-    |> Sandbox.let_elixir_eval!("crypto.rsa.encrypt", fn _state, args -> apply(__MODULE__, :rsa_encrypt, args) end)
-    |> Sandbox.let_elixir_eval!("crypto.rsa.decrypt", fn _state, args -> apply(__MODULE__, :rsa_decrypt, args) end)
-    |> Sandbox.let_elixir_eval!("crypto.rsa.sign", fn _state, args -> apply(__MODULE__, :rsa_sign, args) end)
-    |> Sandbox.let_elixir_eval!("crypto.rsa.verify", fn _state, args -> apply(__MODULE__, :rsa_verify, args) end)
-    |> Sandbox.let_elixir_eval!("crypto.hash.ripemd160", fn _state, args -> apply(__MODULE__, :hash, [:ripemd160 | args]) end)
-    |> Sandbox.let_elixir_eval!("crypto.hash.sha1", fn _state, args -> apply(__MODULE__, :hash, [:sha | args]) end)
-    |> Sandbox.let_elixir_eval!("crypto.hash.sha256", fn _state, args -> apply(__MODULE__, :hash, [:sha256 | args]) end)
-    |> Sandbox.let_elixir_eval!("crypto.hash.sha512", fn _state, args -> apply(__MODULE__, :hash, [:sha512 | args]) end)
+  def setup(vm) do
+    vm
+    |> VM.set!("crypto", [])
+    |> VM.set!("crypto.aes", [])
+    |> VM.set!("crypto.ecdsa", [])
+    |> VM.set!("crypto.ecies", [])
+    |> VM.set!("crypto.rsa", [])
+    |> VM.set!("crypto.hash", [])
+    |> VM.set_function!("crypto.aes.encrypt", fn _vm, args -> apply(__MODULE__, :aes_encrypt, args) end)
+    |> VM.set_function!("crypto.aes.decrypt", fn _vm, args -> apply(__MODULE__, :aes_decrypt, args) end)
+    |> VM.set_function!("crypto.ecies.encrypt", fn _vm, args -> apply(__MODULE__, :ecies_encrypt, args) end)
+    |> VM.set_function!("crypto.ecies.decrypt", fn _vm, args -> apply(__MODULE__, :ecies_decrypt, args) end)
+    |> VM.set_function!("crypto.ecdsa.sign", fn _vm, args -> apply(__MODULE__, :ecdsa_sign, args) end)
+    |> VM.set_function!("crypto.ecdsa.verify", fn _vm, args -> apply(__MODULE__, :ecdsa_verify, args) end)
+    |> VM.set_function!("crypto.rsa.encrypt", fn _vm, args -> apply(__MODULE__, :rsa_encrypt, args) end)
+    |> VM.set_function!("crypto.rsa.decrypt", fn _vm, args -> apply(__MODULE__, :rsa_decrypt, args) end)
+    |> VM.set_function!("crypto.rsa.sign", fn _vm, args -> apply(__MODULE__, :rsa_sign, args) end)
+    |> VM.set_function!("crypto.rsa.verify", fn _vm, args -> apply(__MODULE__, :rsa_verify, args) end)
+    |> VM.set_function!("crypto.hash.ripemd160", fn _vm, args -> apply(__MODULE__, :hash, [:ripemd160 | args]) end)
+    |> VM.set_function!("crypto.hash.sha1", fn _vm, args -> apply(__MODULE__, :hash, [:sha | args]) end)
+    |> VM.set_function!("crypto.hash.sha256", fn _vm, args -> apply(__MODULE__, :hash, [:sha256 | args]) end)
+    |> VM.set_function!("crypto.hash.sha512", fn _vm, args -> apply(__MODULE__, :hash, [:sha512 | args]) end)
   end
 
   @doc """

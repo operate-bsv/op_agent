@@ -1,6 +1,6 @@
 %{
   "basefiftyeight": {:hex, :basefiftyeight, "0.1.0", "3d48544743bf9aab7ab02aed803ac42af77acf268c7d8c71d4f39e7fa85ee8d3", [:mix], [], "hexpm"},
-  "bsv": {:git, "https://github.com/libitx/bsv-ex.git", "090179b5974abb72ea57375a8c219daa8691bb1e", []},
+  "bsv": {:hex, :bsv, "0.2.1", "810e02524fe1dd35821a1ab077d6f30db6efe38069d63277c69e552ae3f3ffd6", [:mix], [{:basefiftyeight, "~> 0.1", [hex: :basefiftyeight, repo: "hexpm", optional: false]}, {:libsecp256k1, "~> 0.1", [hex: :libsecp256k1, repo: "hexpm", optional: false]}], "hexpm"},
   "con_cache": {:hex, :con_cache, "0.14.0", "863acb90fa08017be3129074993af944cf7a4b6c3ee7c06c5cd0ed6b94fbc223", [:mix], [], "hexpm"},
   "earmark": {:hex, :earmark, "1.3.5", "0db71c8290b5bc81cb0101a2a507a76dca659513984d683119ee722828b424f6", [:mix], [], "hexpm"},
   "ex_doc": {:hex, :ex_doc, "0.21.1", "5ac36660846967cd869255f4426467a11672fec3d8db602c429425ce5b613b90", [:mix], [{:earmark, "~> 1.3", [hex: :earmark, repo: "hexpm", optional: false]}, {:makeup_elixir, "~> 0.14", [hex: :makeup_elixir, repo: "hexpm", optional: false]}], "hexpm"},

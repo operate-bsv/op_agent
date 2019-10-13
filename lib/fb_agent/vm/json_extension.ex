@@ -9,11 +9,11 @@ defmodule FBAgent.VM.JsonExtension do
   Sets up the given VM state setting a table with attached function handlers.
   """
   @spec setup(VM.vm) :: VM.vm
-  def setup(state) do
-    state
-    |> Sandbox.set!("json", [])
-    |> Sandbox.let_elixir_eval!("json.decode", fn _state, args -> apply(__MODULE__, :decode, args) end)
-    |> Sandbox.let_elixir_eval!("json.encode", fn _state, args -> apply(__MODULE__, :encode, args) end)
+  def setup(vm) do
+    vm
+    |> VM.set!("json", [])
+    |> VM.set_function!("json.decode", fn _vm, args -> apply(__MODULE__, :decode, args) end)
+    |> VM.set_function!("json.encode", fn _vm, args -> apply(__MODULE__, :encode, args) end)
   end
 
   @doc """

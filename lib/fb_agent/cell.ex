@@ -41,7 +41,7 @@ defmodule FBAgent.Cell do
   def exec(cell, vm, options \\ []) do
     ctx = Keyword.get(options, :context, nil)
     case VM.eval(vm, cell.script) do
-      {:ok, function} -> VM.exec(function, [ctx | cell.params])
+      {:ok, function} -> VM.exec_function(function, [ctx | cell.params])
       err -> err
     end
   end

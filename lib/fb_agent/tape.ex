@@ -57,9 +57,10 @@ defmodule FBAgent.Tape do
   """
   @spec run(t, VM.vm, keyword) :: {:ok, t} | {:error, t}
   def run(tape, vm, options \\ []) do
-    vm = Sandbox.set!(vm, "tx", %{txid: get_in(tape.tx, ["tx", "h"])})
     context = Keyword.get(options, :context, nil)
     strict = Keyword.get(options, :strict, true)
+    vm = VM.set!(vm, "tx", %{txid: get_in(tape.tx, ["tx", "h"])})
+    
     case Enum.reduce_while(tape.cells, context, fn(cell, ctx) ->
       case Cell.exec(cell, vm, context: ctx) do
         {:ok, result}   -> {:cont, result}

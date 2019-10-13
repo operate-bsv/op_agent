@@ -8,13 +8,13 @@ defmodule FBAgent.VM.CryptoExtensionTest do
     ecdsa_key = BSV.Test.ecdsa_key |> BSV.Crypto.ECDSA.PrivateKey.from_sequence
     rsa_priv_key = BSV.Crypto.RSA.PrivateKey.from_sequence(BSV.Test.rsa_key)
     rsa_pub_key = BSV.Crypto.RSA.PrivateKey.get_public_key(rsa_priv_key)
-    vm = Sandbox.init
+    vm = VM.init
     |> FBAgent.VM.CryptoExtension.setup
-    |> Sandbox.set!("aes_key", aes_key)
-    |> Sandbox.set!("ecdsa_priv_key", ecdsa_key.private_key)
-    |> Sandbox.set!("ecdsa_pub_key", ecdsa_key.public_key)
-    |> Sandbox.set!("rsa_priv_key", BSV.Crypto.RSA.PrivateKey.as_raw(rsa_priv_key))
-    |> Sandbox.set!("rsa_pub_key", BSV.Crypto.RSA.PublicKey.as_raw(rsa_pub_key))
+    |> VM.set!("aes_key", aes_key)
+    |> VM.set!("ecdsa_priv_key", ecdsa_key.private_key)
+    |> VM.set!("ecdsa_pub_key", ecdsa_key.public_key)
+    |> VM.set!("rsa_priv_key", BSV.Crypto.RSA.PrivateKey.as_raw(rsa_priv_key))
+    |> VM.set!("rsa_pub_key", BSV.Crypto.RSA.PublicKey.as_raw(rsa_pub_key))
     %{
       vm: vm
     }

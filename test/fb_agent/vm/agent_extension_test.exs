@@ -5,7 +5,7 @@ defmodule FBAgent.VM.AgentExtensionTest do
 
   setup_all do
     FBAgent.start_link
-    %{ vm: Sandbox.init |> FBAgent.VM.AgentExtension.setup }
+    %{ vm: VM.init |> FBAgent.VM.AgentExtension.setup }
   end
 
   describe "FBAgent.VM.AgentExtension.exec/2" do

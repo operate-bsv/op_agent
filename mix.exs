@@ -21,12 +21,11 @@ defmodule FBAgent.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:bsv, git: "https://github.com/libitx/bsv-ex.git"},
+      {:bsv, "~> 0.2"},
       {:con_cache, "~> 0.14"},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:jason, "~> 1.1"},
-      {:luerl, git: "https://github.com/libitx/luerl.git", branch: "develop", override: true},
-      {:sandbox, "~> 0.3.0"},
+      {:luerl, git: "https://github.com/libitx/luerl.git", branch: "develop"},
       {:tesla, "~> 1.2.1"}
     ]
   end
