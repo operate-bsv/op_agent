@@ -22,25 +22,25 @@ defmodule FBAgent.TapeTest do
   describe "FBAgent.Tape.run/3" do
     test "must return a tape with result", ctx do
       {:ok, tape} = %Tape{cells: [ctx.cell]}
-      |> Tape.run(ctx.vm, context: 3)
+      |> Tape.run(ctx.vm, state: 3)
       assert tape.result == 9
     end
 
     test "must pipe cells and return a tape with result", ctx do
       {:ok, tape} = %Tape{cells: [ctx.cell, ctx.cell, ctx.cell, ctx.cell]}
-      |> Tape.run(ctx.vm, context: 3)
+      |> Tape.run(ctx.vm, state: 3)
       assert tape.result == 43046721
     end
 
     test "must pipe cells and return a tape with error", ctx do
       {:error, tape} = %Tape{cells: [ctx.cell, Map.put(ctx.cell, :params, ["err"]), ctx.cell]}
-      |> Tape.run(ctx.vm, context: 3)
+      |> Tape.run(ctx.vm, state: 3)
       assert tape.error =~ "Lua Error"
     end
 
     test "must skip errors when strict mode disabled", ctx do
       {:ok, tape} = %Tape{cells: [ctx.cell, Map.put(ctx.cell, :params, ["err"]), ctx.cell]}
-      |> Tape.run(ctx.vm, context: 3, strict: false)
+      |> Tape.run(ctx.vm, state: 3, strict: false)
       assert tape.result == 81
     end
   end
@@ -49,20 +49,20 @@ defmodule FBAgent.TapeTest do
   describe "FBAgent.Tape.run!/3" do
     test "must pipe cells and return a tape with result", ctx do
       tape = %Tape{cells: [ctx.cell, ctx.cell, ctx.cell]}
-      |> Tape.run!(ctx.vm, context: 3)
+      |> Tape.run!(ctx.vm, state: 3)
       assert tape.result == 6561
     end
 
     test "must pipe cells and raise and exception", ctx do
       assert_raise RuntimeError, ~r/Lua Error/, fn ->
         %Tape{cells: [ctx.cell, Map.put(ctx.cell, :params, ["err"]), ctx.cell]}
-        |> Tape.run!(ctx.vm, context: 3)
+        |> Tape.run!(ctx.vm, state: 3)
       end
     end
 
     test "must skip errors when strict mode disabled", ctx do
       tape = %Tape{cells: [ctx.cell, Map.put(ctx.cell, :params, ["err"]), ctx.cell]}
-      |> Tape.run!(ctx.vm, context: 3, strict: false)
+      |> Tape.run!(ctx.vm, state: 3, strict: false)
       assert tape.result == 81
     end
   end

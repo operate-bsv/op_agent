@@ -15,9 +15,9 @@ defmodule FBAgent.VM.Extension.Agent do
   @doc """
   Loads and runs a tape from the given txid
   """
-  def exec(txid, ctx \\ nil) do
+  def exec(txid, state \\ nil) do
     with {:ok, tape} <- FBAgent.load_tape(txid),
-         {:ok, tape} <- FBAgent.run_tape(tape, context: ctx)
+         {:ok, tape} <- FBAgent.run_tape(tape, state: state)
     do
       tape.result
     else

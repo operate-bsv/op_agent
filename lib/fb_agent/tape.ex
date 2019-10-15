@@ -10,9 +10,9 @@ defmodule FBAgent.Tape do
   ## Examples
 
       iex> {:ok, tape} = %FBAgent.Tape{cells: [
-      ...>   %FBAgent.Cell{script: "return function(ctx, a) return (ctx or 0) + a end", params: [2]},
-      ...>   %FBAgent.Cell{script: "return function(ctx, a) return (ctx or 0) + a end", params: [3]},
-      ...>   %FBAgent.Cell{script: "return function(ctx, a) return (ctx or 0) + a end", params: [4]}
+      ...>   %FBAgent.Cell{script: "return function(state, a) return (state or 0) + a end", params: [2]},
+      ...>   %FBAgent.Cell{script: "return function(state, a) return (state or 0) + a end", params: [3]},
+      ...>   %FBAgent.Cell{script: "return function(state, a) return (state or 0) + a end", params: [4]}
       ...> ]}
       ...> |> FBAgent.Tape.run(FBAgent.VM.init)
       ...> tape.result
@@ -70,7 +70,7 @@ defmodule FBAgent.Tape do
 
   The accepted options are:
 
-  * `:context` - Specifiy the context passed to the first cell procedure.
+  * `:state` - Specifiy the state passed to the first cell procedure.
   Defaults to `nil`.
   * `:strict` - By default the tape runs in struct mode - meaning if any cell
   has an error the entire tape fails. Disable strict mode by setting to `false`.
@@ -78,25 +78,25 @@ defmodule FBAgent.Tape do
   ## Examples
 
       iex> {:ok, tape} = %FBAgent.Tape{cells: [
-      ...>   %FBAgent.Cell{script: "return function(ctx, a) return (ctx or '') .. a end", params: ["b"]},
-      ...>   %FBAgent.Cell{script: "return function(ctx, a) return (ctx or '') .. a end", params: ["c"]},
-      ...>   %FBAgent.Cell{script: "return function(ctx) return string.reverse(ctx) end", params: []}
+      ...>   %FBAgent.Cell{script: "return function(state, a) return (state or '') .. a end", params: ["b"]},
+      ...>   %FBAgent.Cell{script: "return function(state, a) return (state or '') .. a end", params: ["c"]},
+      ...>   %FBAgent.Cell{script: "return function(state) return string.reverse(state) end", params: []}
       ...> ]}
-      ...> |> FBAgent.Tape.run(FBAgent.VM.init, context: "a")
+      ...> |> FBAgent.Tape.run(FBAgent.VM.init, state: "a")
       ...> tape.result
       "cba"
   """
   @spec run(t, VM.t, keyword) :: {:ok, __MODULE__.t} | {:error, __MODULE__.t}
   def run(tape, vm, options \\ []) do
-    context = Keyword.get(options, :context, nil)
+    state = Keyword.get(options, :state, nil)
     strict = Keyword.get(options, :strict, true)
     vm = VM.set!(vm, "tx", tape.tx)
     
-    case Enum.reduce_while(tape.cells, context, fn(cell, ctx) ->
-      case Cell.exec(cell, vm, context: ctx) do
+    case Enum.reduce_while(tape.cells, state, fn(cell, state) ->
+      case Cell.exec(cell, vm, state: state) do
         {:ok, result}   -> {:cont, result}
         {:error, error} ->
-          if strict, do: {:halt, {:error, error}}, else: {:cont, ctx}
+          if strict, do: {:halt, {:error, error}}, else: {:cont, state}
       end
     end) do
       {:error, error} -> {:error, Map.put(tape, :error, error)}
@@ -112,7 +112,7 @@ defmodule FBAgent.Tape do
 
   The accepted options are:
 
-  * `:context` - Specifiy the context passed to the first cell procedure.
+  * `:state` - Specifiy the state passed to the first cell procedure.
   Defaults to `nil`.
   * `:strict` - By default the tape runs in struct mode - meaning if any cell
   has an error the entire tape fails. Disable strict mode by setting to `false`.

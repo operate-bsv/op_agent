@@ -6,8 +6,8 @@ defmodule FBAgent.Cell do
 
   ## Examples
 
-      iex> %FBAgent.Cell{script: "return function(ctx, a, b) return ctx + a + b end", params: [3, 5]}
-      ...> |> FBAgent.Cell.exec(FBAgent.VM.init, context: 0)
+      iex> %FBAgent.Cell{script: "return function(state, a, b) return state + a + b end", params: [3, 5]}
+      ...> |> FBAgent.Cell.exec(FBAgent.VM.init, state: 0)
       {:ok, 8}
   """
   alias FBAgent.VM
@@ -52,20 +52,20 @@ defmodule FBAgent.Cell do
 
   The accepted options are:
 
-  * `:context` - Specifiy the context which is always the first parameter in the
+  * `:state` - Specifiy the state which is always the first parameter in the
   executed function. Defaults to `nil`.
 
   ## Examples
 
-      iex> %FBAgent.Cell{script: "return function(ctx) return ctx..' world' end", params: []}
-      ...> |> FBAgent.Cell.exec(FBAgent.VM.init, context: "hello")
+      iex> %FBAgent.Cell{script: "return function(state) return state..' world' end", params: []}
+      ...> |> FBAgent.Cell.exec(FBAgent.VM.init, state: "hello")
       {:ok, "hello world"}
   """
   @spec exec(t, VM.t, keyword) :: {:ok, VM.lua_output} | {:error, String.t}
   def exec(cell, vm, options \\ []) do
-    ctx = Keyword.get(options, :context, nil)
+    state = Keyword.get(options, :state, nil)
     case VM.eval(vm, cell.script) do
-      {:ok, function} -> VM.exec_function(function, [ctx | cell.params])
+      {:ok, function} -> VM.exec_function(function, [state | cell.params])
       err -> err
     end
   end
@@ -78,13 +78,13 @@ defmodule FBAgent.Cell do
 
   The accepted options are:
 
-  * `:context` - Specifiy the context which is always the first parameter in the
+  * `:state` - Specifiy the state which is always the first parameter in the
   executed function. Defaults to `nil`.
 
   ## Examples
 
-      iex> %FBAgent.Cell{script: "return function(ctx) return ctx..' world' end", params: []}
-      ...> |> FBAgent.Cell.exec!(FBAgent.VM.init, context: "hello")
+      iex> %FBAgent.Cell{script: "return function(state) return state..' world' end", params: []}
+      ...> |> FBAgent.Cell.exec!(FBAgent.VM.init, state: "hello")
       "hello world"
   """
   @spec exec!(t, VM.t, keyword) :: VM.lua_output

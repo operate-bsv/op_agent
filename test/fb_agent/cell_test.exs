@@ -20,12 +20,12 @@ defmodule FBAgent.CellTest do
 
   describe "FBAgent.Cell.exec/3" do
     test "must return a result", ctx do
-      res = Cell.exec(ctx.cell, ctx.vm, context: 2)
+      res = Cell.exec(ctx.cell, ctx.vm, state: 2)
       assert res == {:ok, 4}
     end
 
     test "must return an error", ctx do
-      res = Cell.exec(ctx.cell, ctx.vm, context: %{foo: "bar"})
+      res = Cell.exec(ctx.cell, ctx.vm, state: %{foo: "bar"})
       assert elem(res, 0) == :error
       assert elem(res, 1) =~ "Lua Error"
     end
@@ -34,13 +34,13 @@ defmodule FBAgent.CellTest do
 
   describe "FBAgent.Cell.exec!/3" do
     test "must return a result", ctx do
-      res = Cell.exec!(ctx.cell, ctx.vm, context: 2)
+      res = Cell.exec!(ctx.cell, ctx.vm, state: 2)
       assert res == 4
     end
 
     test "must raise an exception", ctx do
       assert_raise RuntimeError, ~r/Lua Error/, fn ->
-        Cell.exec!(ctx.cell, ctx.vm, context: %{foo: "bar"})
+        Cell.exec!(ctx.cell, ctx.vm, state: %{foo: "bar"})
       end
     end
   end

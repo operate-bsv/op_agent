@@ -26,7 +26,7 @@ defmodule FBAgent.VM.Extension.AgentTest do
       assert Map.keys(res) == ["name", "numbers"]
     end
 
-    test "must build on the given context", ctx do
+    test "must build on the given state", ctx do
       res = VM.eval!(ctx.vm, "return agent.exec('c081e7158d76b6962ecbd3b51182aac249615743574464aa3b96fce4a998858d', {'testing'})")
       assert List.first(res["numbers"]) == "testing"
     end

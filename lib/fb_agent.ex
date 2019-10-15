@@ -79,8 +79,8 @@ defmodule FBAgent do
   def run_tape(tape, options \\ []) do
     {vm, config} = FBAgent.Config.get
     vm = Keyword.get(options, :vm, vm)
-    context = Keyword.get(options, :context, nil)
-    exec_opts = [context: context, strict: config.strict]
+    state = Keyword.get(options, :state, nil)
+    exec_opts = [state: state, strict: config.strict]
 
     with {:ok, tape} <- Tape.run(tape, vm, exec_opts) do
       {:ok, tape}
