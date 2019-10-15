@@ -61,10 +61,14 @@ defmodule FBAgent.Adapter.Bob do
   end
 
 
-  defp to_bpu(%{"u" => u, "c" => c}),
+  @doc """
+  TODOC
+  """
+  @spec to_bpu(map) :: BPU.Transaction.t | [BPU.Transaction.t, ...]
+  def to_bpu(%{"u" => u, "c" => c}),
     do: u ++ c |> Enum.map(&to_bpu/1)
 
-  defp to_bpu(tx) do
+  def to_bpu(tx) do
     txid = get_in(tx, ["tx", "h"])
     outputs = Enum.map(tx["out"], fn o ->
       case get_in(o, ["e", "a"]) do

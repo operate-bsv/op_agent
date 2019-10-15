@@ -16,11 +16,13 @@ defmodule FBAgent.Cell do
   @typedoc "Procedure Cell"
   @type t :: %__MODULE__{
     ref: String.t,
+    params: list,
     script: String.t,
-    params: list
+    local_index: integer,
+    global_index: integer
   }
 
-  defstruct ref: nil, params: [], script: nil
+  defstruct ref: nil, params: [], script: nil, local_index: nil, global_index: nil
 
 
   @doc """
@@ -36,7 +38,9 @@ defmodule FBAgent.Cell do
 
     struct(__MODULE__, [
       ref: ref,
-      params: Enum.map(tail, &normalize_param/1)
+      params: Enum.map(tail, &normalize_param/1),
+      local_index: head.i,
+      global_index: head.ii
     ])
   end
 
@@ -64,6 +68,10 @@ defmodule FBAgent.Cell do
   @spec exec(t, VM.t, keyword) :: {:ok, VM.lua_output} | {:error, String.t}
   def exec(cell, vm, options \\ []) do
     state = Keyword.get(options, :state, nil)
+    vm = vm
+    |> VM.set!("ctx.local_index", cell.local_index)
+    |> VM.set!("ctx.global_index", cell.global_index)
+
     case VM.eval(vm, cell.script) do
       {:ok, function} -> VM.exec_function(function, [state | cell.params])
       err -> err

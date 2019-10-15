@@ -12,6 +12,7 @@ defmodule FBAgent.VM.Extension.Agent do
     |> VM.set_function!("agent.exec", fn _vm, args -> apply(__MODULE__, :exec, args) end)
   end
 
+
   @doc """
   Loads and runs a tape from the given txid
   """

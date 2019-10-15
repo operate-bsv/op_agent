@@ -30,6 +30,7 @@ defmodule FBAgent.VM.Extension.Crypto do
     |> VM.set_function!("crypto.hash.sha512", fn _vm, args -> apply(__MODULE__, :hash, [:sha512 | args]) end)
   end
 
+
   @doc """
   Hashes the given data using the specified algorithm.
   """

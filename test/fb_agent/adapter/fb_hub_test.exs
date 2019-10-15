@@ -29,8 +29,8 @@ defmodule FBAgent.Adapter.FBHubTest do
       ]}
       |> FBHub.fetch_procs
       [cell_1 | [cell_2]] = tape.cells
-      assert String.match?(cell_1.script, ~r/return function\(ctx/)
-      assert String.match?(cell_2.script, ~r/return function\(ctx/)
+      assert String.match?(cell_1.script, ~r/return function\(state/)
+      assert String.match?(cell_2.script, ~r/return function\(state/)
     end
 
     test "must handle cells with duplicate refs" do

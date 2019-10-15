@@ -25,12 +25,13 @@ defmodule FBAgent.Tape do
   @typedoc "Execution Tape"
   @type t :: %__MODULE__{
     tx: map,
+    index: integer,
     cells: [Cell.t, ...],
     result: VM.lua_output,
     error: binary
   }
 
-  defstruct tx: nil, cells: [], result: nil, error: nil
+  defstruct tx: nil, index: nil, cells: [], result: nil, error: nil
 
 
   @doc """
@@ -52,6 +53,7 @@ defmodule FBAgent.Tape do
 
     struct(__MODULE__, [
       tx: tx,
+      index: index,
       cells: cells
     ])
   end
@@ -90,7 +92,9 @@ defmodule FBAgent.Tape do
   def run(tape, vm, options \\ []) do
     state = Keyword.get(options, :state, nil)
     strict = Keyword.get(options, :strict, true)
-    vm = VM.set!(vm, "tx", tape.tx)
+    vm = vm
+    |> VM.set!("ctx.tx", tape.tx)
+    |> VM.set!("ctx.tape_index", tape.index)
     
     case Enum.reduce_while(tape.cells, state, fn(cell, state) ->
       case Cell.exec(cell, vm, state: state) do

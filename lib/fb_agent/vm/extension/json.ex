@@ -13,6 +13,7 @@ defmodule FBAgent.VM.Extension.JSON do
     |> VM.set_function!("json.encode", fn _vm, args -> apply(__MODULE__, :encode, args) end)
   end
 
+
   @doc """
   Decodes the given JSON string.
   """
