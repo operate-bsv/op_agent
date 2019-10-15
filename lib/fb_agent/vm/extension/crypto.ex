@@ -14,6 +14,7 @@ defmodule FBAgent.VM.Extension.Crypto do
     |> VM.set!("crypto.ecies", [])
     |> VM.set!("crypto.rsa", [])
     |> VM.set!("crypto.hash", [])
+    |> VM.set!("crypto.bitcoin_message", [])
     |> VM.set_function!("crypto.aes.encrypt", fn _vm, args -> apply(__MODULE__, :aes_encrypt, args) end)
     |> VM.set_function!("crypto.aes.decrypt", fn _vm, args -> apply(__MODULE__, :aes_decrypt, args) end)
     |> VM.set_function!("crypto.ecies.encrypt", fn _vm, args -> apply(__MODULE__, :ecies_encrypt, args) end)
@@ -28,6 +29,8 @@ defmodule FBAgent.VM.Extension.Crypto do
     |> VM.set_function!("crypto.hash.sha1", fn _vm, args -> apply(__MODULE__, :hash, [:sha | args]) end)
     |> VM.set_function!("crypto.hash.sha256", fn _vm, args -> apply(__MODULE__, :hash, [:sha256 | args]) end)
     |> VM.set_function!("crypto.hash.sha512", fn _vm, args -> apply(__MODULE__, :hash, [:sha512 | args]) end)
+    |> VM.set_function!("crypto.bitcoin_message.sign", fn _vm, args -> apply(__MODULE__, :bitcoin_message_sign, args) end)
+    |> VM.set_function!("crypto.bitcoin_message.verify", fn _vm, args -> apply(__MODULE__, :bitcoin_message_verify, args) end)
   end
 
 
@@ -110,6 +113,20 @@ defmodule FBAgent.VM.Extension.Crypto do
   def rsa_verify(sig, data, key, opts \\ %{}) do
     key = VM.decode(key) |> from_raw
     BSV.Crypto.RSA.verify(sig, data, key, parse_opts(opts))
+  end
+
+  @doc """
+  Signs the given Bitcoin Message with the given ECDSA private key.
+  """
+  def bitcoin_message_sign(data, key, opts \\ %{}) do
+    BSV.Message.sign(data, key, parse_opts(opts))
+  end
+
+  @doc """
+  Verifies the given signature and Bitcoin Message with the given ECDSA public key.
+  """
+  def bitcoin_message_verify(sig, data, key, opts \\ %{}) do
+    BSV.Message.verify(sig, data, key, parse_opts(opts))
   end
 
 

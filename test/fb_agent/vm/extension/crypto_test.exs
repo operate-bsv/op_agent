@@ -8,6 +8,8 @@ defmodule FBAgent.VM.Extension.CryptoTest do
     ecdsa_key = BSV.Test.ecdsa_key |> BSV.Crypto.ECDSA.PrivateKey.from_sequence
     rsa_priv_key = BSV.Crypto.RSA.PrivateKey.from_sequence(BSV.Test.rsa_key)
     rsa_pub_key = BSV.Crypto.RSA.PrivateKey.get_public_key(rsa_priv_key)
+    bsv_keys = BSV.KeyPair.from_ecdsa_key(BSV.Test.bsv_keys)
+    bsv_address = BSV.Address.from_public_key(bsv_keys)
     vm = VM.init
     |> FBAgent.VM.Extension.Crypto.extend
     |> VM.set!("aes_key", aes_key)
@@ -15,6 +17,9 @@ defmodule FBAgent.VM.Extension.CryptoTest do
     |> VM.set!("ecdsa_pub_key", ecdsa_key.public_key)
     |> VM.set!("rsa_priv_key", BSV.Crypto.RSA.PrivateKey.as_raw(rsa_priv_key))
     |> VM.set!("rsa_pub_key", BSV.Crypto.RSA.PublicKey.as_raw(rsa_pub_key))
+    |> VM.set!("bsv_priv_key", bsv_keys.private_key)
+    |> VM.set!("bsv_pub_key", bsv_keys.public_key)
+    |> VM.set!("bsv_address", BSV.Address.to_string(bsv_address))
     %{
       vm: vm
     }
@@ -127,6 +132,33 @@ defmodule FBAgent.VM.Extension.CryptoTest do
         76, 216, 111, 152, 157, 211, 91, 197, 255, 73, 150, 112, 218, 52, 37,
         91, 69, 176, 207, 216, 48, 232, 31, 96, 93, 207, 125, 197, 84,
         46, 147, 174, 156, 215, 111>>
+    end
+  end
+
+
+  describe "FBAgent.VM.Extension.Crypto.bitcoin_message_sign/3 and FBAgent.VM.Extension.Crypto.bitcoin_message_verify/4" do
+    test "must sign and verify message", ctx do
+      script = """
+      sig = crypto.bitcoin_message.sign('hello world', bsv_priv_key)
+      return crypto.bitcoin_message.verify(sig, 'hello world', bsv_pub_key)
+      """
+      assert VM.eval!(ctx.vm, script) == true
+    end
+
+    test "must verify message with address", ctx do
+      script = """
+      sig = crypto.bitcoin_message.sign('hello world', bsv_priv_key)
+      return crypto.bitcoin_message.verify(sig, 'hello world', bsv_address)
+      """
+      assert VM.eval!(ctx.vm, script) == true
+    end
+
+    test "wont verify when different message", ctx do
+      script = """
+      sig = crypto.bitcoin_message.sign('hello world', bsv_priv_key)
+      return crypto.bitcoin_message.verify(sig, 'goodbye world', bsv_pub_key)
+      """
+      assert VM.eval!(ctx.vm, script) == false
     end
   end
 

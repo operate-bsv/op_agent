@@ -16,7 +16,6 @@ defmodule FBAgent.BPU.Script do
     e: InputEdge.t | OutputEdge.t
   }
 
-  @tape_cell_keys [:i, :cell]
   @input_edge_keys [:a, :h, :i]
   @output_edge_keys [:a, :i, :v]
 
