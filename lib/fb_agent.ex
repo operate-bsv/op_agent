@@ -43,7 +43,7 @@ defmodule FBAgent do
     {proc_adapter, proc_adpt_opts} = adapter_with_options(config.proc_adapter)
 
     cache = Keyword.get(options, :cache, config.cache)
-    get_tape_fn = if cache, do: :cache_get_tape, else: :get_tape
+    _fetch_tx = if cache, do: :cache_fetch_tx, else: :fetch_tx
 
     aliases = config.aliases
     |> Map.merge(Keyword.get(options, :aliases, %{}))
@@ -51,8 +51,9 @@ defmodule FBAgent do
     proc_adpt_opts = proc_adpt_opts
     |> Keyword.put(:aliases, aliases)
 
-    with {:ok, tape} <- apply(tape_adapter, get_tape_fn, [txid, tape_adpt_opts]),
-         {:ok, tape} <- apply(proc_adapter, :get_procs, [tape, proc_adpt_opts])
+    with {:ok, tx}   <- apply(tape_adapter, :fetch_tx, [txid, tape_adpt_opts]),
+         tape        <- Tape.from_bpu(tx),
+         {:ok, tape} <- apply(proc_adapter, :fetch_procs, [tape, proc_adpt_opts])
     do
       {:ok, tape}
     else

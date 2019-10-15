@@ -6,7 +6,6 @@ defmodule FBAgent.VM.Extension.JSON do
 
   @behaviour VM.Extension
 
-  @impl VM.Extension
   def extend(vm) do
     vm
     |> VM.set!("json", [])

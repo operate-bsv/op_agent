@@ -6,7 +6,6 @@ defmodule FBAgent.VM.Extension.Crypto do
 
   @behaviour VM.Extension
 
-  @impl VM.Extension
   def extend(vm) do
     vm
     |> VM.set!("crypto", [])

@@ -11,6 +11,7 @@ defmodule FBAgent.Cell do
       {:ok, 8}
   """
   alias FBAgent.VM
+  alias FBAgent.BPU
 
   @typedoc "Procedure Cell"
   @type t :: %__MODULE__{
@@ -20,6 +21,29 @@ defmodule FBAgent.Cell do
   }
 
   defstruct ref: nil, params: [], script: nil
+
+
+  @doc """
+  TODOC
+  """
+  @spec from_bpu(BPU.Cell.t | map) :: {:ok, __MODULE__.t} | {:error, __MODULE__.t}
+  def from_bpu(%BPU.Cell{cell: [head | tail]}) do
+    str = Base.decode64!(head.b)
+    ref = case String.valid?(str) do
+      true  -> str
+      false -> Base.encode16(str, case: :lower)
+    end
+
+    struct(__MODULE__, [
+      ref: ref,
+      params: Enum.map(tail, &normalize_param/1)
+    ])
+  end
+
+  defp normalize_param(%{b: b}), do: Base.decode64!(b)
+  defp normalize_param(_), do: nil
+
+
 
   @doc """
   Executes the given cell in the given VM state.

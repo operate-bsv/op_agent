@@ -3,20 +3,21 @@ defmodule FBAgent.Adapter.BobTest do
   alias FBAgent.Adapter.Bob
   doctest FBAgent.Adapter.Bob
 
-  describe "FBAgent.Adapter.Bob.get_tape/1" do
+  describe "FBAgent.Adapter.Bob.fetch_tx/1" do
 
     setup do
       Tesla.Mock.mock fn
-        _ -> File.read!("test/mocks/bob_get_tape.json") |> Jason.decode! |> Tesla.Mock.json
+        _ -> File.read!("test/mocks/bob_fetch_tx.json") |> Jason.decode! |> Tesla.Mock.json
       end
       :ok
     end
 
-    test "get tape" do
-      {:ok, res} = Bob.get_tape("98be5010028302399999bfba0612ee51ea272e7a0eb3b45b4b8bef85f5317633", api_key: "test")
-      assert length(res.cells) == 3
-      assert List.first(res.cells).ref == "19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut"
-      assert length(List.first(res.cells).params) == 4
+    test "get tx" do
+      {:ok, tx} = Bob.fetch_tx("98be5010028302399999bfba0612ee51ea272e7a0eb3b45b4b8bef85f5317633", api_key: "test")
+      assert tx.txid == "98be5010028302399999bfba0612ee51ea272e7a0eb3b45b4b8bef85f5317633"
+      assert tx.in |> length == 1
+      assert tx.out |> length == 3
+      assert tx.out |> List.first |> Map.get(:tape) |> Enum.at(1) |> Map.get(:cell) |> length == 5
     end
     
   end

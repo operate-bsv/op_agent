@@ -13,9 +13,9 @@ defmodule FBAgent.VM.Extension.AgentTest do
       Tesla.Mock.mock fn env ->
         cond do
           String.match?(env.url, ~r/bob.planaria.network/) ->
-            File.read!("test/mocks/agent_exec_get_tape.json") |> Jason.decode! |> Tesla.Mock.json
+            File.read!("test/mocks/agent_exec_fetch_tx.json") |> Jason.decode! |> Tesla.Mock.json
           String.match?(env.url, ~r/functions.chronoslabs.net/) ->
-            File.read!("test/mocks/agent_exec_get_procs.json") |> Jason.decode! |> Tesla.Mock.json
+            File.read!("test/mocks/agent_exec_fetch_procs.json") |> Jason.decode! |> Tesla.Mock.json
         end
       end
       :ok
