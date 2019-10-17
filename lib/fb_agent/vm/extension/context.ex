@@ -88,16 +88,16 @@ defmodule FBAgent.VM.Extension.Context do
   defp normalize_cells(source, result \\ [])
 
   defp normalize_cells([], result) do
-    case %{t: :op, v: 106} in result do
+    case result |> Enum.any?(& get_in(&1, [:op]) == 106) do
       true -> result
-      false -> [%{t: :bin, v: "|"} | result]
+      false -> [%{b: "|"} | result]
     end
   end
 
   defp normalize_cells([%{"op" => op} | source], result) when is_integer(op),
-    do: normalize_cells(source, [%{t: :op, v: op} | result])
+    do: normalize_cells(source, [%{op: op, b: <<op::integer>>} | result])
 
   defp normalize_cells([%{"b" => b} | source], result) when is_binary(b),
-    do: normalize_cells(source, [%{t: :bin, v: Base.decode64!(b)} | result])
+    do: normalize_cells(source, [%{b: Base.decode64!(b)} | result])
 
 end

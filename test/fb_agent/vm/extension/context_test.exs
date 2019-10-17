@@ -76,13 +76,13 @@ defmodule FBAgent.VM.Extension.ContextTest do
   describe "FBAgent.VM.Extension.Context.get_cell/" do
     test "without index must return the current cell", ctx do
       res = VM.eval!(ctx.vm, "return ctx.get_cell()")
-      assert List.first(res) |> Map.get("v") == "1PuQa7K62MiKCtssSLKy1kh56WWU7MtUR5"
+      assert List.first(res) |> Map.get("b") == "1PuQa7K62MiKCtssSLKy1kh56WWU7MtUR5"
       assert length(res) == 17
     end
 
     test "with index must return the requested cell", ctx do
       res = VM.eval!(ctx.vm, "return ctx.get_cell(1)")
-      assert List.first(res) |> Map.get("v") == "19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut"
+      assert List.first(res) |> Map.get("b") == "19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut"
       assert length(res) == 6
     end
 
