@@ -16,8 +16,9 @@ defmodule FBAgent.VM do
   @extensions [
     FBAgent.VM.Extension.Agent,
     FBAgent.VM.Extension.Context,
+    FBAgent.VM.Extension.Crypto,
     FBAgent.VM.Extension.JSON,
-    FBAgent.VM.Extension.Crypto
+    FBAgent.VM.Extension.String
   ]
   
 
