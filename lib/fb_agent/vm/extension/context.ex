@@ -50,11 +50,9 @@ defmodule FBAgent.VM.Extension.Context do
          output when is_map(output) <- tx_output(vm, index)
     do
       [_ | tape] = Enum.reduce(output["tape"], [], fn %{"cell" => cells}, data ->
-        parse_cells(cells) ++ data
+        normalize_cells(cells) ++ data
       end)
-      tape
-      |> Enum.reverse
-      |> Enum.map(&encode_op_code/1)
+      Enum.reverse(tape)
     else
       _err -> nil
     end
@@ -69,9 +67,8 @@ defmodule FBAgent.VM.Extension.Context do
     do
       Enum.at(output["tape"], index)
       |> Map.get("cell")
-      |> parse_cells
+      |> normalize_cells
       |> Enum.reverse
-      |> Enum.map(&encode_op_code/1)
     else
       _err -> nil
     end
@@ -87,32 +84,20 @@ defmodule FBAgent.VM.Extension.Context do
 
 
   # Pivate functions
-  # Parses list of BPU cells into flat list of raw data
-  defp parse_cells(cells, data \\ [])
+  # Normalizes list of BPU cells into simplified maps
+  defp normalize_cells(source, result \\ [])
 
-  defp parse_cells([], data) do
-    case :OP_RETURN in data do
-      true -> data
-      false -> ["|" | data]
+  defp normalize_cells([], result) do
+    case %{t: :op, v: 106} in result do
+      true -> result
+      false -> [%{t: :bin, v: "|"} | result]
     end
   end
 
-  defp parse_cells([%{"op" => op} | cells], data) when is_integer(op) do
-    {op_code, _} = BSV.Script.OpCode.get(op)
-    parse_cells(cells, [op_code | data])
-  end
+  defp normalize_cells([%{"op" => op} | source], result) when is_integer(op),
+    do: normalize_cells(source, [%{t: :op, v: op} | result])
 
-  defp parse_cells([%{"b" => b} | cells], data) when is_binary(b) do
-    b = Base.decode64!(b)
-    parse_cells(cells, [b | data])
-  end
+  defp normalize_cells([%{"b" => b} | source], result) when is_binary(b),
+    do: normalize_cells(source, [%{t: :bin, v: Base.decode64!(b)} | result])
 
-
-  # Private functions
-  # Encodes op code into binary
-  defp encode_op_code(op) when is_atom(op) do
-    {_, opcode_num} = BSV.Script.OpCode.get(op)
-    <<opcode_num::integer>>
-  end
-  defp encode_op_code(op), do: op
 end
