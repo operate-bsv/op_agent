@@ -134,7 +134,7 @@ defmodule FBAgent.VM.Extension.Crypto do
     Enum.into(opts, [], fn {k, v} ->
       key = String.to_atom(k)
       val = case key do
-        :encode -> String.to_atom(v)
+        :encoding -> String.to_atom(v)
         _ -> v
       end
       {key, val}
