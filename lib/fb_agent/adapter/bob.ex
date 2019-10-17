@@ -8,8 +8,6 @@ defmodule FBAgent.Adapter.Bob do
       # => {:ok, %FBAgent.BPU.Transaction{}}
   """
   alias FBAgent.BPU
-  #alias FBAgent.Tape
-  #alias FBAgent.Cell
 
   use FBAgent.Adapter
   use Tesla, only: [:get], docs: false
@@ -41,23 +39,6 @@ defmodule FBAgent.Adapter.Bob do
         {:ok, tx}
       error -> error
     end
-  end
-
-
-  def fetch_tx!(txid, options \\ []) do
-    case fetch_tx(txid, options) do
-      {:ok, tape} -> tape
-      {:error, err} -> raise err
-    end
-  end
-
-
-  @doc """
-  TODOC
-  """
-  def cache_fetch_tx(txid, options \\ []) do
-    key = "t:#{txid}"
-    ConCache.fetch_or_store(:fb_agent, key, fn -> fetch_tx(txid, options) end)
   end
 
 

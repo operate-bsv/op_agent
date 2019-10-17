@@ -17,14 +17,22 @@ defmodule FBAgent.Adapter do
       def fetch_tx(_txid, _options \\ []),
         do: raise "#{__MODULE__}.fetch_tx/2 not implemented"
 
-      def fetch_tx!(_txid, _options \\ []),
-        do: raise "#{__MODULE__}.fetch_tx!/2 not implemented"
+      def fetch_tx!(txid, options \\ []) do
+        case fetch_tx(txid, options) do
+          {:ok, tape} -> tape
+          {:error, err} -> raise err
+        end
+      end
 
       def fetch_procs(_refs, _options \\ []),
         do: raise "#{__MODULE__}.fetch_procs/2 not implemented"
 
-      def fetch_procs!(_refs, _options \\ []),
-        do: raise "#{__MODULE__}.fetch_procs!/2 not implemented"
+      def fetch_procs!(refs, options \\ []) do
+        case fetch_procs(refs, options) do
+          {:ok, result} -> result
+          {:error, err} -> raise err
+        end
+      end
 
       defoverridable  fetch_tx: 1, fetch_tx: 2,
                       fetch_tx!: 1, fetch_tx!: 2,

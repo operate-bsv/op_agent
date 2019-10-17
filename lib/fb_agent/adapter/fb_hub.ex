@@ -42,14 +42,6 @@ defmodule FBAgent.Adapter.FBHub do
   end
 
 
-  def fetch_procs!(refs_or_tape, options \\ []) do
-    case fetch_procs(refs_or_tape, options) do
-      {:ok, result} -> result
-      {:error, err} -> raise err
-    end
-  end
-
-
   defp add_tape_procs(tape, [func | tail], aliases) do
     ref = case Enum.find(aliases, fn {_k, v} -> v == func["ref"] end) do
       {k, _v} -> k

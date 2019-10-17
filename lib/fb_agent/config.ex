@@ -36,5 +36,5 @@ defmodule FBAgent.Config do
   TODOC
   """
   def cache_ttl, do: @defaults.cache_ttl
-  
+
 end
