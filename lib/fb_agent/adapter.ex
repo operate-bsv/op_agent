@@ -5,8 +5,8 @@ defmodule FBAgent.Adapter do
   An adapter is any module responsible for loading tx and procs from a
   datasource - normally a web API or a database. The module must export:
 
-  * `fetch_tx/2` - function that takes a txid and returns a `FBAgent.BPU.Transaction.t`
-  * `fetch_procs/2` - function that takes an array of procedure references and
+  * `fetch_tx/3` - function that takes a txid and returns a `FBAgent.BPU.Transaction.t`
+  * `fetch_procs/3` - function that takes an array of procedure references and
   returns an array of scripts.
   """
 
@@ -15,7 +15,7 @@ defmodule FBAgent.Adapter do
       @behaviour FBAgent.Adapter
 
       def fetch_tx(_txid, _options \\ []),
-        do: raise "#{__MODULE__}.fetch_tx/2 not implemented"
+        do: raise "#{__MODULE__}.fetch_tx/3 not implemented"
 
       def fetch_tx!(txid, options \\ []) do
         case fetch_tx(txid, options) do
@@ -25,7 +25,7 @@ defmodule FBAgent.Adapter do
       end
 
       def fetch_procs(_refs, _options \\ []),
-        do: raise "#{__MODULE__}.fetch_procs/2 not implemented"
+        do: raise "#{__MODULE__}.fetch_procs/3 not implemented"
 
       def fetch_procs!(refs, options \\ []) do
         case fetch_procs(refs, options) do
@@ -58,12 +58,23 @@ defmodule FBAgent.Adapter do
   Fetches procedure scripts by the given list of references or tape, returning
   either a list of functions or a tape with cells prepared for execution.
   """
-  @callback fetch_procs(list | FBAgent.Tape.t, keyword) :: {:ok, list | FBAgent.Tape.t} | {:error, String.t}
+  @callback fetch_procs(list, keyword) :: {:ok, list} | {:error, String.t}
 
 
   @doc """
   As `t:fetch_procs/2`, but returns the result or raises an exception.
   """
-  @callback fetch_procs!(list | FBAgent.Tape.t, keyword) :: list | FBAgent.Tape.t
+  @callback fetch_procs!(list, keyword) :: list
+
+
+  @doc """
+  TODOC
+  """
+  @spec with_options(module) :: {module, keyword}
+  def with_options(mod) when is_atom(mod), do: {mod, []}
+
+  def with_options({mod, opts} = pair)
+    when is_atom(mod) and is_list(opts),
+    do: pair
   
 end

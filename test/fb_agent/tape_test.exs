@@ -3,6 +3,7 @@ defmodule FBAgent.TapeTest do
   alias FBAgent.VM
   alias FBAgent.Tape
   alias FBAgent.Cell
+  alias FBAgent.Adapter.FBHub
   doctest FBAgent.Tape
 
   setup_all do
@@ -16,6 +17,42 @@ defmodule FBAgent.TapeTest do
       vm: VM.init,
       cell: %Cell{ref: "test", params: ["2"], script: script}
     }
+  end
+
+
+  describe "FBAgent.Tape.apply_procs/3" do
+    setup do
+      Tesla.Mock.mock fn
+        _ -> File.read!("test/mocks/hub_fetch_procs.json") |> Jason.decode! |> Tesla.Mock.json
+      end
+      tape = %Tape{cells: [
+        %Cell{ref: "0b9574b5", params: ["foo.bar", 1, "foo.baz", 2]},
+        %Cell{ref: "77bbf52e", params: ["baz", "qux", 3]}
+      ]}
+      %{
+        tape: tape,
+        procs: FBHub.fetch_procs!(["0b9574b5", "77bbf52e"])
+      }
+    end
+
+    test "must return tape with function scripts", ctx do
+      [cell_1 | [cell_2]] = Tape.apply_procs(ctx.tape, ctx.procs)
+      |> Map.get(:cells)
+      assert String.match?(cell_1.script, ~r/return function\(state/)
+      assert String.match?(cell_2.script, ~r/return function\(state/)
+    end
+
+    test "must handle cells with duplicate refs", ctx do
+      tape = %Tape{cells: [
+        %Cell{ref: "0b9574b5", params: ["foo.bar", 1, "foo.baz", 2]},
+        %Cell{ref: "77bbf52e", params: ["baz", "qux", 3]},
+        %Cell{ref: "77bbf52e", params: ["bish", "bash", "bosh"]}
+      ]}
+      assert Tape.valid?(tape) == false
+
+      tape = Tape.apply_procs(tape, ctx.procs)
+      assert Tape.valid?(tape) == true
+    end
   end
 
 

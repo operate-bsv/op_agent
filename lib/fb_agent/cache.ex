@@ -4,28 +4,28 @@ defmodule FBAgent.Cache do
 
   An cache is any module responsible for storing and retrieving tx and procs
   from a cache, and if necessary instructing an adapter to fetch items from a
-  datesource.
+  data source.
   """
 
   defmacro __using__(opts \\ []) do
     quote bind_quoted: [opts: opts] do
       @behaviour FBAgent.Cache
 
-      def fetch_tx({adapter, adapter_opts}, txid, _options \\ []),
+      def fetch_tx(txid, _options \\ [], {adapter, adapter_opts}),
         do: adapter.fetch_tx(txid, adapter_opts)
 
-      def fetch_tx!({adapter, adapter_opts}, txid, options \\ []) do
-        case fetch_tx({adapter, adapter_opts}, txid, options) do
+      def fetch_tx!(txid, options \\ [], {adapter, adapter_opts}) do
+        case fetch_tx(txid, options, {adapter, adapter_opts}) do
           {:ok, tape} -> tape
           {:error, err} -> raise err
         end
       end
 
-      def fetch_procs({adapter, adapter_opts}, refs, _options \\ []),
+      def fetch_procs(refs, _options \\ [], {adapter, adapter_opts}),
         do: adapter.fetch_procs(refs, adapter_opts)
 
-      def fetch_procs!({adapter, adapter_opts}, refs, options \\ []) do
-        case fetch_procs({adapter, adapter_opts}, refs, options) do
+      def fetch_procs!(refs, options \\ [], {adapter, adapter_opts}) do
+        case fetch_procs(refs, options, {adapter, adapter_opts}) do
           {:ok, result} -> result
           {:error, err} -> raise err
         end

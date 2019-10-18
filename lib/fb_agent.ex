@@ -1,36 +1,64 @@
 defmodule FBAgent do
   @moduledoc """
   Documentation for FBAgent.
+
+  ## Supervision
+
+      children = [
+        {FBAgent, [
+          cache: FBAgent.Cache.ConCache,
+        ]},
+        {ConCache, [
+          name: :fb_agent,
+          ttl_check_interval: :timer.minutes(1),
+          global_ttl: :timer.minutes(10),
+          touch_on_read: true
+        ]}
+      ]
+
+      Supervisor.start_link(children, strategy: :one_for_one)
   """
+  use Agent
+  alias FBAgent.Adapter
   alias FBAgent.Tape
-  
+
+
+  @default_config %{
+    tape_adapter: FBAgent.Adapter.Bob,
+    proc_adapter: FBAgent.Adapter.FBHub,
+    cache: FBAgent.Cache.NoCache,
+    extensions: [],
+    aliases: %{},
+    strict: true
+  }
+
+
   @doc """
   TODOC
   """
   def start_link(options \\ []) do
-    cache_ttl = Keyword.get(options, :cache_ttl, FBAgent.Config.cache_ttl)
-
-    children = [
-      {FBAgent.Config, options},
-      {ConCache, [
-        name: :fb_agent,
-        ttl_check_interval: :timer.minutes(1),
-        global_ttl: cache_ttl,
-        touch_on_read: true
-      ]}
-    ]
-
-    Supervisor.start_link(children, strategy: :one_for_one)
+    name = Keyword.get(options, :name, __MODULE__)
+    config = Enum.into(options, @default_config)
+    vm = FBAgent.VM.init(extensions: config.extensions)
+    Agent.start_link(fn -> {vm, config} end, name: name)
   end
 
 
-  @doc false
-  def child_spec(opts) do
-    %{
-      id: __MODULE__,
-      start: {__MODULE__, :start_link, [opts]},
-      type: :supervisor
-    }
+  @doc """
+  TODOC
+  """
+  def get_state(options \\ []) do
+    name = Keyword.get(options, :name, __MODULE__)
+    case Process.whereis(name) do
+      p when is_pid(p) ->
+        Agent.get(name, fn {vm, config} ->
+          {Keyword.get(options, :vm, vm), Enum.into(options, config)}
+        end)
+      nil ->
+        config = Enum.into(options, @default_config)
+        vm = FBAgent.VM.init(extensions: config.extensions)
+        {vm, config}
+    end
   end
 
 
@@ -38,22 +66,20 @@ defmodule FBAgent do
   TODOC
   """
   def load_tape(txid, options \\ []) do
-    {_vm, config} = FBAgent.Config.get
-    {tape_adapter, tape_adpt_opts} = adapter_with_options(config.tape_adapter)
-    {proc_adapter, proc_adpt_opts} = adapter_with_options(config.proc_adapter)
+    {_vm, config} = get_state(options)
+    tape_adapter  = Adapter.with_options(config.tape_adapter)
+    proc_adapter  = Adapter.with_options(config.proc_adapter)
+    {cache, cache_opts} = Adapter.with_options(config.cache)
 
-    cache = Keyword.get(options, :cache, config.cache)
-    _fetch_tx = if cache, do: :cache_fetch_tx, else: :fetch_tx
+    aliases = Map.get(config, :aliases, %{})
 
-    aliases = config.aliases
-    |> Map.merge(Keyword.get(options, :aliases, %{}))
-
-    proc_adpt_opts = proc_adpt_opts
-    |> Keyword.put(:aliases, aliases)
-
-    with {:ok, tx}   <- apply(tape_adapter, :fetch_tx, [txid, tape_adpt_opts]),
-         tape        <- Tape.from_bpu(tx),
-         {:ok, tape} <- apply(proc_adapter, :fetch_procs, [tape, proc_adpt_opts])
+    with {:ok, tx} <- cache.fetch_tx(txid, cache_opts, tape_adapter),
+      tape <- Tape.from_bpu(tx),
+      refs <- Tape.procedure_refs(tape)
+              |> Enum.map(& Map.get(aliases, &1, &1))
+              |> Enum.uniq,
+      {:ok, procs} <- cache.fetch_procs(refs, cache_opts, proc_adapter),
+      tape <- Tape.apply_procs(tape, procs, aliases)
     do
       {:ok, tape}
     else
@@ -77,9 +103,8 @@ defmodule FBAgent do
   TODOC
   """
   def run_tape(tape, options \\ []) do
-    {vm, config} = FBAgent.Config.get
-    vm = Keyword.get(options, :vm, vm)
-    state = Keyword.get(options, :state, nil)
+    {vm, config} = get_state(options)
+    state = Map.get(config, :state, nil)
     exec_opts = [state: state, strict: config.strict]
 
     with {:ok, tape} <- Tape.run(tape, vm, exec_opts) do
@@ -97,14 +122,6 @@ defmodule FBAgent do
     case run_tape(tape, options) do
       {:ok, tape} -> tape
       {:error, tape} -> raise tape.error
-    end
-  end
-
-
-  defp adapter_with_options(adapter) do
-    case adapter do
-      {adapter, opts} -> {adapter, opts}
-      adapter -> {adapter, []}
     end
   end
 

@@ -4,7 +4,6 @@ defmodule FBAgent.VM.Extension.AgentTest do
   doctest FBAgent.VM.Extension.Agent
 
   setup_all do
-    FBAgent.start_link
     %{ vm: VM.init |> FBAgent.VM.Extension.Agent.extend }
   end
 
