@@ -285,7 +285,9 @@ defmodule FBAgent.VM do
   @doc """
   Evaluates the given script within the VM state and returns the modified state.
   """
-  @spec exec(__MODULE__.t, String.t) :: {:ok, __MODULE__.t} | {:error, String.t}
+  @spec exec(__MODULE__.t, String.t) ::
+    {:ok, __MODULE__.t} |
+    {:error, String.t}
   def exec(vm, code) do
     try do
       {_result, vm} = :luerl.do(code, vm)
@@ -383,7 +385,7 @@ defmodule FBAgent.VM do
   @spec exec_function(function, list) ::
     {:ok, __MODULE__.lua_output} |
     {:error, String.t}
-  def exec_function(function, args \\ []) do
+  def exec_function(function, args \\ []) when is_function(function) do
     try do
       result = apply(function, [args])
       {:ok, decode(result)}
@@ -405,7 +407,7 @@ defmodule FBAgent.VM do
       "hello world"
   """
   @spec exec_function!(function, list) :: __MODULE__.lua_output
-  def exec_function!(function, args \\ []) do
+  def exec_function!(function, args \\ []) when is_function(function) do
     case exec_function(function, args) do
       {:ok, result} -> result
       {:error, err} -> raise err
@@ -459,8 +461,7 @@ defmodule FBAgent.VM do
   def decode(val), do: val
 
 
-  # Private function
-  # Determins which method to use to decode the Lue table
+  # Private: Determines which method to use to decode the Lue table
   defp lua_table_type(table) do
     cond do
       Enum.all?(table, &(is_tuple(&1))) ->
@@ -473,8 +474,7 @@ defmodule FBAgent.VM do
   end
 
 
-  # Private functions\
-  # Recursively sets empty tables on the given lua path
+  # Private: Recursively sets empty tables on the given lua path
   defp set_deep_tables(vm, path, last_path \\ nil)
   defp set_deep_tables(vm, [], _last_path), do: vm
   defp set_deep_tables(vm, [path | rest], last_path) do

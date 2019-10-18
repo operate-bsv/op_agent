@@ -63,7 +63,9 @@ defmodule FBAgent.Adapter do
   Fetches a transaction by the given txid, and returns the result in an OK/Error
   tuple pair.
   """
-  @callback fetch_tx(String.t, keyword) :: {:ok, FBAgent.Tape.t} | {:error, String.t}
+  @callback fetch_tx(String.t, keyword) ::
+    {:ok, FBAgent.Tape.t} |
+    {:error, String.t}
 
 
   @doc """
@@ -76,7 +78,9 @@ defmodule FBAgent.Adapter do
   Fetches a list of procedure scripts by the given list of references. Returns
   the result in an OK/Error tuple pair.
   """
-  @callback fetch_procs(list, keyword) :: {:ok, list} | {:error, String.t}
+  @callback fetch_procs(list, keyword) ::
+    {:ok, list} |
+    {:error, String.t}
 
 
   @doc """

@@ -62,8 +62,9 @@ defmodule FBAgent.Cache do
   @doc """
   Fetches a transaction by the given txid, and returns a `FBAgent.BPU.Transaction.t`
   """
-  @callback fetch_tx(String.t, keyword, {module, keyword})
-    :: {:ok, FBAgent.Tape.t} | {:error, String.t}
+  @callback fetch_tx(String.t, keyword, {module, keyword}) ::
+    {:ok, FBAgent.Tape.t} |
+    {:error, String.t}
 
 
   @doc """
@@ -76,8 +77,9 @@ defmodule FBAgent.Cache do
   Fetches procedure scripts by the given list of references or tape, returning
   either a list of functions or a tape with cells prepared for execution.
   """
-  @callback fetch_procs(list, keyword, {module, keyword})
-    :: {:ok, list} | {:error, String.t}
+  @callback fetch_procs(list, keyword, {module, keyword}) ::
+    {:ok, list} |
+    {:error, String.t}
 
 
   @doc """

@@ -20,7 +20,7 @@ defmodule FBAgent.TapeTest do
   end
 
 
-  describe "FBAgent.Tape.apply_procs/3" do
+  describe "FBAgent.Tape.set_cell_procs/3" do
     setup do
       Tesla.Mock.mock fn
         _ -> File.read!("test/mocks/hub_fetch_procs.json") |> Jason.decode! |> Tesla.Mock.json
@@ -36,7 +36,7 @@ defmodule FBAgent.TapeTest do
     end
 
     test "must return tape with function scripts", ctx do
-      [cell_1 | [cell_2]] = Tape.apply_procs(ctx.tape, ctx.procs)
+      [cell_1 | [cell_2]] = Tape.set_cell_procs(ctx.tape, ctx.procs)
       |> Map.get(:cells)
       assert String.match?(cell_1.script, ~r/return function\(state/)
       assert String.match?(cell_2.script, ~r/return function\(state/)
@@ -50,7 +50,7 @@ defmodule FBAgent.TapeTest do
       ]}
       assert Tape.valid?(tape) == false
 
-      tape = Tape.apply_procs(tape, ctx.procs)
+      tape = Tape.set_cell_procs(tape, ctx.procs)
       assert Tape.valid?(tape) == true
     end
   end

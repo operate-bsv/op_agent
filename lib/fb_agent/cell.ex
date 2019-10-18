@@ -1,17 +1,18 @@
 defmodule FBAgent.Cell do
   @moduledoc """
-  A Functional Bitcoin Cell module. A cell represents a single atomic procude
-  call. A `t:FBAgent.Cell.t`contains the procedure script and the the procedure's
-  parameters. When the cell is executed it returns a result.
+  Functional Bitcoin Procedure Cell.
+
+  A cell represents a single atomic procedure call. A `t:FBAgent.Cell.t`contains
+  the procedure script and the the procedure's parameters. When the cell is
+  executed it returns a result.
 
   ## Examples
 
       iex> %FBAgent.Cell{script: "return function(state, a, b) return state + a + b end", params: [3, 5]}
-      ...> |> FBAgent.Cell.exec(FBAgent.VM.init, state: 0)
-      {:ok, 8}
+      ...> |> FBAgent.Cell.exec(FBAgent.VM.init, state: 1)
+      {:ok, 9}
   """
-  alias FBAgent.VM
-  alias FBAgent.BPU
+  alias FBAgent.{BPU, VM}
 
   @typedoc "Procedure Cell"
   @type t :: %__MODULE__{
@@ -22,31 +23,52 @@ defmodule FBAgent.Cell do
     global_index: integer
   }
 
-  defstruct ref: nil, params: [], script: nil, local_index: nil, global_index: nil
+  defstruct ref: nil,
+            params: [],
+            script: nil,
+            local_index: nil,
+            global_index: nil
 
 
   @doc """
-  TODOC
+  Converts the given `t:FBAgent.BPU.Cell.t` into a `t:FBAgent.Cell.t`. Returns
+  the result in an OK/Error tuple pair.
   """
-  @spec from_bpu(BPU.Cell.t | map) :: {:ok, __MODULE__.t} | {:error, __MODULE__.t}
+  @spec from_bpu(BPU.Cell.t) ::
+    {:ok, __MODULE__.t} |
+    {:error, String.t}
   def from_bpu(%BPU.Cell{cell: [head | tail]}) do
-    str = Base.decode64!(head.b)
-    ref = case String.valid?(str) do
-      true  -> str
-      false -> Base.encode16(str, case: :lower)
-    end
+    with {:ok, str} <- Base.decode64(head.b),
+         params when is_list(params) <- Enum.map(tail, &normalize_param/1)
+    do
+      ref = case String.valid?(str) do
+        true  -> str
+        false -> Base.encode16(str, case: :lower)
+      end
 
-    struct(__MODULE__, [
-      ref: ref,
-      params: Enum.map(tail, &normalize_param/1),
-      local_index: head.i,
-      global_index: head.ii
-    ])
+      cell = struct(__MODULE__, [
+        ref: ref,
+        params: params,
+        local_index: head.i,
+        global_index: head.ii
+      ])
+      {:ok, cell}
+    else
+      error -> error
+    end 
   end
 
-  defp normalize_param(%{b: b}), do: Base.decode64!(b)
-  defp normalize_param(_), do: nil
 
+  @doc """
+  As `f:from_bpu/1`, but returns the result or raises an exception.
+  """
+  @spec from_bpu!(BPU.Cell.t) :: __MODULE__.t
+  def from_bpu!(%BPU.Cell{} = cell) do
+    case from_bpu(cell) do
+      {:ok, cell} -> cell
+      {:error, err} -> raise err
+    end
+  end
 
 
   @doc """
@@ -65,7 +87,9 @@ defmodule FBAgent.Cell do
       ...> |> FBAgent.Cell.exec(FBAgent.VM.init, state: "hello")
       {:ok, "hello world"}
   """
-  @spec exec(__MODULE__.t, VM.t, keyword) :: {:ok, VM.lua_output} | {:error, String.t}
+  @spec exec(__MODULE__.t, VM.t, keyword) ::
+    {:ok, VM.lua_output} |
+    {:error, String.t}
   def exec(%__MODULE__{} = cell, vm, options \\ []) do
     state = Keyword.get(options, :state, nil)
     vm = vm
@@ -88,12 +112,6 @@ defmodule FBAgent.Cell do
 
   * `:state` - Specifiy the state which is always the first parameter in the
   executed function. Defaults to `nil`.
-
-  ## Examples
-
-      iex> %FBAgent.Cell{script: "return function(state) return state..' world' end", params: []}
-      ...> |> FBAgent.Cell.exec!(FBAgent.VM.init, state: "hello")
-      "hello world"
   """
   @spec exec!(__MODULE__.t, VM.t, keyword) :: VM.lua_output
   def exec!(%__MODULE__{} = cell, vm, options \\ []) do
@@ -123,6 +141,13 @@ defmodule FBAgent.Cell do
     |> Enum.all?(& Map.get(cell, &1) |> validate_presence)
   end
 
+
+  # Private: Normalizes the cell param
+  defp normalize_param(%{b: b}), do: Base.decode64!(b)
+  defp normalize_param(_), do: nil
+
+
+  # Private: Checks the given value is not nil or empty
   defp validate_presence(val) do
     case val do
       v when is_binary(v) -> String.trim(v) != ""

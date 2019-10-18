@@ -73,12 +73,10 @@ defmodule FBAgent do
     aliases = Map.get(config, :aliases, %{})
 
     with {:ok, tx} <- cache.fetch_tx(txid, cache_opts, tape_adapter),
-      tape <- Tape.from_bpu(tx),
-      refs <- Tape.procedure_refs(tape)
-              |> Enum.map(& Map.get(aliases, &1, &1))
-              |> Enum.uniq,
+      {:ok, tape} <- Tape.from_bpu(tx),
+      refs <- Tape.get_cell_refs(tape, aliases),
       {:ok, procs} <- cache.fetch_procs(refs, cache_opts, proc_adapter),
-      tape <- Tape.apply_procs(tape, procs, aliases)
+      tape <- Tape.set_cell_procs(tape, procs, aliases)
     do
       {:ok, tape}
     else
