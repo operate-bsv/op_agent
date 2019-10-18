@@ -1,13 +1,30 @@
 defmodule FBAgent.Adapter do
   @moduledoc """
-  The Function Bitcoin adapter specification,
+  Functional Bitcoin adapter behaviour.
 
-  An adapter is any module responsible for loading tx and procs from a
-  datasource - normally a web API or a database. The module must export:
+  An adapter is responsible for loading tapes and procs from a datasource -
+  potentially a web API, a datebase or even a Bitcoin node. An adapter can
+  implement one or both of the following callbacks:
 
-  * `fetch_tx/3` - function that takes a txid and returns a `FBAgent.BPU.Transaction.t`
-  * `fetch_procs/3` - function that takes an array of procedure references and
-  returns an array of scripts.
+  * `b:fetch_tx/2` - function that takes a txid and returns a `FBAgent.BPU.Transaction.t`
+  * `b:fetch_procs/2` - function that takes a list of procedure references and
+  returns a list of procdure scripts.
+
+  ## Example
+
+      defmodule MyAdapter do
+        use FBAgent.Adapter
+
+        def fetch_tx(txid, opts) do
+          key = Keyword.get(opts, :api_key)
+          BitcoinApi.load_tx(txid, api_key: key)
+          |> to_bpu
+        end
+
+        defp to_bpu(tx) do
+          # Map tx object to `FBAgent.BPU.Transaction.t`
+        end
+      end
   """
 
   defmacro __using__(opts \\ []) do
@@ -43,7 +60,8 @@ defmodule FBAgent.Adapter do
 
 
   @doc """
-  Fetches a transaction by the given txid, and returns a `FBAgent.BPU.Transaction.t`
+  Fetches a transaction by the given txid, and returns the result in an OK/Error
+  tuple pair.
   """
   @callback fetch_tx(String.t, keyword) :: {:ok, FBAgent.Tape.t} | {:error, String.t}
 
@@ -55,8 +73,8 @@ defmodule FBAgent.Adapter do
 
 
   @doc """
-  Fetches procedure scripts by the given list of references or tape, returning
-  either a list of functions or a tape with cells prepared for execution.
+  Fetches a list of procedure scripts by the given list of references. Returns
+  the result in an OK/Error tuple pair.
   """
   @callback fetch_procs(list, keyword) :: {:ok, list} | {:error, String.t}
 
@@ -66,15 +84,4 @@ defmodule FBAgent.Adapter do
   """
   @callback fetch_procs!(list, keyword) :: list
 
-
-  @doc """
-  TODOC
-  """
-  @spec with_options(module) :: {module, keyword}
-  def with_options(mod) when is_atom(mod), do: {mod, []}
-
-  def with_options({mod, opts} = pair)
-    when is_atom(mod) and is_list(opts),
-    do: pair
-  
 end

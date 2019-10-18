@@ -18,7 +18,7 @@ defmodule FBAgent.Adapter.Bob do
   
   def fetch_tx(txid, options \\ []) do
     api_key = Keyword.get(options, :api_key)
-    path = FBAgent.Util.encode_query(%{
+    path = encode_query(%{
       "v" => "3",
       "q" => %{
         "find" => %{
@@ -62,6 +62,14 @@ defmodule FBAgent.Adapter.Bob do
     |> Map.put(:txid, txid)
     |> Map.put("out", outputs)
     |> BPU.Transaction.from_map
+  end
+
+
+  # Private: Encodes map into Fat URI path
+  defp encode_query(query) do
+    query
+    |> Jason.encode!
+    |> Base.encode64
   end
 
 end

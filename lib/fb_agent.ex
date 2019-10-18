@@ -19,7 +19,6 @@ defmodule FBAgent do
       Supervisor.start_link(children, strategy: :one_for_one)
   """
   use Agent
-  alias FBAgent.Adapter
   alias FBAgent.Tape
 
 
@@ -67,9 +66,9 @@ defmodule FBAgent do
   """
   def load_tape(txid, options \\ []) do
     {_vm, config} = get_state(options)
-    tape_adapter  = Adapter.with_options(config.tape_adapter)
-    proc_adapter  = Adapter.with_options(config.proc_adapter)
-    {cache, cache_opts} = Adapter.with_options(config.cache)
+    tape_adapter  = adapter_with_opts(config.tape_adapter)
+    proc_adapter  = adapter_with_opts(config.proc_adapter)
+    {cache, cache_opts} = adapter_with_opts(config.cache)
 
     aliases = Map.get(config, :aliases, %{})
 
@@ -124,5 +123,13 @@ defmodule FBAgent do
       {:error, tape} -> raise tape.error
     end
   end
+
+
+  # Private: Returns the adapter and options in a tuple pair
+  def adapter_with_opts(mod) when is_atom(mod), do: {mod, []}
+
+  def adapter_with_opts({mod, opts} = pair)
+    when is_atom(mod) and is_list(opts),
+    do: pair
 
 end

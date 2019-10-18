@@ -65,8 +65,8 @@ defmodule FBAgent.Cell do
       ...> |> FBAgent.Cell.exec(FBAgent.VM.init, state: "hello")
       {:ok, "hello world"}
   """
-  @spec exec(t, VM.t, keyword) :: {:ok, VM.lua_output} | {:error, String.t}
-  def exec(cell, vm, options \\ []) do
+  @spec exec(__MODULE__.t, VM.t, keyword) :: {:ok, VM.lua_output} | {:error, String.t}
+  def exec(%__MODULE__{} = cell, vm, options \\ []) do
     state = Keyword.get(options, :state, nil)
     vm = vm
     |> VM.set!("ctx.local_index", cell.local_index)
@@ -95,8 +95,8 @@ defmodule FBAgent.Cell do
       ...> |> FBAgent.Cell.exec!(FBAgent.VM.init, state: "hello")
       "hello world"
   """
-  @spec exec!(t, VM.t, keyword) :: VM.lua_output
-  def exec!(cell, vm, options \\ []) do
+  @spec exec!(__MODULE__.t, VM.t, keyword) :: VM.lua_output
+  def exec!(%__MODULE__{} = cell, vm, options \\ []) do
     case exec(cell, vm, options) do
       {:ok, result} -> result
       {:error, err} -> raise err
@@ -105,10 +105,22 @@ defmodule FBAgent.Cell do
 
 
   @doc """
-  TODOC
+  Validates the given cell. Returns true if the cell has a reference and script.
+
+  ## Examples
+
+      iex> %FBAgent.Cell{ref: "abc", script: "return 123"}
+      ...> |> FBAgent.Cell.valid?
+      true
+
+      iex> %FBAgent.Cell{}
+      ...> |> FBAgent.Cell.valid?
+      false
   """
-  def valid?(cell) do
-    validate_presence(cell.ref) && validate_presence(cell.script)
+  @spec valid?(__MODULE__.t) :: boolean
+  def valid?(%__MODULE__{} = cell) do
+    [:ref, :script]
+    |> Enum.all?(& Map.get(cell, &1) |> validate_presence)
   end
 
   defp validate_presence(val) do
