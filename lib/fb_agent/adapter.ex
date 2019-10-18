@@ -1,14 +1,14 @@
 defmodule FBAgent.Adapter do
   @moduledoc """
-  Functional Bitcoin adapter behaviour.
+  Functional Bitcoin adapter specification.
 
   An adapter is responsible for loading tapes and procs from a datasource -
   potentially a web API, a datebase or even a Bitcoin node. An adapter can
   implement one or both of the following callbacks:
 
-  * `b:fetch_tx/2` - function that takes a txid and returns a `FBAgent.BPU.Transaction.t`
-  * `b:fetch_procs/2` - function that takes a list of procedure references and
-  returns a list of procdure scripts.
+  * `c:fetch_tx/2` - function that takes a txid and returns a `t:FBAgent.BPU.Transaction.t`
+  * `c:fetch_procs/2` - function that takes a list of procedure references and
+  returns a list of `t:FBAgent.Function.t` functions.
 
   ## Example
 
@@ -60,8 +60,8 @@ defmodule FBAgent.Adapter do
 
 
   @doc """
-  Fetches a transaction by the given txid, and returns the result in an OK/Error
-  tuple pair.
+  Fetches a transaction by the given txid, and returns the result in an
+  `:ok/:error` tuple pair.
   """
   @callback fetch_tx(String.t, keyword) ::
     {:ok, FBAgent.Tape.t} |
@@ -75,17 +75,17 @@ defmodule FBAgent.Adapter do
 
 
   @doc """
-  Fetches a list of procedure scripts by the given list of references. Returns
-  the result in an OK/Error tuple pair.
+  Fetches a list of functions by the given list of references. Returns
+  the result in an `:ok/:error` tuple pair.
   """
   @callback fetch_procs(list, keyword) ::
-    {:ok, list} |
+    {:ok, [FBAgent.Function.t, ...]} |
     {:error, String.t}
 
 
   @doc """
-  As `t:fetch_procs/2`, but returns the result or raises an exception.
+  As `c:fetch_procs/2`, but returns the result or raises an exception.
   """
-  @callback fetch_procs!(list, keyword) :: list
+  @callback fetch_procs!(list, keyword) :: [FBAgent.Function.t, ...]
 
 end

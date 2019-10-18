@@ -4,8 +4,8 @@ defmodule FBAgent.Adapter.Bob do
 
   ## Examples
 
-      FBAgent.Adapter.Bob.fetch_tx(txid)
-      # => {:ok, %FBAgent.BPU.Transaction{}}
+      iex> FBAgent.Adapter.Bob.fetch_tx(txid, api_key: "mykey")
+      {:ok, %FBAgent.BPU.Transaction{}}
   """
   alias FBAgent.BPU
 
@@ -43,7 +43,7 @@ defmodule FBAgent.Adapter.Bob do
 
 
   @doc """
-  TODOC
+  Converts the map from the Planaria HTTP response to a `t:FBAgent.BPU.Transaction.t`.
   """
   @spec to_bpu(map) :: BPU.Transaction.t | [BPU.Transaction.t, ...]
   def to_bpu(%{"u" => u, "c" => c}),

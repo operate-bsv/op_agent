@@ -1,7 +1,6 @@
 defmodule FBAgent.Adapter.FBHubTest do
   use ExUnit.Case
   alias FBAgent.Adapter.FBHub
-  doctest FBAgent.Adapter.FBHub
 
   setup do
     Tesla.Mock.mock fn
@@ -14,8 +13,8 @@ defmodule FBAgent.Adapter.FBHubTest do
     test "must return list of functions" do
       {:ok, functions} = FBHub.fetch_procs(["0b9574b5", "77bbf52e"])
       assert is_list(functions)
-      assert Enum.any?(functions, &(&1["ref"] == "0b9574b5"))
-      assert Enum.any?(functions, &(&1["ref"] == "77bbf52e"))
+      assert Enum.any?(functions, &(&1.ref == "0b9574b5"))
+      assert Enum.any?(functions, &(&1.ref == "77bbf52e"))
     end
   end
 

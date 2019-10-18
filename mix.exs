@@ -7,7 +7,21 @@ defmodule FBAgent.MixProject do
       version: "0.1.0-dev.1",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      docs: [
+        groups_for_modules: [
+          "Adapters": [
+            FBAgent.Adapter,
+            FBAgent.Adapter.Bob,
+            FBAgent.Adapter.FBHub
+          ],
+          "Caches": [
+            FBAgent.Cache,
+            FBAgent.Cache.ConCache,
+            FBAgent.Cache.NoCache
+          ],
+        ]
+      ]
     ]
   end
 

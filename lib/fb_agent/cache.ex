@@ -1,14 +1,14 @@
 defmodule FBAgent.Cache do
   @moduledoc """
-  Functional Bitcoin cache behaviour.
+  Functional Bitcoin cache specification.
 
   A cache is responsible for storing and retrieving tapes and procs from a
   cache, and if necessary instructing an adapter to fetch items from a data
   source. A cache must implement both of the following callbacks:
 
-  * `b:fetch_tx/3` - function that takes a txid and returns a `FBAgent.BPU.Transaction.t`
-  * `b:fetch_procs/3` - function that takes a list of procedure references and
-  returns a list of procdure scripts.
+  * `c:fetch_tx/3` - function that takes a txid and returns a `FBAgent.BPU.Transaction.t`
+  * `c:fetch_procs/3` - function that takes a list of procedure references and
+  returns a list of `t:FBAgent.Function.t` functions.
 
   The third argument in both functions is a tuple containing the adapter module
   and a keyword list of options to pass to the adapter.
@@ -60,7 +60,8 @@ defmodule FBAgent.Cache do
 
 
   @doc """
-  Fetches a transaction by the given txid, and returns a `FBAgent.BPU.Transaction.t`
+  Loads a transaction from the cache by the given txid, or delegates to job to
+  the passed adapter. Returns the result in an `:ok/:error` tuple pair.
   """
   @callback fetch_tx(String.t, keyword, {module, keyword}) ::
     {:ok, FBAgent.Tape.t} |
@@ -68,23 +69,25 @@ defmodule FBAgent.Cache do
 
 
   @doc """
-  As `c:fetch_tx/2`, but returns the transaction or raises an exception.
+  As `c:fetch_tx/3`, but returns the transaction or raises an exception.
   """
   @callback fetch_tx!(String.t, keyword, {module, keyword}) :: FBAgent.Tape.t
 
 
   @doc """
-  Fetches procedure scripts by the given list of references or tape, returning
-  either a list of functions or a tape with cells prepared for execution.
+  Loads functions from the cache by the given procedure referneces, or delegates
+  the job to the passed adapter. Returns the result in an `:ok/:error` tuple
+  pair.
   """
   @callback fetch_procs(list, keyword, {module, keyword}) ::
-    {:ok, list} |
+    {:ok, [FBAgent.Function.t, ...]} |
     {:error, String.t}
 
 
   @doc """
-  As `t:fetch_procs/2`, but returns the result or raises an exception.
+  As `c:fetch_procs/3`, but returns the result or raises an exception.
   """
-  @callback fetch_procs!(list, keyword, {module, keyword}) :: list
+  @callback fetch_procs!(list, keyword, {module, keyword}) ::
+    [FBAgent.Function.t, ...]
   
 end

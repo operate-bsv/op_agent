@@ -1,12 +1,12 @@
 defmodule FBAgent.Adapter.FBHub do
   @moduledoc """
-  Adapter module for loading procedure scripts from the [Functional Bitcoin Hub](http://functions.chronoslabs.net).
+  Adapter module for loading functions from the [Functional Bitcoin Hub](http://functions.chronoslabs.net).
 
   ## Examples
 
-      FBAgent.Adapter.Bob.get_tape(txid)
-      |> FBAgent.Adapter.Hub.fetch_procs
-      # => {:ok, %FBAgent.Tape{}}
+      iex> FBAgent.Adapter.Hub.fetch_procs(refs)
+      {:ok, [%FBAgent.Function{}, ...]}
+
   """
   use FBAgent.Adapter
   use Tesla, only: [:get], docs: false
@@ -19,10 +19,22 @@ defmodule FBAgent.Adapter.FBHub do
     api_key = Keyword.get(options, :api_key)
     case get("/functions", query: [refs: refs, script: true], headers: [key: api_key]) do
       {:ok, res} ->
-        procs = res.body["data"]
-        {:ok, procs}
+        functions = res.body["data"]
+        |> Enum.map(&to_function/1)
+        {:ok, functions}
       error -> error
     end
+  end
+
+
+  # Private: Convert an item from the http response to a `t:FBAgent.Function.t`
+  defp to_function(%{} = r) do
+    struct(FBAgent.Function, [
+      ref: r["ref"],
+      hash: r["hash"],
+      name: r["name"],
+      script: r["script"]
+    ])
   end
 
 end

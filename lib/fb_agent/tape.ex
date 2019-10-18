@@ -21,7 +21,7 @@ defmodule FBAgent.Tape do
       ...> tape.result
       9
   """
-  alias FBAgent.{BPU, Cell, VM}
+  alias FBAgent.{BPU, Cell, Function, VM}
 
   @typedoc "Data Tape"
   @type t :: %__MODULE__{
@@ -89,19 +89,19 @@ defmodule FBAgent.Tape do
   aliases is specifed, this is used to reverse map any procedure scripts onto
   aliased cells.
   """
-  @spec set_cell_procs(__MODULE__.t, list, map) :: __MODULE__.t
+  @spec set_cell_procs(__MODULE__.t, [Function.t, ...], map) :: __MODULE__.t
   def set_cell_procs(tape, procs, aliases \\ %{})
 
   def set_cell_procs(%__MODULE__{} = tape, [], _aliases), do: tape
 
-  def set_cell_procs(%__MODULE__{} = tape, [func | tail], aliases) do
-    ref = case Enum.find(aliases, fn {_k, v} -> v == func["ref"] end) do
+  def set_cell_procs(%__MODULE__{} = tape, [%Function{} = f | tail], aliases) do
+    ref = case Enum.find(aliases, fn {_k, v} -> v == f.ref end) do
       {k, _v} -> k
-      _ -> func["ref"]
+      _ -> f.ref
     end
 
     cells = tape.cells
-    |> Enum.map(& put_cell_script(&1, ref, func["script"]))
+    |> Enum.map(& put_cell_script(&1, ref, f.script))
 
     Map.put(tape, :cells, cells)
     |> set_cell_procs(tail, aliases)
