@@ -1,6 +1,6 @@
 defmodule FBAgent.VM.Extension do
   @moduledoc """
-  Behaviour specification for extending the Lua VM.
+  Functional Bitcoin VM extension specification.
 
   The Functional Bitcoin Lua VM can be easily extended, either with native Lua
   modules, or Elixir code that is added to the Lua VM as functions.
@@ -8,8 +8,8 @@ defmodule FBAgent.VM.Extension do
   ## Examples
 
       defmodule MyExtension do
-        alias FBAgent.VM
-        @behaviour Swoosh.Adapter
+        use FBAgent.VM.Extension
+        alias FBAgent.VMr
 
         def extend(vm) do
           vm
@@ -26,6 +26,14 @@ defmodule FBAgent.VM.Extension do
 
   """
   alias FBAgent.VM
+
+  defmacro __using__(opts \\ []) do
+    quote bind_quoted: [opts: opts] do
+      @behaviour FBAgent.VM.Extension
+
+      def extends(vm), do: vm
+    end
+  end
 
   @doc "Extends the given VM state, returning the modified state."
   @callback extend(VM.vt) :: VM.vt

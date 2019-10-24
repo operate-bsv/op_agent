@@ -4,7 +4,21 @@ defmodule FBAgent.Cache do
 
   A cache is responsible for storing and retrieving tapes and procs from a
   cache, and if necessary instructing an adapter to fetch items from a data
-  source. A cache must implement both of the following callbacks:
+  source.
+
+  Functional Bitcoin comes bundled with a `ConCache` ETS cache, although by
+  default is configured to operate without any caching:
+
+      children = [
+        {FBAgent, [
+          cache: FBAgent.Cache.NoCache,
+        ]}
+      ]
+      Supervisor.start_link(children, strategy: :one_for_one)
+
+  ## Creating a cache
+
+  A cache must implement both of the following callbacks:
 
   * `c:fetch_tx/3` - function that takes a txid and returns a `FBAgent.BPU.Transaction.t`
   * `c:fetch_procs/3` - function that takes a list of procedure references and
@@ -12,8 +26,6 @@ defmodule FBAgent.Cache do
 
   The third argument in both functions is a tuple containing the adapter module
   and a keyword list of options to pass to the adapter.
-
-  ## Example
 
       defmodule MyCache do
         use FBAgent.Cache
@@ -25,6 +37,12 @@ defmodule FBAgent.Cache do
           end)
         end
       end
+
+  Using the above example, Functional Bitcoin can be configured with:
+
+      {FBAgent, [
+        cache: {MyCache, [ttl: 3600]}
+      ]}
   """
 
   defmacro __using__(opts \\ []) do

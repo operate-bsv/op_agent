@@ -1,8 +1,24 @@
 defmodule FBAgent.Cache.ConCache do
   @moduledoc """
-  TODOC
+  Cache module implementing an ETS based cache, using [ConCache](https://github.com/sasa1977/con_cache).
+
+  To enable this cache, ConCache needs to be started from a supervisor:
+
+      children = [
+        {FBAgent, [
+          cache: FBAgent.Cache.ConCache,
+        ]},
+        {ConCache, [
+          name: :fb_agent,
+          ttl_check_interval: :timer.minutes(1),
+          global_ttl: :timer.minutes(10),
+          touch_on_read: true
+        ]}
+      ]
+      Supervisor.start_link(children, strategy: :one_for_one)
   """
   use FBAgent.Cache
+
 
   def fetch_tx(txid, _options \\ [], {adapter, adapter_opts}) do
     key = "t:#{ txid }"

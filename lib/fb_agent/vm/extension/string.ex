@@ -3,9 +3,9 @@ defmodule FBAgent.VM.Extension.String do
   Extends the VM state with implementations of Lua's `string.pack` and 
   `string.unpack` functions.
   """
+  use FBAgent.VM.Extension
   alias FBAgent.VM
-
-  @behaviour VM.Extension
+  
 
   def extend(vm) do
     vm

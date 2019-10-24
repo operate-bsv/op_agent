@@ -2,9 +2,9 @@ defmodule FBAgent.VM.Extension.Agent do
   @moduledoc """
   Extends the VM state with functions for encoding and decoding JSON.
   """
+  use FBAgent.VM.Extension
   alias FBAgent.VM
-
-  @behaviour VM.Extension
+  
 
   def extend(vm) do
     vm

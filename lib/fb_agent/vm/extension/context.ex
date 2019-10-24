@@ -2,9 +2,9 @@ defmodule FBAgent.VM.Extension.Context do
   @moduledoc """
   Extends the VM state with functions for accessing the transaction context.
   """
+  use FBAgent.VM.Extension
   alias FBAgent.VM
-
-  @behaviour VM.Extension
+  
 
   def extend(vm) do
     vm

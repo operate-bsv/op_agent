@@ -2,9 +2,9 @@ defmodule FBAgent.VM.Extension.Crypto do
   @moduledoc """
   Extends the VM state with common crypto functions.
   """
+  use FBAgent.VM.Extension
   alias FBAgent.VM
 
-  @behaviour VM.Extension
 
   def extend(vm) do
     vm

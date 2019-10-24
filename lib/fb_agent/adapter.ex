@@ -3,14 +3,27 @@ defmodule FBAgent.Adapter do
   Functional Bitcoin adapter specification.
 
   An adapter is responsible for loading tapes and procs from a datasource -
-  potentially a web API, a datebase or even a Bitcoin node. An adapter can
-  implement one or both of the following callbacks:
+  potentially a web API, a datebase or even a Bitcoin node. Functional Bitcoin
+  comes bundled with two default adapters, although these can be swapped out
+  with any other adpater by changing the configuration:
+
+      children = [
+        {FBAgent, [
+          tape_adapter: FBAgent.Adapter.Bob,
+          proc_adapter: FBAgent.Adapter.FBHub
+        ]}
+      ]
+      Supervisor.start_link(children, strategy: :one_for_one)
+
+  ## Creating an adapter
+
+  An adapter must implement one or both of the following callbacks:
 
   * `c:fetch_tx/2` - function that takes a txid and returns a `t:FBAgent.BPU.Transaction.t`
   * `c:fetch_procs/2` - function that takes a list of procedure references and
   returns a list of `t:FBAgent.Function.t` functions.
 
-  ## Example
+  Example:
 
       defmodule MyAdapter do
         use FBAgent.Adapter
@@ -25,6 +38,12 @@ defmodule FBAgent.Adapter do
           # Map tx object to `FBAgent.BPU.Transaction.t`
         end
       end
+
+  Using the above example, Functional Bitcoin can be configured with:
+
+      {FBAgent, [
+        tape_adapter: {MyAdapter, [api_key: "myapikey"]}
+      ]}
   """
 
   defmacro __using__(opts \\ []) do
