@@ -1,6 +1,6 @@
 defmodule Operate.Adapter.OpApi do
   @moduledoc """
-  Adapter module for loading Ops from the [Functional Bitcoin Hub](http://functions.chronoslabs.net).
+  Adapter module for loading Ops from the [Operate API](http://functions.chronoslabs.net).
 
   ## Examples
 

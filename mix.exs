@@ -9,8 +9,8 @@ defmodule Operate.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       name: "Operate",
-      description: "Agent for loading and running Functional Bitcoin programs.",
-      source_url: "https://github.com/functional-bitcoin/agent",
+      description: "Operate | Agent is an Elixir agent used to load and run Bitcoin programs.",
+      source_url: "https://github.com/operate-bsv/agent",
       docs: [
         groups_for_modules: [
           "Extensions": [
@@ -38,7 +38,7 @@ defmodule Operate.MixProject do
         files: ~w(lib .formatter.exs mix.exs README.md LICENSE.md),
         licenses: ["MIT"],
         links: %{
-          "GitHub" => "https://github.com/functional-bitcoin/agent",
+          "GitHub" => "https://github.com/operate-bsv/agent",
           "Website" => "https://www.operatebsv.org"
         }
       ]

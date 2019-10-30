@@ -18,7 +18,7 @@ defmodule Operate do
 
       def deps do
         [
-          {:operate, "~> 0.0.1"}
+          {:operate, "~> #{ Mix.Project.config[:version] }"}
         ]
       end
 
@@ -87,6 +87,8 @@ defmodule Operate do
     aliases: %{},
     strict: true
   }
+
+  @version Mix.Project.config[:version]
 
 
   @doc """
@@ -224,6 +226,13 @@ defmodule Operate do
       {:error, tape} -> raise tape.error
     end
   end
+
+
+  @doc """
+  Returns the current version number.
+  """
+  @spec version() :: String.t
+  def version, do: @version
 
 
   # Private: Returns the adapter and options in a tuple pair
