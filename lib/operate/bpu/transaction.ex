@@ -21,7 +21,7 @@ defmodule Operate.BPU.Transaction do
 
   
   @doc """
-  Converts the given map or list of maps into a `__MODULE__.t`.
+  Converts the given map or list of maps into a `t:Operate.BPU.Transaction.t/0`.
   """
   @spec from_map(map | list) :: __MODULE__.t | list
   def from_map(source) when is_list(source),

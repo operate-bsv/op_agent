@@ -27,7 +27,7 @@ defmodule Operate.Adapter.OpApi do
   end
 
 
-  # Private: Convert an item from the http response to a `t:Operate.Op.t`
+  # Private: Convert an item from the http response to a `Operate.Op.t`
   defp to_function(%{} = r) do
     struct(Operate.Op, [
       ref: r["ref"],

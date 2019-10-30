@@ -24,7 +24,7 @@ defmodule Operate.BPU.Cell do
   
 
   @doc """
-  Converts the given map or list of maps into a `__MODULE__.t`.
+  Converts the given map or list of maps into a `t:Operate.BPU.Cell.t/0`.
   """
   @spec from_map(map | list) :: __MODULE__.t | list
   def from_map(source) when is_list(source),
