@@ -1,35 +1,35 @@
-defmodule FBAgent.MixProject do
+defmodule Operate.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :fb_agent,
+      app: :operate,
       version: "0.1.0-beta.1",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      name: "FBAgent",
+      name: "Operate",
       description: "Agent for loading and running Functional Bitcoin programs.",
       source_url: "https://github.com/functional-bitcoin/agent",
       docs: [
         groups_for_modules: [
           "Extensions": [
-            FBAgent.VM.Extension,
-            FBAgent.VM.Extension.Agent,
-            FBAgent.VM.Extension.Context,
-            FBAgent.VM.Extension.Crypto,
-            FBAgent.VM.Extension.JSON,
-            FBAgent.VM.Extension.String
+            Operate.VM.Extension,
+            Operate.VM.Extension.Agent,
+            Operate.VM.Extension.Context,
+            Operate.VM.Extension.Crypto,
+            Operate.VM.Extension.JSON,
+            Operate.VM.Extension.String
           ],
           "Adapters": [
-            FBAgent.Adapter,
-            FBAgent.Adapter.Bob,
-            FBAgent.Adapter.FBHub
+            Operate.Adapter,
+            Operate.Adapter.Bob,
+            Operate.Adapter.FBHub
           ],
           "Caches": [
-            FBAgent.Cache,
-            FBAgent.Cache.ConCache,
-            FBAgent.Cache.NoCache
+            Operate.Cache,
+            Operate.Cache.ConCache,
+            Operate.Cache.NoCache
           ],
         ]
       ],
@@ -39,7 +39,7 @@ defmodule FBAgent.MixProject do
         licenses: ["MIT"],
         links: %{
           "GitHub" => "https://github.com/functional-bitcoin/agent",
-          "Website" => "https://functions.chronoslabs.net"
+          "Website" => "https://www.operatebsv.org"
         }
       ]
     ]
@@ -60,7 +60,7 @@ defmodule FBAgent.MixProject do
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:jason, "~> 1.1"},
       {:luerl, git: "https://github.com/libitx/luerl.git", branch: "develop"},
-      {:tesla, "~> 1.2.1"}
+      {:tesla, "~> 1.2"}
     ]
   end
 end
