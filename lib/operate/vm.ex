@@ -1,16 +1,16 @@
 defmodule Operate.VM do
   @moduledoc """
-  Functional Bitcoin VM module. Responsible for initalizing the Lua state and
-  executing scripts.
+  Operate VM module. Responsible for initalizing the VM state and evaluating and
+  executing Lua code in the VM.
   """
 
-  @typedoc "Functional Bitcoin VM state"
+  @typedoc "Operate VM state"
   @type t :: {:luerl, tuple}
 
-  @typedoc "Function reference. Either a dot-delimited string or list of strings or atoms."
+  @typedoc "Lua table path. Either a dot-delimited string or list of strings or atoms."
   @type lua_path :: atom | String.t | list
 
-  @typedoc "Functional Bitcoin return value"
+  @typedoc "Operate return value"
   @type lua_output :: binary | number | list | map
 
   @extensions [
@@ -103,7 +103,7 @@ defmodule Operate.VM do
 
 
   @doc """
-  As `f:Operate.VM.get/2`, but returns the result or raises an exception.
+  As `get/2`, but returns the result or raises an exception.
   
   ## Examples
 
@@ -170,7 +170,7 @@ defmodule Operate.VM do
 
 
   @doc """
-  As `f:Operate.VM.set/4`, but returns the VM state or raises an exception.
+  As `set/4`, but returns the VM state or raises an exception.
 
   ## Options
 
@@ -219,7 +219,7 @@ defmodule Operate.VM do
 
 
   @doc """
-  As `f:Operate.VM.set_function/4`, but returns the VM state or raises an exception.
+  As `set_function/4`, but returns the VM state or raises an exception.
 
   ## Options
 
@@ -265,7 +265,7 @@ defmodule Operate.VM do
 
 
   @doc """
-  As `f:Operate.VM.eval/2`, but returns the result or raises an exception.
+  As `eval/2`, but returns the result or raises an exception.
   
   ## Examples
 
@@ -300,7 +300,7 @@ defmodule Operate.VM do
 
 
   @doc """
-  As `f:Operate.VM.exec/2`, but returns the modified state or raises an exception.
+  As `exec/2`, but returns the modified state or raises an exception.
   """
   @spec exec!(__MODULE__.t, String.t) :: __MODULE__.t
   def exec!(vm, code) do
@@ -320,11 +320,6 @@ defmodule Operate.VM do
       ...> |> Operate.VM.exec!("function main() return 'hello world' end")
       ...> |> Operate.VM.call(:main)
       {:ok, "hello world"}
-
-      iex> Operate.VM.init
-      ...> |> Operate.VM.exec!("function main(a, b) return a * b end")
-      ...> |> Operate.VM.call("main", [2, 3])
-      {:ok, 6}
 
       iex> Operate.VM.init
       ...> |> Operate.VM.exec!("function sum(a, b) return a + b end")
@@ -354,7 +349,7 @@ defmodule Operate.VM do
 
 
   @doc """
-  As `f:Operate.VM.call/3`, but returns the result or raises an exception.
+  As `call/3`, but returns the result or raises an exception.
   
   ## Examples
 
@@ -397,7 +392,7 @@ defmodule Operate.VM do
 
 
   @doc """
-  As `f:Operate.VM.exec_function/2`, but returns the result or raises an exception.
+  As `exec_function/2`, but returns the result or raises an exception.
 
   ## Examples
 

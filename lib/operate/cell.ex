@@ -1,38 +1,38 @@
 defmodule Operate.Cell do
   @moduledoc """
-  Functional Bitcoin Procedure Cell.
+  Module for working with Operate tape cells.
 
-  A cell represents a single atomic procedure call. A `t:Operate.Cell.t`contains
-  the procedure script and the the procedure's parameters. When the cell is
-  executed it returns a result.
+  A cell represents a single atomic procedure call. A `t:Operate.Cell.t/0`
+  contains the Op script and parameters. When the cell is executed it returns a
+  result.
 
   ## Examples
 
-      iex> %Operate.Cell{script: "return function(state, a, b) return state + a + b end", params: [3, 5]}
+      iex> %Operate.Cell{op: "return function(state, a, b) return state + a + b end", params: [3, 5]}
       ...> |> Operate.Cell.exec(Operate.VM.init, state: 1)
       {:ok, 9}
   """
   alias Operate.{BPU, VM}
 
-  @typedoc "Procedure Cell"
+  @typedoc "Operate Cell"
   @type t :: %__MODULE__{
     ref: String.t,
     params: list,
-    script: String.t,
+    op: String.t,
     local_index: integer,
     global_index: integer
   }
 
   defstruct ref: nil,
             params: [],
-            script: nil,
+            op: nil,
             local_index: nil,
             global_index: nil
 
 
   @doc """
-  Converts the given `t:Operate.BPU.Cell.t` into a `t:Operate.Cell.t`. Returns
-  the result in an OK/Error tuple pair.
+  Converts the given `t:Operate.BPU.Cell.t/0` into a `t:Operate.Cell.t/0`. Returns
+  the result in an `:ok` / `:error` tuple pair.
   """
   @spec from_bpu(BPU.Cell.t) ::
     {:ok, __MODULE__.t} |
@@ -60,7 +60,7 @@ defmodule Operate.Cell do
 
 
   @doc """
-  As `f:from_bpu/1`, but returns the result or raises an exception.
+  As `from_bpu/1`, but returns the result or raises an exception.
   """
   @spec from_bpu!(BPU.Cell.t) :: __MODULE__.t
   def from_bpu!(%BPU.Cell{} = cell) do
@@ -78,12 +78,11 @@ defmodule Operate.Cell do
 
   The accepted options are:
 
-  * `:state` - Specifiy the state which is always the first parameter in the
-  executed function. Defaults to `nil`.
+  * `:state` - Specifiy the state which is always the first parameter in the executed function. Defaults to `nil`.
 
   ## Examples
 
-      iex> %Operate.Cell{script: "return function(state) return state..' world' end", params: []}
+      iex> %Operate.Cell{op: "return function(state) return state..' world' end", params: []}
       ...> |> Operate.Cell.exec(Operate.VM.init, state: "hello")
       {:ok, "hello world"}
   """
@@ -96,7 +95,7 @@ defmodule Operate.Cell do
     |> VM.set!("ctx.local_index", cell.local_index)
     |> VM.set!("ctx.global_index", cell.global_index)
 
-    case VM.eval(vm, cell.script) do
+    case VM.eval(vm, cell.op) do
       {:ok, function} -> VM.exec_function(function, [state | cell.params])
       err -> err
     end
@@ -104,14 +103,13 @@ defmodule Operate.Cell do
 
   
   @doc """
-  As `f:Operate.Cell.exec/3`, but returns the result or raises an exception.
+  As `exec/3`, but returns the result or raises an exception.
 
   ## Options
 
   The accepted options are:
 
-  * `:state` - Specifiy the state which is always the first parameter in the
-  executed function. Defaults to `nil`.
+  * `:state` - Specifiy the state which is always the first parameter in the executed function. Defaults to `nil`.
   """
   @spec exec!(__MODULE__.t, VM.t, keyword) :: VM.lua_output
   def exec!(%__MODULE__{} = cell, vm, options \\ []) do
@@ -127,7 +125,7 @@ defmodule Operate.Cell do
 
   ## Examples
 
-      iex> %Operate.Cell{ref: "abc", script: "return 123"}
+      iex> %Operate.Cell{ref: "abc", op: "return 123"}
       ...> |> Operate.Cell.valid?
       true
 
@@ -137,7 +135,7 @@ defmodule Operate.Cell do
   """
   @spec valid?(__MODULE__.t) :: boolean
   def valid?(%__MODULE__{} = cell) do
-    [:ref, :script]
+    [:ref, :op]
     |> Enum.all?(& Map.get(cell, &1) |> validate_presence)
   end
 

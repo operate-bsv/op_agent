@@ -1,28 +1,20 @@
 defmodule Operate.Cache do
   @moduledoc """
-  Functional Bitcoin cache specification.
+  Operate cache specification.
 
-  A cache is responsible for storing and retrieving tapes and procs from a
+  A cache is responsible for storing and retrieving tapes and ops from a
   cache, and if necessary instructing an adapter to fetch items from a data
   source.
 
-  Functional Bitcoin comes bundled with a `ConCache` ETS cache, although by
-  default is configured to operate without any caching:
-
-      children = [
-        {Operate, [
-          cache: Operate.Cache.NoCache,
-        ]}
-      ]
-      Supervisor.start_link(children, strategy: :one_for_one)
+  Operate comes bundled with a `ConCache` ETS cache, although by default runs
+  without any caching.
 
   ## Creating a cache
 
   A cache must implement both of the following callbacks:
 
-  * `c:fetch_tx/3` - function that takes a txid and returns a `Operate.BPU.Transaction.t`
-  * `c:fetch_procs/3` - function that takes a list of procedure references and
-  returns a list of `t:Operate.Function.t` functions.
+  * `c:fetch_tx/3` - function that takes a txid and returns a `t:Operate.BPU.Transaction.t/0`
+  * `c:fetch_ops/3` - function that takes a list of Op references and returns a list of `t:Operate.Op.t/0` functions.
 
   The third argument in both functions is a tuple containing the adapter module
   and a keyword list of options to pass to the adapter.
@@ -38,7 +30,7 @@ defmodule Operate.Cache do
         end
       end
 
-  Using the above example, Functional Bitcoin can be configured with:
+  Using the above example, Operate can be configured with:
 
       {Operate, [
         cache: {MyCache, [ttl: 3600]}
@@ -59,11 +51,11 @@ defmodule Operate.Cache do
         end
       end
 
-      def fetch_procs(refs, _options \\ [], {adapter, adapter_opts}),
-        do: adapter.fetch_procs(refs, adapter_opts)
+      def fetch_ops(refs, _options \\ [], {adapter, adapter_opts}),
+        do: adapter.fetch_ops(refs, adapter_opts)
 
-      def fetch_procs!(refs, options \\ [], {adapter, adapter_opts}) do
-        case fetch_procs(refs, options, {adapter, adapter_opts}) do
+      def fetch_ops!(refs, options \\ [], {adapter, adapter_opts}) do
+        case fetch_ops(refs, options, {adapter, adapter_opts}) do
           {:ok, result} -> result
           {:error, err} -> raise err
         end
@@ -71,15 +63,15 @@ defmodule Operate.Cache do
 
       defoverridable  fetch_tx: 2, fetch_tx: 3,
                       fetch_tx!: 2, fetch_tx!: 3,
-                      fetch_procs: 2, fetch_procs: 3,
-                      fetch_procs!: 2, fetch_procs!: 3
+                      fetch_ops: 2, fetch_ops: 3,
+                      fetch_ops!: 2, fetch_ops!: 3
     end
   end
 
 
   @doc """
   Loads a transaction from the cache by the given txid, or delegates to job to
-  the passed adapter. Returns the result in an `:ok/:error` tuple pair.
+  the specified adapter. Returns the result in an `:ok` / `:error` tuple pair.
   """
   @callback fetch_tx(String.t, keyword, {module, keyword}) ::
     {:ok, Operate.Tape.t} |
@@ -93,19 +85,19 @@ defmodule Operate.Cache do
 
 
   @doc """
-  Loads functions from the cache by the given procedure referneces, or delegates
-  the job to the passed adapter. Returns the result in an `:ok/:error` tuple
-  pair.
+  Loads Ops from the cache by the given procedure referneces, or delegates
+  the job to the specified adapter. Returns the result in an `:ok` / `:error`
+  tuple pair.
   """
-  @callback fetch_procs(list, keyword, {module, keyword}) ::
-    {:ok, [Operate.Function.t, ...]} |
+  @callback fetch_ops(list, keyword, {module, keyword}) ::
+    {:ok, [Operate.Op.t, ...]} |
     {:error, String.t}
 
 
   @doc """
-  As `c:fetch_procs/3`, but returns the result or raises an exception.
+  As `c:fetch_ops/3`, but returns the result or raises an exception.
   """
-  @callback fetch_procs!(list, keyword, {module, keyword}) ::
-    [Operate.Function.t, ...]
+  @callback fetch_ops!(list, keyword, {module, keyword}) ::
+    [Operate.Op.t, ...]
   
 end

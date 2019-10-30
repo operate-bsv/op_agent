@@ -1,6 +1,6 @@
-defmodule Operate.Adapter.FBHubTest do
+defmodule Operate.Adapter.OpApiTest do
   use ExUnit.Case
-  alias Operate.Adapter.FBHub
+  alias Operate.Adapter.OpApi
 
   setup do
     Tesla.Mock.mock fn
@@ -9,9 +9,9 @@ defmodule Operate.Adapter.FBHubTest do
     :ok
   end
 
-  describe "Operate.Adapter.FBHub.fetch_procs/2 with list of references" do
+  describe "Operate.Adapter.OpApi.fetch_ops/2 with list of references" do
     test "must return list of functions" do
-      {:ok, functions} = FBHub.fetch_procs(["0b9574b5", "77bbf52e"])
+      {:ok, functions} = OpApi.fetch_ops(["0b9574b5", "77bbf52e"])
       assert is_list(functions)
       assert Enum.any?(functions, &(&1.ref == "0b9574b5"))
       assert Enum.any?(functions, &(&1.ref == "77bbf52e"))

@@ -1,6 +1,6 @@
 defmodule Operate.VM.Extension.Agent do
   @moduledoc """
-  Extends the VM state with functions for encoding and decoding JSON.
+  Extends the VM state with functions for accessing the running agent.
   """
   use Operate.VM.Extension
   alias Operate.VM

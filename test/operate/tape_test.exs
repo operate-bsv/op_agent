@@ -3,11 +3,11 @@ defmodule Operate.TapeTest do
   alias Operate.VM
   alias Operate.Tape
   alias Operate.Cell
-  alias Operate.Adapter.FBHub
+  alias Operate.Adapter.OpApi
   doctest Operate.Tape
 
   setup_all do
-    script = """
+    op = """
     return function(ctx, y)
       x = ctx or 0
       return math.pow(x, y)
@@ -15,12 +15,12 @@ defmodule Operate.TapeTest do
     """
     %{
       vm: VM.init,
-      cell: %Cell{ref: "test", params: ["2"], script: script}
+      cell: %Cell{ref: "test", params: ["2"], op: op}
     }
   end
 
 
-  describe "Operate.Tape.set_cell_procs/3" do
+  describe "Operate.Tape.set_cell_ops/3" do
     setup do
       Tesla.Mock.mock fn
         _ -> File.read!("test/mocks/hub_fetch_procs.json") |> Jason.decode! |> Tesla.Mock.json
@@ -31,15 +31,15 @@ defmodule Operate.TapeTest do
       ]}
       %{
         tape: tape,
-        procs: FBHub.fetch_procs!(["0b9574b5", "77bbf52e"])
+        procs: OpApi.fetch_ops!(["0b9574b5", "77bbf52e"])
       }
     end
 
-    test "must return tape with function scripts", ctx do
-      [cell_1 | [cell_2]] = Tape.set_cell_procs(ctx.tape, ctx.procs)
+    test "must return tape with function ops", ctx do
+      [cell_1 | [cell_2]] = Tape.set_cell_ops(ctx.tape, ctx.procs)
       |> Map.get(:cells)
-      assert String.match?(cell_1.script, ~r/return function\(state/)
-      assert String.match?(cell_2.script, ~r/return function\(state/)
+      assert String.match?(cell_1.op, ~r/return function\(state/)
+      assert String.match?(cell_2.op, ~r/return function\(state/)
     end
 
     test "must handle cells with duplicate refs", ctx do
@@ -50,7 +50,7 @@ defmodule Operate.TapeTest do
       ]}
       assert Tape.valid?(tape) == false
 
-      tape = Tape.set_cell_procs(tape, ctx.procs)
+      tape = Tape.set_cell_ops(tape, ctx.procs)
       assert Tape.valid?(tape) == true
     end
   end
@@ -106,13 +106,13 @@ defmodule Operate.TapeTest do
 
 
   describe "Operate.Tape.valid?/1" do
-    test "must be valid with all scripts", ctx do
+    test "must be valid with all ops", ctx do
       assert %Tape{cells: [ctx.cell, ctx.cell]}
       |> Tape.valid? == true
     end
 
-    test "wont be valid without any scripts", ctx do
-      assert %Tape{cells: [Map.put(ctx.cell, :script, nil), Map.put(ctx.cell, :script, nil)]}
+    test "wont be valid without any ops", ctx do
+      assert %Tape{cells: [Map.put(ctx.cell, :op, nil), Map.put(ctx.cell, :op, nil)]}
       |> Tape.valid? == false
     end
   end

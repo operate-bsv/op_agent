@@ -1,9 +1,9 @@
 defmodule Operate.VM.Extension do
   @moduledoc """
-  Functional Bitcoin VM extension specification.
+  Operate VM extension specification.
 
-  The Functional Bitcoin Lua VM can be easily extended, either with native Lua
-  modules, or Elixir code that is added to the Lua VM as functions.
+  The Operate Lua VM can be easily extended, either with native Lua modules, or
+  Elixir code that is added to the Lua VM as functions.
 
   ## Examples
 

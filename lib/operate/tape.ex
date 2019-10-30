@@ -1,29 +1,29 @@
 defmodule Operate.Tape do
   @moduledoc """
-  Functional Bitcoin Data Tape.
+  Module for working with Operate tapes.
 
-  A tape is is made up of one or more cells, where each cell contains a single
-  atomic procedure call.
+  An Operate program is a tape made up of one or more cells, where each cell
+  contains a single atomic procedure call (known as an "Op").
 
   When a tape is run, each cell is executed in turn, with the result from each
-  cell being passed as the "state" to the next cell. Each cell, or each function,
-  manipulates and returns a new state, until the final cell in the tape returns
-  the final state or result of the tape.
+  cell is passed to the next cell. This is known as the "state". Each cell
+  returns a new state, until the final cell in the tape returns the result of
+  the tape.
 
   ## Examples
 
       iex> {:ok, tape} = %Operate.Tape{cells: [
-      ...>   %Operate.Cell{script: "return function(state, a) return (state or 0) + a end", params: [2]},
-      ...>   %Operate.Cell{script: "return function(state, a) return (state or 0) + a end", params: [3]},
-      ...>   %Operate.Cell{script: "return function(state, a) return (state or 0) + a end", params: [4]}
+      ...>   %Operate.Cell{op: "return function(state, a) return (state or 0) + a end", params: [2]},
+      ...>   %Operate.Cell{op: "return function(state, a) return (state or 0) + a end", params: [3]},
+      ...>   %Operate.Cell{op: "return function(state, a) return (state or 0) + a end", params: [4]}
       ...> ]}
       ...> |> Operate.Tape.run(Operate.VM.init)
       ...> tape.result
       9
   """
-  alias Operate.{BPU, Cell, Function, VM}
+  alias Operate.{BPU, Cell, Op, VM}
 
-  @typedoc "Data Tape"
+  @typedoc "Operate Tape"
   @type t :: %__MODULE__{
     tx: map,
     index: integer,
@@ -36,8 +36,8 @@ defmodule Operate.Tape do
 
 
   @doc """
-  Converts the given `t:Operate.BPU.Transaction.t` into a `t:Operate.Tape.t`.
-  Returns the result in an OK/Error tuple pair.
+  Converts the given `t:Operate.BPU.Transaction.t/0` into a `t:Operate.Tape.t/0`.
+  Returns the result in an `:ok` / `:error` tuple pair.
 
   Optionally specifcy the output index of the tape. If not specified, the first
   `OP_RETURN` output is returned as the tape.
@@ -73,7 +73,7 @@ defmodule Operate.Tape do
 
 
   @doc """
-  As `f:from_bpu/1`, but returns the result or raises an exception.
+  As `from_bpu/1`, but returns the result or raises an exception.
   """
   @spec from_bpu!(BPU.Transaction.t, integer) :: __MODULE__.t
   def from_bpu!(%BPU.Transaction{} = tx, index \\ nil) do
@@ -85,47 +85,45 @@ defmodule Operate.Tape do
 
 
   @doc """
-  Sets the given procedure scripts into the cells of the given tape. If a map of
+  Sets the given Ops into the cells of the given tape. If a map of
   aliases is specifed, this is used to reverse map any procedure scripts onto
   aliased cells.
   """
-  @spec set_cell_procs(__MODULE__.t, [Function.t, ...], map) :: __MODULE__.t
-  def set_cell_procs(tape, procs, aliases \\ %{})
+  @spec set_cell_ops(__MODULE__.t, [Op.t, ...], map) :: __MODULE__.t
+  def set_cell_ops(tape, procs, aliases \\ %{})
 
-  def set_cell_procs(%__MODULE__{} = tape, [], _aliases), do: tape
+  def set_cell_ops(%__MODULE__{} = tape, [], _aliases), do: tape
 
-  def set_cell_procs(%__MODULE__{} = tape, [%Function{} = f | tail], aliases) do
-    ref = case Enum.find(aliases, fn {_k, v} -> v == f.ref end) do
+  def set_cell_ops(%__MODULE__{} = tape, [%Op{} = op | tail], aliases) do
+    ref = case Enum.find(aliases, fn {_k, v} -> v == op.ref end) do
       {k, _v} -> k
-      _ -> f.ref
+      _ -> op.ref
     end
 
     cells = tape.cells
-    |> Enum.map(& put_cell_script(&1, ref, f.script))
+    |> Enum.map(& put_cell_script(&1, ref, op.script))
 
     Map.put(tape, :cells, cells)
-    |> set_cell_procs(tail, aliases)
+    |> set_cell_ops(tail, aliases)
   end
 
 
   @doc """
-  Runs the given tape in the given VM state.
+  Runs the tape in the given VM state.
 
   ## Options
 
   The accepted options are:
 
-  * `:state` - Specifiy the state passed to the first cell procedure.
-  Defaults to `nil`.
-  * `:strict` - By default the tape runs in struct mode - meaning if any cell
-  has an error the entire tape fails. Disable strict mode by setting to `false`.
+  * `:state` - Specifiy the state passed to the first cell procedure. Defaults to `nil`.
+  * `:strict` - By default the tape runs in struct mode - meaning if any cell has an error the entire tape fails. Disable strict mode by setting to `false`.
 
   ## Examples
 
       iex> {:ok, tape} = %Operate.Tape{cells: [
-      ...>   %Operate.Cell{script: "return function(state, a) return (state or '') .. a end", params: ["b"]},
-      ...>   %Operate.Cell{script: "return function(state, a) return (state or '') .. a end", params: ["c"]},
-      ...>   %Operate.Cell{script: "return function(state) return string.reverse(state) end", params: []}
+      ...>   %Operate.Cell{op: "return function(state, a) return (state or '') .. a end", params: ["b"]},
+      ...>   %Operate.Cell{op: "return function(state, a) return (state or '') .. a end", params: ["c"]},
+      ...>   %Operate.Cell{op: "return function(state) return string.reverse(state) end", params: []}
       ...> ]}
       ...> |> Operate.Tape.run(Operate.VM.init, state: "a")
       ...> tape.result
@@ -155,16 +153,14 @@ defmodule Operate.Tape do
 
 
   @doc """
-  As `f:Operate.Tape.run/3`, but returns the tape or raises an exception.
+  As `run/3`, but returns the tape or raises an exception.
 
   ## Options
 
   The accepted options are:
 
-  * `:state` - Specifiy the state passed to the first cell procedure.
-  Defaults to `nil`.
-  * `:strict` - By default the tape runs in struct mode - meaning if any cell
-  has an error the entire tape fails. Disable strict mode by setting to `false`.
+  * `:state` - Specifiy the state passed to the first cell procedure. Defaults to `nil`.
+  * `:strict` - By default the tape runs in struct mode - meaning if any cell has an error the entire tape fails. Disable strict mode by setting to `false`.
   """
   @spec run!(__MODULE__.t, VM.t, keyword) :: __MODULE__.t
   def run!(%__MODULE__{} = tape, vm, options \\ []) do
@@ -176,18 +172,8 @@ defmodule Operate.Tape do
 
 
   @doc """
-  Validates the given tape. Returns true if all the tape's cells are valid.
-  """
-  @spec valid?(__MODULE__.t) :: boolean
-  def valid?(%__MODULE__{} = tape) do
-    tape.cells
-    |> Enum.all?(&(Cell.valid?(&1)))
-  end
-
-
-  @doc """
-  Returns a list of procedure references from the given tape's cells. If a map
-  of aliases is specifed, this is used to alias references to alternative values.
+  Returns a list of Op references from the tape's cells. If a map of aliases is
+  specifed, this is used to alias references to alternative values.
 
   ## Examples
 
@@ -196,15 +182,25 @@ defmodule Operate.Tape do
       ...>   %Operate.Cell{ref: "eeff1122"},
       ...>   %Operate.Cell{ref: "33445500"}
       ...> ]}
-      ...> |> Operate.Tape.get_cell_refs(%{"33445500" => "MyAliasReference"})
+      ...> |> Operate.Tape.get_op_refs(%{"33445500" => "MyAliasReference"})
       ["aabbccdd", "eeff1122", "MyAliasReference"]
   """
-  @spec get_cell_refs(__MODULE__.t, map) :: list
-  def get_cell_refs(%__MODULE__{} = tape, aliases \\ %{}) do
+  @spec get_op_refs(__MODULE__.t, map) :: list
+  def get_op_refs(%__MODULE__{} = tape, aliases \\ %{}) do
     tape.cells
     |> Enum.map(&(&1.ref))
     |> Enum.uniq
     |> Enum.map(& Map.get(aliases, &1, &1))
+  end
+
+
+  @doc """
+  Validates the given tape. Returns true if all the tape's cells are valid.
+  """
+  @spec valid?(__MODULE__.t) :: boolean
+  def valid?(%__MODULE__{} = tape) do
+    tape.cells
+    |> Enum.all?(&(Cell.valid?(&1)))
   end
 
 
@@ -219,7 +215,7 @@ defmodule Operate.Tape do
   # Private: Puts the given script into the cell if the specfied ref matches
   defp put_cell_script(cell, ref, script) do
     case cell.ref do
-      ^ref -> Map.put(cell, :script, script)
+      ^ref -> Map.put(cell, :op, script)
       _ -> cell
     end
   end

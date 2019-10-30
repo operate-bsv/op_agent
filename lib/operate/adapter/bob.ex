@@ -1,6 +1,6 @@
 defmodule Operate.Adapter.Bob do
   @moduledoc """
-  Adapter module for loading tapes and procedure scripts from [BOB](https://bob.planaria.network).
+  Adapter module for loading tapes and Ops from [BOB](https://bob.planaria.network).
 
   ## Examples
 

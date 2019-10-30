@@ -1,25 +1,24 @@
 defmodule Operate do
   @moduledoc """
-  Load and run Functional Bitcoin programs from the BSV blockchain.
+  Load and run Operate programs (known as "tapes") from the BSV blockchain.
 
-  Functional Bitcoin is an extensible `OP_RETURN` scripting protocol. It
-  provides a way of constructing Turing Complete programs encapsulated in
-  Bitcoin transactions that can be be used to process data, perform calculations
-  and operations, and return any kind of result.
-
-  `Operate` is used to load and run "tapes" (Functional Bitcoin scripts).
+  Operate is an extensible Bitcoin meta programming protocol. It offers a way of
+  constructing Turing Complete programs encapsulated in Bitcoin transactions
+  that can be be used to process data, perform calculations and operations, and
+  return any kind of result.
 
   ## Installation
 
   The package is bundled with `libsecp256k1` NIF bindings. `libtool`, `automake`
   and `autogen` are required in order for the package to compile.
 
-  The package can be installed by adding `fb_agent` to your list of dependencies
+  The package can be installed by adding `operate`
+  o your list of dependencies
   in `mix.exs`:
 
       def deps do
         [
-          {:fb_agent, "~> 0.0.1"}
+          {:operate, "~> 0.0.1"}
         ]
       end
 
@@ -45,7 +44,8 @@ defmodule Operate do
           cache: Operate.Cache.ConCache,
         ]},
         {ConCache, [
-          name: :fb_agent,  ttl_check_interval: :timer.minutes(1),
+          name: :operate,
+          ttl_check_interval: :timer.minutes(1),
           global_ttl: :timer.minutes(10),
           touch_on_read: true
         ]}
@@ -55,9 +55,9 @@ defmodule Operate do
 
   ## Configuration
 
-  The agent can be configured with the following options. Additionally, any of
+  Operate can be configured with the following options. Additionally, any of
   these options can be passed to `load_tape/2` and `run_tape/2` to override
-  the agent's configuration.
+  the configuration.
 
   * `:tape_adpater` - The adapter module used to fetch the tape transaction.
   * `:proc_adpater` - The adapter module used to fetch the a tape's function scripts.
@@ -69,7 +69,7 @@ defmodule Operate do
   The default configuration:
 
       tape_adapter: Operate.Adapter.Bob,
-      proc_adapter: Operate.Adapter.FBHub,
+      proc_adapter: Operate.Adapter.OpApi,
       cache: Operate.Cache.NoCache,
       extensions: [],
       aliases: %{},
@@ -81,7 +81,7 @@ defmodule Operate do
 
   @default_config %{
     tape_adapter: Operate.Adapter.Bob,
-    proc_adapter: Operate.Adapter.FBHub,
+    proc_adapter: Operate.Adapter.OpApi,
     cache: Operate.Cache.NoCache,
     extensions: [],
     aliases: %{},
@@ -90,7 +90,8 @@ defmodule Operate do
 
 
   @doc """
-  Starts an agent with the given options merged with the default config.
+  Starts an Operate agent process with the given options merged with the default
+  config.
 
   ## Options
 
@@ -106,9 +107,9 @@ defmodule Operate do
 
 
   @doc """
-  Gets the agent's current VM state and config.
+  Gets Operate's current VM state and config.
 
-  If the agent process has already been started then the existing VM and config
+  If a process has already been started then the existing VM and config
   is returned. Alternatively a new VM state is initiated and the default config
   returned. In either case any configuration option can be overridden.
 
@@ -134,15 +135,15 @@ defmodule Operate do
 
 
   @doc """
-  Loads a given tape from the given txid.
+  Loads a tape from the given txid.
 
   Fetchs the tape transaction output as well as all of the required functions,
-  and returns a prepared `t:Operate.Tape.t` ready for execution in an
-  `:ok/:error` tuple pair.
+  and returns a `t:Operate.Tape.t/0` ready for execution in an `:ok` / `:error`
+  tuple pair.
 
-  If the agent has already been started the existing config will be used.
-  Otherwise a default config will be used. Any configuration option can be
-  overridden.
+  If an Operate agent process has already been started the existing config will
+  be used. Otherwise a default config will be used. Any configuration option can
+  be overridden.
 
   ## Options
 
@@ -159,9 +160,9 @@ defmodule Operate do
 
     with {:ok, tx} <- cache.fetch_tx(txid, cache_opts, tape_adapter),
       {:ok, tape} <- Tape.from_bpu(tx),
-      refs <- Tape.get_cell_refs(tape, aliases),
-      {:ok, procs} <- cache.fetch_procs(refs, cache_opts, proc_adapter),
-      tape <- Tape.set_cell_procs(tape, procs, aliases)
+      refs <- Tape.get_op_refs(tape, aliases),
+      {:ok, procs} <- cache.fetch_ops(refs, cache_opts, proc_adapter),
+      tape <- Tape.set_cell_ops(tape, procs, aliases)
     do
       {:ok, tape}
     else
@@ -171,7 +172,7 @@ defmodule Operate do
 
 
   @doc """
-  As `f:load_tape/2`, but returns the tape or raises an exception.
+  As `load_tape/2`, but returns the tape or raises an exception.
   """
   @spec load_tape!(String.t, keyword) :: Tape.t
   def load_tape!(txid, options \\ []) do
@@ -184,11 +185,11 @@ defmodule Operate do
 
   @doc """
   Runs the given tape executing each of the tape's cells and returns the
-  modified and complete `t:Operate.Tape.t` in an `:ok/:error` tuple pair.
+  modified and complete `t:Operate.Tape.t/0` in an `:ok` / `:error` tuple pair.
 
-  If the agent has already been started the existing VM state and config will
-  be used. Otherwise a new state and default config will be used. Any
-  configuration option can be overridden.
+  If an Operate agent process has already been started the existing VM state and
+  config will be used. Otherwise a new state and default config will be used.
+  Any configuration option can be overridden.
 
   ## Options
 
@@ -214,7 +215,7 @@ defmodule Operate do
 
 
   @doc """
-  As `f:run_tape/2`, but returns the tape or raises an exception.
+  As `run_tape/2`, but returns the tape or raises an exception.
   """
   @spec run_tape!(Tape.t, keyword) :: Tape.t
   def run_tape!(%Tape{} = tape, options \\ []) do

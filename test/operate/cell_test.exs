@@ -5,7 +5,7 @@ defmodule Operate.CellTest do
   doctest Operate.Cell
 
   setup_all do
-    script = """
+    op = """
     return function(ctx, y)
       x = ctx or 0
       return math.pow(x, y)
@@ -13,7 +13,7 @@ defmodule Operate.CellTest do
     """
     %{
       vm: VM.init,
-      cell: %Cell{ref: "test", params: ["2"], script: script}
+      cell: %Cell{ref: "test", params: ["2"], op: op}
     }
   end
 
@@ -47,17 +47,17 @@ defmodule Operate.CellTest do
 
 
   describe "Operate.Cell.valid?/1" do
-    test "must be valid with ref and script" do
-      assert %Cell{ref: "test", script: "testing"}
+    test "must be valid with ref and op" do
+      assert %Cell{ref: "test", op: "testing"}
       |> Cell.valid? == true
     end
 
     test "wont be valid without ref" do
-      assert %Cell{script: "testing"}
+      assert %Cell{op: "testing"}
       |> Cell.valid? == false
     end
 
-    test "wont be valid without script" do
+    test "wont be valid without op" do
       assert %Cell{ref: "test"}
       |> Cell.valid? == false
     end

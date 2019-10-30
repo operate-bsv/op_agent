@@ -9,7 +9,7 @@ defmodule Operate.Cache.ConCache do
           cache: Operate.Cache.ConCache,
         ]},
         {ConCache, [
-          name: :fb_agent,
+          name: :operate,
           ttl_check_interval: :timer.minutes(1),
           global_ttl: :timer.minutes(10),
           touch_on_read: true
@@ -22,15 +22,15 @@ defmodule Operate.Cache.ConCache do
 
   def fetch_tx(txid, _options \\ [], {adapter, adapter_opts}) do
     key = "t:#{ txid }"
-    ConCache.fetch_or_store(:fb_agent, key, fn ->
+    ConCache.fetch_or_store(:operate, key, fn ->
       adapter.fetch_tx(txid, adapter_opts)
     end)
   end
 
 
-  def fetch_procs(refs, _options \\ [], {adapter, adapter_opts}) do
+  def fetch_ops(refs, _options \\ [], {adapter, adapter_opts}) do
     cached_procs = refs
-    |> Enum.map(& ConCache.get(:fb_agent, &1))
+    |> Enum.map(& ConCache.get(:operate, &1))
 
     cached_refs = cached_procs
     |> Enum.map(& &1["ref"])
@@ -40,13 +40,13 @@ defmodule Operate.Cache.ConCache do
 
     uncached_procs = case length(uncached_refs) do
       0 -> {:ok, []}
-      _ -> adapter.fetch_procs(uncached_refs, adapter_opts)
+      _ -> adapter.fetch_ops(uncached_refs, adapter_opts)
     end
 
     with {:ok, procs} <- uncached_procs do
       Enum.each(procs, fn proc ->
         key = "p:#{ proc["ref"] }"
-        ConCache.put(:fb_agent, key, proc)
+        ConCache.put(:operate, key, proc)
       end)
       {:ok, Enum.concat(cached_procs, procs)}
     else

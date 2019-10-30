@@ -1,11 +1,11 @@
-defmodule Operate.Adapter.FBHub do
+defmodule Operate.Adapter.OpApi do
   @moduledoc """
-  Adapter module for loading functions from the [Functional Bitcoin Hub](http://functions.chronoslabs.net).
+  Adapter module for loading Ops from the [Functional Bitcoin Hub](http://functions.chronoslabs.net).
 
   ## Examples
 
-      iex> Operate.Adapter.Hub.fetch_procs(refs)
-      {:ok, [%Operate.Function{}, ...]}
+      iex> Operate.Adapter.Hub.fetch_ops(refs)
+      {:ok, [%Operate.Op{}, ...]}
 
   """
   use Operate.Adapter
@@ -15,7 +15,7 @@ defmodule Operate.Adapter.FBHub do
   plug Tesla.Middleware.JSON
 
 
-  def fetch_procs(refs, options \\ []) when is_list(refs) do
+  def fetch_ops(refs, options \\ []) when is_list(refs) do
     api_key = Keyword.get(options, :api_key)
     case get("/functions", query: [refs: refs, script: true], headers: [key: api_key]) do
       {:ok, res} ->
@@ -27,9 +27,9 @@ defmodule Operate.Adapter.FBHub do
   end
 
 
-  # Private: Convert an item from the http response to a `t:Operate.Function.t`
+  # Private: Convert an item from the http response to a `t:Operate.Op.t`
   defp to_function(%{} = r) do
-    struct(Operate.Function, [
+    struct(Operate.Op, [
       ref: r["ref"],
       hash: r["hash"],
       name: r["name"],
