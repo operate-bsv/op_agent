@@ -59,7 +59,7 @@ defmodule Operate.MixProject do
       {:con_cache, "~> 0.14"},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:jason, "~> 1.1"},
-      {:luerl, git: "https://github.com/libitx/luerl.git", branch: "develop"},
+      {:luerl, git: "https://github.com/rvirding/luerl.git", branch: "develop"},
       {:tesla, "~> 1.2"}
     ]
   end
