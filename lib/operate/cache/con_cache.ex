@@ -29,26 +29,26 @@ defmodule Operate.Cache.ConCache do
 
 
   def fetch_ops(refs, _options \\ [], {adapter, adapter_opts}) do
-    cached_procs = refs
+    cached_ops = refs
     |> Enum.map(& ConCache.get(:operate, &1))
 
-    cached_refs = cached_procs
+    cached_refs = cached_ops
     |> Enum.map(& &1["ref"])
 
     uncached_refs = refs
     |> Enum.reject(& &1 in cached_refs)
 
-    uncached_procs = case length(uncached_refs) do
+    uncached_ops = case length(uncached_refs) do
       0 -> {:ok, []}
       _ -> adapter.fetch_ops(uncached_refs, adapter_opts)
     end
 
-    with {:ok, procs} <- uncached_procs do
-      Enum.each(procs, fn proc ->
-        key = "p:#{ proc["ref"] }"
-        ConCache.put(:operate, key, proc)
+    with {:ok, ops} <- uncached_ops do
+      Enum.each(ops, fn op ->
+        key = "p:#{ op["ref"] }"
+        ConCache.put(:operate, key, op)
       end)
-      {:ok, Enum.concat(cached_procs, procs)}
+      {:ok, Enum.concat(cached_ops, ops)}
     else
       error -> error
     end

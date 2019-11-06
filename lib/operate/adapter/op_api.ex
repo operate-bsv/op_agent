@@ -1,6 +1,6 @@
 defmodule Operate.Adapter.OpApi do
   @moduledoc """
-  Adapter module for loading Ops from the [Operate API](http://functions.chronoslabs.net).
+  Adapter module for loading Ops from the [Operate API](http://api.operatebsv.org).
 
   ## Examples
 
@@ -11,17 +11,17 @@ defmodule Operate.Adapter.OpApi do
   use Operate.Adapter
   use Tesla, only: [:get], docs: false
 
-  plug Tesla.Middleware.BaseUrl, "https://functions.chronoslabs.net/api/"
+  plug Tesla.Middleware.BaseUrl, "https://api.operatebsv.org/"
   plug Tesla.Middleware.JSON
 
 
   def fetch_ops(refs, options \\ []) when is_list(refs) do
     api_key = Keyword.get(options, :api_key)
-    case get("/functions", query: [refs: refs, script: true], headers: [key: api_key]) do
+    case get("/ops", query: [refs: refs, fn: true], headers: [key: api_key]) do
       {:ok, res} ->
-        functions = res.body["data"]
+        ops = res.body["data"]
         |> Enum.map(&to_function/1)
-        {:ok, functions}
+        {:ok, ops}
       error -> error
     end
   end
@@ -33,7 +33,7 @@ defmodule Operate.Adapter.OpApi do
       ref: r["ref"],
       hash: r["hash"],
       name: r["name"],
-      script: r["script"]
+      fn: r["fn"]
     ])
   end
 

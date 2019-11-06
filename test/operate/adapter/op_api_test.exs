@@ -3,9 +3,9 @@ defmodule Operate.Adapter.OpApiTest do
   alias Operate.Adapter.OpApi
 
   setup do
-    Tesla.Mock.mock fn
-      _ -> File.read!("test/mocks/hub_fetch_procs.json") |> Jason.decode! |> Tesla.Mock.json
-    end
+    #Tesla.Mock.mock fn
+    #  _ -> File.read!("test/mocks/hub_fetch_procs.json") |> Jason.decode! |> Tesla.Mock.json
+    #end
     :ok
   end
 

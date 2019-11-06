@@ -58,8 +58,8 @@ Supervisor.start_link(children, strategy: :one_for_one)
 
 Operate can be configured with the following options. Additionally, any of these options can be passed to `Operate.load_tape/2` and `Operate.run_tape/2` to override the configuration.
 
-* `:tape_adpater` - The adapter module used to fetch the tape transaction.
-* `:proc_adpater` - The adapter module used to fetch the tape's function scripts.
+* `:tape_adapter` - The adapter module used to fetch the tape transaction.
+* `:op_adapter` - The adapter module used to fetch the tape's function scripts.
 * `:cache` - The cache module used for caching tapes and functions.
 * `:extensions` - A list of extension modules to extend the VM state.
 * `:aliases` - A map of references to alias functions to alternative references.
@@ -69,7 +69,7 @@ The default configuration:
 
 ```elixir
 tape_adapter: Operate.Adapter.Bob,
-proc_adapter: Operate.Adapter.FBHub,
+op_adapter: Operate.Adapter.FBHub,
 cache: Operate.Cache.NoCache,
 extensions: [],
 aliases: %{},

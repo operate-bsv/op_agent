@@ -59,9 +59,9 @@ defmodule Operate do
   these options can be passed to `load_tape/2` and `run_tape/2` to override
   the configuration.
 
-  * `:tape_adpater` - The adapter module used to fetch the tape transaction.
-  * `:proc_adpater` - The adapter module used to fetch the a tape's function scripts.
-  * `:cache` - The cache module used for caching tapes and functions.
+  * `:tape_adapter` - The adapter module used to fetch the tape transaction.
+  * `:op_adaapter` - The adapter module used to fetch the tape's Ops.
+  * `:cache` - The cache module used for caching tapes and Ops.
   * `:extensions` - A list of extension modules to extend the VM state.
   * `:aliases` - A map of references to alias functions to alternative references.
   * `:strict` - Set `false` to disable strict mode and ignore missing and/or erring functions.
@@ -69,7 +69,7 @@ defmodule Operate do
   The default configuration:
 
       tape_adapter: Operate.Adapter.Bob,
-      proc_adapter: Operate.Adapter.OpApi,
+      op_adapter: Operate.Adapter.OpApi,
       cache: Operate.Cache.NoCache,
       extensions: [],
       aliases: %{},
@@ -81,7 +81,7 @@ defmodule Operate do
 
   @default_config %{
     tape_adapter: Operate.Adapter.Bob,
-    proc_adapter: Operate.Adapter.OpApi,
+    op_adapter: Operate.Adapter.OpApi,
     cache: Operate.Cache.NoCache,
     extensions: [],
     aliases: %{},
@@ -154,8 +154,8 @@ defmodule Operate do
   @spec load_tape(String.t, keyword) :: {:ok, Tape.t} | {:error, String.t}
   def load_tape(txid, options \\ []) do
     {_vm, config} = get_state(options)
-    tape_adapter  = adapter_with_opts(config.tape_adapter)
-    proc_adapter  = adapter_with_opts(config.proc_adapter)
+    tape_adapter = adapter_with_opts(config.tape_adapter)
+    op_adapter = adapter_with_opts(config.op_adapter)
     {cache, cache_opts} = adapter_with_opts(config.cache)
 
     aliases = Map.get(config, :aliases, %{})
@@ -163,8 +163,8 @@ defmodule Operate do
     with {:ok, tx} <- cache.fetch_tx(txid, cache_opts, tape_adapter),
       {:ok, tape} <- Tape.from_bpu(tx),
       refs <- Tape.get_op_refs(tape, aliases),
-      {:ok, procs} <- cache.fetch_ops(refs, cache_opts, proc_adapter),
-      tape <- Tape.set_cell_ops(tape, procs, aliases)
+      {:ok, ops} <- cache.fetch_ops(refs, cache_opts, op_adapter),
+      tape <- Tape.set_cell_ops(tape, ops, aliases)
     do
       {:ok, tape}
     else

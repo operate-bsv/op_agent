@@ -90,7 +90,7 @@ defmodule Operate.Tape do
   aliased cells.
   """
   @spec set_cell_ops(__MODULE__.t, [Op.t, ...], map) :: __MODULE__.t
-  def set_cell_ops(tape, procs, aliases \\ %{})
+  def set_cell_ops(tape, ops, aliases \\ %{})
 
   def set_cell_ops(%__MODULE__{} = tape, [], _aliases), do: tape
 
@@ -101,7 +101,7 @@ defmodule Operate.Tape do
     end
 
     cells = tape.cells
-    |> Enum.map(& put_cell_script(&1, ref, op.script))
+    |> Enum.map(& put_cell_op(&1, ref, op))
 
     Map.put(tape, :cells, cells)
     |> set_cell_ops(tail, aliases)
@@ -136,6 +136,7 @@ defmodule Operate.Tape do
     state = Keyword.get(options, :state, nil)
     strict = Keyword.get(options, :strict, true)
     vm = vm
+    |> VM.set!("tx", tape.tx)
     |> VM.set!("ctx.tx", tape.tx)
     |> VM.set!("ctx.tape_index", tape.index)
     
@@ -213,9 +214,9 @@ defmodule Operate.Tape do
 
 
   # Private: Puts the given script into the cell if the specfied ref matches
-  defp put_cell_script(cell, ref, script) do
+  defp put_cell_op(cell, ref, op) do
     case cell.ref do
-      ^ref -> Map.put(cell, :op, script)
+      ^ref -> Map.put(cell, :op, op.fn)
       _ -> cell
     end
   end

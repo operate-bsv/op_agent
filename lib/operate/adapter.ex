@@ -10,7 +10,7 @@ defmodule Operate.Adapter do
       children = [
         {Operate, [
           tape_adapter: Operate.Adapter.Bob,
-          proc_adapter: Operate.Adapter.OpApi
+          op_adapter: Operate.Adapter.OpApi
         ]}
       ]
       Supervisor.start_link(children, strategy: :one_for_one)

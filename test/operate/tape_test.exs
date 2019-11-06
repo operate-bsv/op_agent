@@ -22,21 +22,21 @@ defmodule Operate.TapeTest do
 
   describe "Operate.Tape.set_cell_ops/3" do
     setup do
-      Tesla.Mock.mock fn
-        _ -> File.read!("test/mocks/hub_fetch_procs.json") |> Jason.decode! |> Tesla.Mock.json
-      end
+      #Tesla.Mock.mock fn
+      #  _ -> File.read!("test/mocks/hub_fetch_procs.json") |> Jason.decode! |> Tesla.Mock.json
+      #end
       tape = %Tape{cells: [
-        %Cell{ref: "0b9574b5", params: ["foo.bar", 1, "foo.baz", 2]},
-        %Cell{ref: "77bbf52e", params: ["baz", "qux", 3]}
+        %Cell{ref: "9ef5fd5c", params: ["foo.bar", 1, "foo.baz", 2]},
+        %Cell{ref: "0ca59130", params: ["baz", "qux", 3]}
       ]}
       %{
         tape: tape,
-        procs: OpApi.fetch_ops!(["0b9574b5", "77bbf52e"])
+        ops: OpApi.fetch_ops!(["9ef5fd5c", "0ca59130"])
       }
     end
 
     test "must return tape with function ops", ctx do
-      [cell_1 | [cell_2]] = Tape.set_cell_ops(ctx.tape, ctx.procs)
+      [cell_1 | [cell_2]] = Tape.set_cell_ops(ctx.tape, ctx.ops)
       |> Map.get(:cells)
       assert String.match?(cell_1.op, ~r/return function\(state/)
       assert String.match?(cell_2.op, ~r/return function\(state/)
@@ -44,13 +44,13 @@ defmodule Operate.TapeTest do
 
     test "must handle cells with duplicate refs", ctx do
       tape = %Tape{cells: [
-        %Cell{ref: "0b9574b5", params: ["foo.bar", 1, "foo.baz", 2]},
-        %Cell{ref: "77bbf52e", params: ["baz", "qux", 3]},
-        %Cell{ref: "77bbf52e", params: ["bish", "bash", "bosh"]}
+        %Cell{ref: "9ef5fd5c", params: ["foo.bar", 1, "foo.baz", 2]},
+        %Cell{ref: "0ca59130", params: ["baz", "qux", 3]},
+        %Cell{ref: "0ca59130", params: ["bish", "bash", "bosh"]}
       ]}
       assert Tape.valid?(tape) == false
 
-      tape = Tape.set_cell_ops(tape, ctx.procs)
+      tape = Tape.set_cell_ops(tape, ctx.ops)
       assert Tape.valid?(tape) == true
     end
   end
