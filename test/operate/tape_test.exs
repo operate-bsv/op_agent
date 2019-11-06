@@ -22,9 +22,9 @@ defmodule Operate.TapeTest do
 
   describe "Operate.Tape.set_cell_ops/3" do
     setup do
-      #Tesla.Mock.mock fn
-      #  _ -> File.read!("test/mocks/hub_fetch_procs.json") |> Jason.decode! |> Tesla.Mock.json
-      #end
+      Tesla.Mock.mock fn
+        _ -> File.read!("test/mocks/api_fetch_ops.json") |> Jason.decode! |> Tesla.Mock.json
+      end
       tape = %Tape{cells: [
         %Cell{ref: "9ef5fd5c", params: ["foo.bar", 1, "foo.baz", 2]},
         %Cell{ref: "0ca59130", params: ["baz", "qux", 3]}

@@ -5,9 +5,9 @@ defmodule Operate.Adapter.BobTest do
   describe "Operate.Adapter.Bob.fetch_tx/1" do
 
     setup do
-      #Tesla.Mock.mock fn
-      #  _ -> File.read!("test/mocks/bob_fetch_tx.json") |> Jason.decode! |> Tesla.Mock.json
-      #end
+      Tesla.Mock.mock fn
+        _ -> File.read!("test/mocks/bob_fetch_tx.json") |> Jason.decode! |> Tesla.Mock.json
+      end
       :ok
     end
 
