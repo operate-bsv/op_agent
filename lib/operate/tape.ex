@@ -95,13 +95,13 @@ defmodule Operate.Tape do
   def set_cell_ops(%__MODULE__{} = tape, [], _aliases), do: tape
 
   def set_cell_ops(%__MODULE__{} = tape, [%Op{} = op | tail], aliases) do
-    ref = case Enum.find(aliases, fn {_k, v} -> v == op.ref end) do
-      {k, _v} -> k
-      _ -> op.ref
+    refs = case Enum.filter(aliases, fn {_k, v} -> v == op.ref end) do
+      [] -> [op.ref]
+      res -> Keyword.keys(res)
     end
 
     cells = tape.cells
-    |> Enum.map(& put_cell_op(&1, ref, op))
+    |> Enum.map(& put_cell_op(&1, refs, op))
 
     Map.put(tape, :cells, cells)
     |> set_cell_ops(tail, aliases)
@@ -214,10 +214,10 @@ defmodule Operate.Tape do
 
 
   # Private: Puts the given script into the cell if the specfied ref matches
-  defp put_cell_op(cell, ref, op) do
-    case cell.ref do
-      ^ref -> Map.put(cell, :op, op.fn)
-      _ -> cell
+  defp put_cell_op(cell, refs, op) do
+    case Enum.member?(refs, cell.ref) do
+      true -> Map.put(cell, :op, op.fn)
+      false -> cell
     end
   end
   

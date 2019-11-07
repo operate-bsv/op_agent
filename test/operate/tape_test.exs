@@ -3,6 +3,7 @@ defmodule Operate.TapeTest do
   alias Operate.VM
   alias Operate.Tape
   alias Operate.Cell
+  alias Operate.Op
   alias Operate.Adapter.OpApi
   doctest Operate.Tape
 
@@ -52,6 +53,23 @@ defmodule Operate.TapeTest do
 
       tape = Tape.set_cell_ops(tape, ctx.ops)
       assert Tape.valid?(tape) == true
+    end
+
+    test "must handle aliases references" do
+      tape = %Tape{cells: [
+        %Cell{ref: "a"},
+        %Cell{ref: "b"},
+        %Cell{ref: "c"}
+      ]}
+      ops = [
+        %Op{ref: "foo", fn: "return 1"},
+        %Op{ref: "bar", fn: "return 2"}
+      ]
+      aliases = %{"a" => "foo", "b" => "bar", "c" => "bar"}
+      tape = Tape.set_cell_ops(tape, ops, aliases)
+
+      assert Tape.valid?(tape) == true
+      assert tape.cells |> Enum.map(& &1.op) == ["return 1",  "return 2",  "return 2"]
     end
   end
 
