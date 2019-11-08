@@ -10,7 +10,7 @@ defmodule Operate.MixProject do
       deps: deps(),
       name: "Operate",
       description: "Operate | Agent is an Elixir agent used to load and run Bitcoin programs.",
-      source_url: "https://github.com/operate-bsv/agent",
+      source_url: "https://github.com/operate-bsv/op_agent",
       docs: [
         groups_for_modules: [
           "Extensions": [
@@ -34,11 +34,11 @@ defmodule Operate.MixProject do
         ]
       ],
       package: [
-        name: "bsv",
+        name: "operate",
         files: ~w(lib .formatter.exs mix.exs README.md LICENSE.md),
         licenses: ["MIT"],
         links: %{
-          "GitHub" => "https://github.com/operate-bsv/agent",
+          "GitHub" => "https://github.com/operate-bsv/op_agent",
           "Website" => "https://www.operatebsv.org"
         }
       ]
@@ -59,8 +59,13 @@ defmodule Operate.MixProject do
       {:con_cache, "~> 0.14"},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:jason, "~> 1.1"},
-      {:luerl, git: "https://github.com/rvirding/luerl.git", branch: "develop"},
-      {:tesla, "~> 1.2"}
+      {:tesla, "~> 1.2"},
+      luerl_dep(Mix.env)
     ]
   end
+
+  defp luerl_dep(:publish), do: {:luerl, "~> 0.4"}
+  defp luerl_dep(_),
+    do: {:luerl, github: "rvirding/luerl", branch: "develop"}
+
 end

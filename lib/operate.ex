@@ -12,13 +12,17 @@ defmodule Operate do
   The package is bundled with `libsecp256k1` NIF bindings. `libtool`, `automake`
   and `autogen` are required in order for the package to compile.
 
-  The package can be installed by adding `operate`
-  o your list of dependencies
-  in `mix.exs`:
+  The package can be installed by adding `operate` to your list of dependencies
+  in `mix.exs`.
+
+  **The most recent `luerl` package published on `hex.pm` is based on Lua 5.2
+  which may not be compatible with all Ops. It is recommended to override the
+  `luerl` dependency with the latest development version to benefit from Lua 5.3.**
 
       def deps do
         [
-          {:operate, "~> #{ Mix.Project.config[:version] }"}
+          {:operate, "~> #{ Mix.Project.config[:version] }"},
+          {:luerl, github: "rvirding/luerl", branch: "develop", override: true}
         ]
       end
 

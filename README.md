@@ -1,6 +1,6 @@
 # Operate | Agent
 
-Operate is an extensible Bitcoin meta programming protocol. It offers a way of constructing Turing Complete programs encapsulated in Bitcoin transactions that can be be used to process data, perform calculations and operations, and return any kind of result.
+Operate is an extensible Bitcoin meta programming protocol. It offers a way of running programs encapsulated in Bitcoin (SV) transactions that can be be used to process data, perform calculations and operations, and return any computable value.
 
 **Operate | Agent** is an Elixir agent used to load and run programs (known as "tapes").
 
@@ -13,12 +13,15 @@ More infomation:
 
 The package is bundled with `libsecp256k1` NIF bindings. `libtool`, `automake` and `autogen` are required in order for the package to compile.
 
-The package can be installed by adding `operate` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `operate` to your list of dependencies in `mix.exs`.
+
+**The most recent `luerl` package published on `hex.pm` is based on Lua 5.2 which may not be compatible with all Ops. It is recommended to override the `luerl` dependency with the latest development version to benefit from Lua 5.3.**
 
 ```elixir
 def deps do
   [
-    {:operate, "~> 0.0.1"}
+    {:operate, "~> 0.0.1"},
+    {:luerl, github: "rvirding/luerl", branch: "develop", override: true}
   ]
 end
 ```
@@ -78,6 +81,6 @@ strict: true
 
 ## License
 
-© Copyright 2019 libitx.
+[MIT](https://github.com/operate-bsv/op_agent/blob/master/LICENSE.md)
 
-BSV-ex is free software and released under the [MIT license](https://github.com/libitx/bsv-elixir/blob/master/LICENSE.md).
+© Copyright 2019 Chronos Labs Ltd.
