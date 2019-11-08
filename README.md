@@ -20,7 +20,7 @@ The package can be installed by adding `operate` to your list of dependencies in
 ```elixir
 def deps do
   [
-    {:operate, "~> 0.0.1"},
+    {:operate, "~> 0.1"},
     {:luerl, github: "rvirding/luerl", branch: "develop", override: true}
   ]
 end

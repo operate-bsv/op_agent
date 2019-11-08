@@ -12,6 +12,7 @@ defmodule Operate.MixProject do
       description: "Operate | Agent is an Elixir agent used to load and run Bitcoin programs.",
       source_url: "https://github.com/operate-bsv/op_agent",
       docs: [
+        main: "Operate",
         groups_for_modules: [
           "Extensions": [
             Operate.VM.Extension,
@@ -57,7 +58,7 @@ defmodule Operate.MixProject do
     [
       {:bsv, "~> 0.2"},
       {:con_cache, "~> 0.14"},
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.21", only: [:dev, :publish], runtime: false},
       {:jason, "~> 1.1"},
       {:tesla, "~> 1.2"},
       luerl_dep(Mix.env)
