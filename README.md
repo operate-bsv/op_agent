@@ -8,8 +8,6 @@ Operate is a toolset to help developers build applications, games and services o
 
 More infomation:
 
-More infomation:
-
 * [Project website](https://www.operatebsv.org)
 * [Full documentation](https://hexdocs.pm/operate)
 
