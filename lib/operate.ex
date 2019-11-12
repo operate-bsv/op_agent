@@ -1,11 +1,12 @@
 defmodule Operate do
   @moduledoc """
-  Load and run Operate programs (known as "tapes") from the BSV blockchain.
+  Load and run Operate programs (known as "tapes") encoded in Bitcoin SV
+  transactions.
 
-  Operate is an extensible Bitcoin meta programming protocol. It offers a way of
-  constructing Turing Complete programs encapsulated in Bitcoin transactions
-  that can be be used to process data, perform calculations and operations, and
-  return any kind of result.
+  Operate is a toolset to help developers build applications, games and services
+  on top of Bitcoin (SV). It lets you write functions, called "Ops", and enables
+  transactions to become small but powerful programs, capable of delivering new
+  classes of services layered over Bitcoin.
 
   ## Installation
 

@@ -1,8 +1,12 @@
 # Operate | Agent
 
-Operate is an extensible Bitcoin meta programming protocol. It offers a way of running programs encapsulated in Bitcoin (SV) transactions that can be be used to process data, perform calculations and operations, and return any computable value.
+**Operate | Agent** is an Elixir agent used to load and run programs (known as "tapes") encoded in Bitcoin SV transactions.
 
-**Operate | Agent** is an Elixir agent used to load and run programs (known as "tapes").
+## About Operate
+
+Operate is a toolset to help developers build applications, games and services on top of Bitcoin (SV). It lets you write functions, called "Ops", and enables transactions to become small but powerful programs, capable of delivering new classes of services layered over Bitcoin.
+
+More infomation:
 
 More infomation:
 
@@ -20,7 +24,7 @@ The package can be installed by adding `operate` to your list of dependencies in
 ```elixir
 def deps do
   [
-    {:operate, "~> 0.1"},
+    {:operate, "~> 0.1.0-beta"},
     {:luerl, github: "rvirding/luerl", branch: "develop", override: true}
   ]
 end
@@ -81,6 +85,6 @@ strict: true
 
 ## License
 
-[MIT](https://github.com/operate-bsv/op_agent/blob/master/LICENSE.md)
+[MIT License](https://github.com/operate-bsv/op_agent/blob/master/LICENSE.md).
 
 © Copyright 2019 Chronos Labs Ltd.
