@@ -65,17 +65,17 @@ defmodule Operate.VM.Extension.Context do
     with {:ok, tape_index} when is_integer(tape_index) <- VM.get(vm, "ctx.tape_index"),
          output when is_map(output) <- tx_output(vm, tape_index)
     do
-      Enum.at(output["tape"], index)
+      [_ | tape] = Enum.at(output["tape"], index)
       |> Map.get("cell")
       |> normalize_cells
-      |> Enum.reverse
+      Enum.reverse(tape)
     else
       _err -> nil
     end
   end
 
   def get_cell(vm) do
-    with {:ok, index} when is_integer(index) <- VM.get(vm, "ctx.local_index") do
+    with {:ok, index} when is_integer(index) <- VM.get(vm, "ctx.cell_index") do
       get_cell(vm, index)
     else
       _err -> nil
