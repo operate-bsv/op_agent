@@ -9,7 +9,7 @@ defmodule Operate.BPU.Cell do
   @typedoc "BPU Cell"
   @type t :: %__MODULE__{
     i: integer,
-    cell: map
+    cell: [map]
   }
   #@type t :: %__MODULE__{
   #  i: integer,

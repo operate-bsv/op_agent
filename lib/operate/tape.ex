@@ -48,17 +48,20 @@ defmodule Operate.Tape do
   def from_bpu(tx, index \\ nil)
 
   def from_bpu(%BPU.Transaction{} = tx, index) when is_nil(index) do
-    index = Enum.find_index(tx.out, &op_return_output?/1)
-    from_bpu(tx, index)
+    case Enum.find_index(tx.out, &op_return_output?/1) do
+      nil -> {:error, "No tape found in transaction."}
+      index -> from_bpu(tx, index)
+    end
   end
 
   def from_bpu(%BPU.Transaction{} = tx, index) when is_integer(index) do
-    with cells when is_list(cells) <-
-      tx.out
-      |> Enum.at(index)
-      |> Map.get(:tape)
-      |> Enum.reject(&op_return_cell?/1)
-      |> Enum.map(&Cell.from_bpu!/1)
+    with  output when not is_nil(output) <- Enum.at(tx.out, index),
+          true <- op_return_output?(output),
+          cells when is_list(cells) <-
+            output
+            |> Map.get(:tape)
+            |> Enum.reject(&op_return_cell?/1)
+            |> Enum.map(&Cell.from_bpu!/1)
     do
       tape = struct(__MODULE__, [
         tx: tx,
@@ -67,7 +70,8 @@ defmodule Operate.Tape do
       ])
       {:ok, tape}
     else
-      error -> error
+      {:error, _} = error -> error
+      _ -> {:error, "No tape found in transaction."}
     end
   end
 

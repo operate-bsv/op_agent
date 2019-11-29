@@ -13,7 +13,7 @@ defmodule Operate.BPU.Script do
   @type t :: %__MODULE__{
     i: integer | nil,
     tape: [Cell.t, ...],
-    e: InputEdge.t | OutputEdge.t
+    e: map | nil
   }
 
   @input_edge_keys [:a, :h, :i]
