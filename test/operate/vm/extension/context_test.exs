@@ -10,14 +10,13 @@ defmodule Operate.VM.Extension.ContextTest do
     |> Bob.to_bpu
     |> List.first
     vm = VM.init
-    |> Operate.VM.Extension.Context.extend
     |> VM.set!("ctx.tx", bpu)
     |> VM.set!("ctx.tape_index", 0)
     |> VM.set!("ctx.cell_index", 2)
     |> VM.set!("ctx.data_index", 7)
     %{
       vm: vm,
-      vm2: VM.init |> Operate.VM.Extension.Context.extend
+      vm2: VM.init
     }
   end
 

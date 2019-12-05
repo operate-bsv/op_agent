@@ -11,7 +11,6 @@ defmodule Operate.VM.Extension.CryptoTest do
     bsv_keys = BSV.KeyPair.from_ecdsa_key(BSV.Test.bsv_keys)
     bsv_address = BSV.Address.from_public_key(bsv_keys)
     vm = VM.init
-    |> Operate.VM.Extension.Crypto.extend
     |> VM.set!("aes_key", aes_key)
     |> VM.set!("ecdsa_priv_key", ecdsa_key.private_key)
     |> VM.set!("ecdsa_pub_key", ecdsa_key.public_key)

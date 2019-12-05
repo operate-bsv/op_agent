@@ -4,7 +4,7 @@ defmodule Operate.VM.Extension.JSONTest do
   doctest Operate.VM.Extension.JSON
 
   setup_all do
-    %{ vm: VM.init |> Operate.VM.Extension.JSON.extend }
+    %{ vm: VM.init }
   end
 
   describe "Operate.VM.Extension.JSON.encode/1" do
