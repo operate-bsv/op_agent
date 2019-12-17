@@ -81,6 +81,7 @@ defmodule Operate do
       strict: true
   """
   use Agent
+  alias Operate.BPU.Transaction
   alias Operate.{Tape, VM}
 
 
@@ -160,16 +161,10 @@ defmodule Operate do
   def load_tape(txid, options \\ []) do
     {_vm, config} = get_state(options)
     tape_adapter = adapter_with_opts(config.tape_adapter)
-    op_adapter = adapter_with_opts(config.op_adapter)
     {cache, cache_opts} = adapter_with_opts(config.cache)
 
-    aliases = Map.get(config, :aliases, %{})
-
-    with {:ok, tx} <- cache.fetch_tx(txid, cache_opts, tape_adapter),
-      {:ok, tape} <- Tape.from_bpu(tx),
-      refs <- Tape.get_op_refs(tape, aliases),
-      {:ok, ops} <- cache.fetch_ops(refs, cache_opts, op_adapter),
-      tape <- Tape.set_cell_ops(tape, ops, aliases)
+    with  {:ok, tx} <- cache.fetch_tx(txid, cache_opts, tape_adapter),
+          {:ok, tape} <- prep_tape(tx, config)
     do
       {:ok, tape}
     else
@@ -185,7 +180,38 @@ defmodule Operate do
   def load_tape!(txid, options \\ []) do
     case load_tape(txid, options) do
       {:ok, tape} -> tape
-      {:error, tape} -> raise tape.error
+      {:error, error} -> raise error
+    end
+  end
+
+
+  @doc """
+  TODOC
+  """
+  @spec load_tapes_by(map, keyword) :: {:ok, [Tape.t, ...]} | {:error, String.t}
+  def load_tapes_by(query, options \\ []) when is_map(query) do
+    {_vm, config} = get_state(options)
+    tape_adapter = adapter_with_opts(config.tape_adapter)
+    {cache, cache_opts} = adapter_with_opts(config.cache)
+
+    with  {:ok, txns} <- cache.fetch_tx_by(query, cache_opts, tape_adapter),
+          {:ok, tapes} <- prep_tape(txns, config)
+    do
+      {:ok, tapes}
+    else
+      error -> error
+    end
+  end
+
+
+  @doc """
+  As `load_tapes_by/2`, but returns the tapes or raises an exception.
+  """
+  @spec load_tapes_by!(map, keyword) :: [Tape.t, ...]
+  def load_tapes_by!(query, options \\ []) do
+    case load_tapes_by(query, options) do
+      {:ok, tapes} -> tapes
+      {:error, error} -> raise error
     end
   end
 
@@ -238,6 +264,39 @@ defmodule Operate do
   """
   @spec version() :: String.t
   def version, do: @version
+
+
+  # Private: prepares the tape or tapes
+  defp prep_tape(txns, tapes \\ [], config)
+
+  defp prep_tape(%Transaction{} = tx, tapes, config) do
+    case prep_tape([tx], tapes, config) do
+      {:ok, [tape]} -> {:ok, tape}
+      error -> error
+    end
+  end
+
+  defp prep_tape([], tapes, _config),
+    do: {:ok, Enum.reverse(tapes)}
+
+  defp prep_tape([%Transaction{} = tx | txns], tapes, config)
+    when is_list(tapes)
+  do
+    op_adapter = adapter_with_opts(config.op_adapter)
+    {cache, cache_opts} = adapter_with_opts(config.cache)
+    aliases = Map.get(config, :aliases, %{})
+
+    with  {:ok, tape} <- Tape.from_bpu(tx),
+          refs <- Tape.get_op_refs(tape, aliases),
+          {:ok, ops} <- cache.fetch_ops(refs, cache_opts, op_adapter),
+          tape <- Tape.set_cell_ops(tape, ops, aliases)
+    do
+      prep_tape(txns, [tape | tapes], config)
+    else
+      error ->
+        if config.strict, do: error, else: prep_tape(txns, tapes, config)
+    end
+  end
 
 
   # Private: Returns the adapter and options in a tuple pair
