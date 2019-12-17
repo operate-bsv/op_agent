@@ -9,11 +9,16 @@ defmodule TestAdapter do
       _ -> {:ok, %Operate.BPU.Transaction{}}
     end
   end
+
+  def fetch_tx_by(query, _opts \\ []) do
+    case query do
+      nil -> {:error, "Test error"}
+      _ -> {:ok, [%Operate.BPU.Transaction{}]}
+    end
+  end
 end
 
 
 defmodule TestCache do
   use Operate.Cache
-  def fetch_tx(txid, _opts \\ [], {adapter, adapter_opts}),
-    do: adapter.fetch_tx(txid, adapter_opts)
 end

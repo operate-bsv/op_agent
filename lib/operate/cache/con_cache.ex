@@ -28,6 +28,19 @@ defmodule Operate.Cache.ConCache do
   end
 
 
+  def fetch_tx_by(query, _options \\ [], {adapter, adapter_opts})
+    when is_map(query)
+  do
+    hash = query
+    |> Jason.encode!
+    |> BSV.Crypto.Hash.sha256
+    key = "t:#{ hash }"
+    ConCache.fetch_or_store(:operate, key, fn ->
+      adapter.fetch_tx_by(query, adapter_opts)
+    end)
+  end
+
+
   def fetch_ops(refs, _options \\ [], {adapter, adapter_opts}) do
     cached_ops = refs
     |> Enum.map(& ConCache.get(:operate, &1))

@@ -21,4 +21,20 @@ defmodule Operate.CacheTest do
       end
     end
   end
+
+  describe "Operate.Cache.fetch_tx_by/3" do
+    test "must return a result" do
+      {:ok, res} = TestCache.fetch_tx_by(%{"find" => "foo"}, {TestAdapter, []})
+      assert is_list(res)
+      assert res |> List.first |> Map.get(:__struct__) == Operate.BPU.Transaction
+    end
+  end
+
+  describe "Operate.Cache.fetch_tx_by!/3" do
+    test "must return a result" do
+      res = TestCache.fetch_tx_by!(%{"find" => "foo"}, {TestAdapter, []})
+      assert is_list(res)
+      assert res |> List.first |> Map.get(:__struct__) == Operate.BPU.Transaction
+    end
+  end
 end

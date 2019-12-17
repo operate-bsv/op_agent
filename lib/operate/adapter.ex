@@ -55,7 +55,7 @@ defmodule Operate.Adapter do
 
       def fetch_tx!(txid, options \\ []) do
         case fetch_tx(txid, options) do
-          {:ok, tape} -> tape
+          {:ok, tx} -> tx
           {:error, err} -> raise err
         end
       end
@@ -65,7 +65,7 @@ defmodule Operate.Adapter do
 
       def fetch_tx_by!(query, options \\ []) do
         case fetch_tx_by(query, options) do
-          {:ok, tapes} -> tapes
+          {:ok, txns} -> txns
           {:error, err} -> raise err
         end
       end
@@ -75,7 +75,7 @@ defmodule Operate.Adapter do
 
       def fetch_ops!(refs, options \\ []) do
         case fetch_ops(refs, options) do
-          {:ok, result} -> result
+          {:ok, ops} -> ops
           {:error, err} -> raise err
         end
       end

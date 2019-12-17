@@ -51,6 +51,16 @@ defmodule Operate.Cache do
         end
       end
 
+      def fetch_tx_by(query, _options \\ [], {adapter, adapter_opts}),
+        do: adapter.fetch_tx_by(query, adapter_opts)
+
+      def fetch_tx_by!(txid, options \\ [], {adapter, adapter_opts}) do
+        case fetch_tx_by(txid, options, {adapter, adapter_opts}) do
+          {:ok, tape} -> tape
+          {:error, err} -> raise err
+        end
+      end
+
       def fetch_ops(refs, _options \\ [], {adapter, adapter_opts}),
         do: adapter.fetch_ops(refs, adapter_opts)
 
@@ -63,6 +73,8 @@ defmodule Operate.Cache do
 
       defoverridable  fetch_tx: 2, fetch_tx: 3,
                       fetch_tx!: 2, fetch_tx!: 3,
+                      fetch_tx_by: 2, fetch_tx_by: 3,
+                      fetch_tx_by!: 2, fetch_tx_by!: 3,
                       fetch_ops: 2, fetch_ops: 3,
                       fetch_ops!: 2, fetch_ops!: 3
     end
@@ -82,6 +94,23 @@ defmodule Operate.Cache do
   As `c:fetch_tx/3`, but returns the transaction or raises an exception.
   """
   @callback fetch_tx!(String.t, keyword, {module, keyword}) :: Operate.Tape.t
+
+
+  @doc """
+  Loads a list of transactions from the cache by the given query map, or
+  delegates to job to the specified adapter. Returns the result in an
+  `:ok` / `:error` tuple pair.
+  """
+  @callback fetch_tx_by(map, keyword, {module, keyword}) ::
+    {:ok, [Operate.Tape.t, ...]} |
+    {:error, String.t}
+
+
+  @doc """
+  As `c:fetch_tx_by/3`, but returns the result or raises an exception.
+  """
+  @callback fetch_tx_by!(map, keyword, {module, keyword}) ::
+    [Operate.Tape.t, ...]
 
 
   @doc """
