@@ -25,7 +25,7 @@ defmodule Operate.MixProject do
           "Adapters": [
             Operate.Adapter,
             Operate.Adapter.Bob,
-            Operate.Adapter.FBHub
+            Operate.Adapter.OpApi
           ],
           "Caches": [
             Operate.Cache,
