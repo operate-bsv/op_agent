@@ -5,6 +5,7 @@ defmodule Operate.TapeTest do
   alias Operate.Cell
   alias Operate.Op
   alias Operate.Adapter.OpApi
+  alias Operate.BPU
   doctest Operate.Tape
 
   setup_all do
@@ -18,6 +19,75 @@ defmodule Operate.TapeTest do
       vm: VM.init,
       cell: %Cell{ref: "test", params: ["2"], op: op}
     }
+  end
+
+
+  describe "Operate.Tape.from_bpu/2" do
+    setup do
+      # Fake BPU tx with OP_RETURN output 
+      tx1 = %BPU.Transaction{out: [
+        %BPU.Script{i: 0, tape: [
+          %BPU.Cell{i: 0, cell: [
+            %{i: 0, ii: 0, b: "MDAwMDAwMDAwMDAwMDAwMA==", s: "0000000000000000"},
+            %{i: 1, ii: 1, op: 117, ops: "OP_DROP"}
+          ]}
+        ]},
+        %BPU.Script{i: 1, tape: [
+          %BPU.Cell{i: 0, cell: [
+            %{i: 0, ii: 0, op: 0, ops: "OP_FALSE"},
+            %{i: 1, ii: 1, op: 106, ops: "OP_RETURN"}
+          ]},
+          %BPU.Cell{i: 0, cell: [
+            %{i: 0, ii: 2, b: "Zm9v", s: "foo"},
+            %{i: 1, ii: 3, b: "YmFy", s: "bar"}
+          ]}
+        ]}
+      ]}
+      # Fake BPU tx with no OP_RETURN output
+      tx2 = %BPU.Transaction{out: [
+        %BPU.Script{i: 0, tape: [
+          %BPU.Cell{i: 0, cell: [
+            %{i: 0, ii: 0, b: "MDAwMDAwMDAwMDAwMDAwMA==", s: "0000000000000000"},
+            %{i: 1, ii: 1, op: 117, ops: "OP_DROP"}
+          ]}
+        ]},
+        %BPU.Script{i: 0, tape: [
+          %BPU.Cell{i: 0, cell: [
+            %{i: 0, ii: 0, b: "MDAwMDAwMDAwMDAwMDAwMA==", s: "0000000000000000"},
+            %{i: 1, ii: 1, op: 117, ops: "OP_DROP"}
+          ]}
+        ]}
+      ]}
+      %{
+        tx1: tx1,
+        tx2: tx2
+      }
+    end
+
+    test "must return tape from given tx output", ctx do
+      {:ok, tape} = Tape.from_bpu(ctx.tx1, 1)
+      assert length(tape.cells) == 1
+    end
+
+    test "must return error if given tx output is not op return", ctx do
+      {:error, msg} = Tape.from_bpu(ctx.tx1, 0)
+      assert msg == "No tape found in transaction."
+    end
+
+    test "must return error if given tx output does not exist", ctx do
+      {:error, msg} = Tape.from_bpu(ctx.tx1, 3)
+      assert msg == "No tape found in transaction."
+    end
+
+    test "must default to first op_return output", ctx do
+      {:ok, tape} = Tape.from_bpu(ctx.tx1)
+      assert length(tape.cells) == 1
+    end
+
+    test "must return error if no op_return output", ctx do
+      {:error, msg} = Tape.from_bpu(ctx.tx2)
+      assert msg == "No tape found in transaction."
+    end
   end
 
 

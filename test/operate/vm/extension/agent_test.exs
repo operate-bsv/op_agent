@@ -4,7 +4,7 @@ defmodule Operate.VM.Extension.AgentTest do
   doctest Operate.VM.Extension.Agent
 
   setup_all do
-    %{ vm: VM.init |> Operate.VM.Extension.Agent.extend }
+    %{ vm: VM.init }
   end
 
   describe "Operate.VM.Extension.Agent.exec/2" do

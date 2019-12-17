@@ -17,6 +17,7 @@ defmodule Operate.VM do
     Operate.VM.Extension.Agent,
     Operate.VM.Extension.Context,
     Operate.VM.Extension.Crypto,
+    Operate.VM.Extension.Base,
     Operate.VM.Extension.JSON,
     Operate.VM.Extension.String
   ]

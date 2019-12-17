@@ -4,7 +4,7 @@ defmodule Operate.VM.Extension.StringTest do
   doctest Operate.VM.Extension.String
 
   setup_all do
-    %{ vm: VM.init |> Operate.VM.Extension.String.extend }
+    %{ vm: VM.init }
   end
 
   describe "Operate.VM.Extension.String.pack/2" do

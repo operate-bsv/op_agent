@@ -19,15 +19,15 @@ defmodule Operate.Cell do
     ref: String.t,
     params: list,
     op: String.t,
-    local_index: integer,
-    global_index: integer
+    index: integer,
+    data_index: integer
   }
 
   defstruct ref: nil,
             params: [],
             op: nil,
-            local_index: nil,
-            global_index: nil
+            index: nil,
+            data_index: nil
 
 
   @doc """
@@ -37,7 +37,7 @@ defmodule Operate.Cell do
   @spec from_bpu(BPU.Cell.t) ::
     {:ok, __MODULE__.t} |
     {:error, String.t}
-  def from_bpu(%BPU.Cell{cell: [head | tail]}) do
+  def from_bpu(%BPU.Cell{cell: [head | tail], i: index}) do
     with {:ok, str} <- Base.decode64(head.b),
          params when is_list(params) <- Enum.map(tail, &normalize_param/1)
     do
@@ -49,8 +49,8 @@ defmodule Operate.Cell do
       cell = struct(__MODULE__, [
         ref: ref,
         params: params,
-        local_index: head.i,
-        global_index: head.ii
+        index: index,
+        data_index: head.ii
       ])
       {:ok, cell}
     else
@@ -92,8 +92,9 @@ defmodule Operate.Cell do
   def exec(%__MODULE__{} = cell, vm, options \\ []) do
     state = Keyword.get(options, :state, nil)
     vm = vm
-    |> VM.set!("ctx.local_index", cell.local_index)
-    |> VM.set!("ctx.global_index", cell.global_index)
+    |> VM.set!("ctx.cell_index", cell.index)
+    |> VM.set!("ctx.data_index", cell.data_index)
+    |> VM.set!("ctx.global_index", cell.data_index) # TODO - remove global_index in v 0.1.0
 
     case VM.eval(vm, cell.op) do
       {:ok, function} -> VM.exec_function(function, [state | cell.params])
