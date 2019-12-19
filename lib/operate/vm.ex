@@ -457,6 +457,31 @@ defmodule Operate.VM do
   def decode(val), do: val
 
 
+  @doc """
+  Parses the given map decoded from the VM, and recursively transforms it into
+  a keyword list with atom keys.
+
+  ## Examples
+
+      iex> Operate.VM.parse_opts(%{"foo" => 1, "bar" => %{"baz" => 2}})
+      [bar: [baz: 2], foo: 1]
+
+      iex> [{"foo", 1}, {"bar", 2}]
+      ...> |> Operate.VM.decode
+      ...> |> Operate.VM.parse_opts
+      [bar: 2, foo: 1]
+  """
+  @spec parse_opts(map) :: keyword
+
+  def parse_opts(%{} = opts),
+    do: Enum.into(opts, [], fn {k, v} -> {String.to_atom(k), parse_opts(v)} end)
+
+  def parse_opts([head | tail]),
+    do: [parse_opts(head) | parse_opts(tail)]
+
+  def parse_opts(val), do: val
+
+
   # Private: Determines which method to use to decode the Lue table
   defp lua_table_type(table) do
     cond do

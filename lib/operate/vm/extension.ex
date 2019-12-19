@@ -31,7 +31,9 @@ defmodule Operate.VM.Extension do
     quote bind_quoted: [opts: opts] do
       @behaviour Operate.VM.Extension
 
-      def extends(vm), do: vm
+      def extend(vm), do: vm
+
+      defoverridable extend: 1
     end
   end
 

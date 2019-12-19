@@ -25,7 +25,7 @@ defmodule Operate.Tape do
 
   @typedoc "Operate Tape"
   @type t :: %__MODULE__{
-    tx: map,
+    tx: BPU.Transaction,
     index: integer,
     cells: [Cell.t, ...],
     result: VM.lua_output,

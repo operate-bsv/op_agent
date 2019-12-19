@@ -186,7 +186,36 @@ defmodule Operate do
 
 
   @doc """
-  TODOC
+  Loads a tape from the given query.
+
+  The expected format of the query will depend on the `Operate.Adapter` in use.
+  The transactions as well as all required functions are loaded an a list of
+  `t:Operate.Tape.t/0` are returned in an `:ok` / `:error` tuple pair.
+
+  If an Operate agent process has already been started the existing config will
+  be used. Otherwise a default config will be used. Any configuration option can
+  be overridden.
+
+  ## Options
+
+  Refer to the list of accepted [configuration options](#module-configuration).
+
+  ## Examples
+
+  For example, if using the default `Operate.Adapter.Bob` adapter, a Bitquery
+  can be provided. The `project` attribute cannot be used and unless otherwise
+  specified, `limit` defaults to `10`.
+
+      Operate.load_tapes_by(%{
+        "find" => %{
+          "out.tape.cell" => %{
+            "$elemMatch" => %{
+              "i" => 0,
+              "s" => "1PuQa7K62MiKCtssSLKy1kh56WWU7MtUR5"
+            }
+          }
+        }
+      })
   """
   @spec load_tapes_by(map, keyword) :: {:ok, [Tape.t, ...]} | {:error, String.t}
   def load_tapes_by(query, options \\ []) when is_map(query) do
@@ -305,5 +334,9 @@ defmodule Operate do
   defp adapter_with_opts({mod, opts} = pair)
     when is_atom(mod) and is_list(opts),
     do: pair
+
+  defp adapter_with_opts([mod, opts])
+    when is_binary(mod) and is_list(opts),
+    do: {String.to_atom("Elixir." <> mod), opts}
 
 end
