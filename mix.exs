@@ -17,6 +17,7 @@ defmodule Operate.MixProject do
           "Extensions": [
             Operate.VM.Extension,
             Operate.VM.Extension.Agent,
+            Operate.VM.Extension.Base,
             Operate.VM.Extension.Context,
             Operate.VM.Extension.Crypto,
             Operate.VM.Extension.JSON,
