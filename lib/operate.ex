@@ -339,4 +339,7 @@ defmodule Operate do
     when is_binary(mod) and is_list(opts),
     do: {String.to_atom("Elixir." <> mod), opts}
 
+  defp adapter_with_opts([mod]) when is_binary(mod),
+    do: {String.to_atom("Elixir." <> mod), []}
+
 end
