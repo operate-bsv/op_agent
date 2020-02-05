@@ -113,7 +113,44 @@ defmodule Operate.VM.Extension.AgentTest do
 
 
   describe "Operate.VM.Extension.Agent.local_tape/2" do
+    setup do
+      Tesla.Mock.mock fn env ->
+        cond do
+          String.match?(env.url, ~r/api.operatebsv.org/) ->
+            File.read!("test/mocks/agent_local_tape_load_ops.json") |> Jason.decode! |> Tesla.Mock.json
+        end
+      end
 
+      script = """
+      return function(state)
+        local t1 = agent.local_tape(1)
+        local t2 = agent.local_tape(2)
+        return {
+          foo = agent.run_tape(t1),
+          bar = agent.run_tape(t2)
+        }
+      end
+      """
+
+      tape = File.read!("test/mocks/agent_local_tape.json")
+      |> Jason.decode!
+      |> Operate.BPU.Transaction.from_map
+      |> Operate.prep_tape!(0)
+
+      tape = Map.put(tape, :cells, [
+        %Operate.Cell{ref: "test", op: script, index: 0, data_index: 1}
+      ])
+      %{
+        tape: tape
+      }
+    end
+
+    test "must get and run tapes from local context", ctx do
+      {:ok, tape} = Operate.run_tape(ctx.tape)
+
+      assert tape.result["foo"] == %{"baz" => "qux"}
+      assert tape.result["bar"] == %{"quux" => "garply"}
+    end
   end
 
 end

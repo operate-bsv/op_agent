@@ -38,6 +38,12 @@ defmodule Operate.Cell do
     {:ok, __MODULE__.t} |
     {:error, String.t}
   def from_bpu(%BPU.Cell{cell: [head | tail], i: index}) do
+    head = case Enum.all?(head, fn({k, _}) -> is_atom(k) end) do
+      true -> head
+      false ->
+        for {key, val} <- head, into: %{}, do: {String.to_atom(key), val}
+    end    
+
     with {:ok, str} <- Base.decode64(head.b),
          params when is_list(params) <- Enum.map(tail, &normalize_param/1)
     do
@@ -143,6 +149,7 @@ defmodule Operate.Cell do
 
   # Private: Normalizes the cell param
   defp normalize_param(%{b: b}), do: Base.decode64!(b)
+  defp normalize_param(%{"b" => b}), do: Base.decode64!(b)
   defp normalize_param(_), do: nil
 
 

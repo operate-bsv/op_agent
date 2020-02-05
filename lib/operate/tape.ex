@@ -214,7 +214,7 @@ defmodule Operate.Tape do
     do: List.first(tape) |> op_return_cell?
 
   defp op_return_cell?(%BPU.Cell{cell: cells}),
-    do: cells |> Enum.any?(& get_in(&1, [:op]) == 106)
+    do: cells |> Enum.any?(& get_in(&1, [:op]) == 106 || get_in(&1, ["op"]) == 106)
 
 
   # Private: Puts the given script into the cell if the specfied ref matches
