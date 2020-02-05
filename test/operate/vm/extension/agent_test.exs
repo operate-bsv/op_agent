@@ -111,4 +111,9 @@ defmodule Operate.VM.Extension.AgentTest do
     end 
   end
 
+
+  describe "Operate.VM.Extension.Agent.local_tape/2" do
+
+  end
+
 end

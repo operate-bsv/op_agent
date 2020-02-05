@@ -159,12 +159,16 @@ defmodule Operate do
   """
   @spec load_tape(String.t, keyword) :: {:ok, Tape.t} | {:error, String.t}
   def load_tape(txid, options \\ []) do
+    [txid, index] = case String.split(txid, "/") do
+      [_txid, _index] = pair -> pair
+      [txid] -> [txid, nil]
+    end
     {_vm, config} = get_state(options)
     tape_adapter = adapter_with_opts(config.tape_adapter)
     {cache, cache_opts} = adapter_with_opts(config.cache)
 
     with  {:ok, tx} <- cache.fetch_tx(txid, cache_opts, tape_adapter),
-          {:ok, tape} <- prep_tape(tx, config)
+          {:ok, tape} <- prep_tape(tx, index, config)
     do
       {:ok, tape}
     else
@@ -224,7 +228,7 @@ defmodule Operate do
     {cache, cache_opts} = adapter_with_opts(config.cache)
 
     with  {:ok, txns} <- cache.fetch_tx_by(query, cache_opts, tape_adapter),
-          {:ok, tapes} <- prep_tape(txns, config)
+          {:ok, tapes} <- prep_tapes(txns, config)
     do
       {:ok, tapes}
     else
@@ -289,43 +293,80 @@ defmodule Operate do
 
 
   @doc """
-  Returns the current version number.
+  Prepare the tape from the given transaction. Optionally specify the output
+  index of the tape.
   """
-  @spec version() :: String.t
-  def version, do: @version
+  @spec prep_tape(Transaction.t, integer | nil, map | keyword) ::
+    {:ok, Tape.t} |
+    {:error, String.t}
+  def prep_tape(tx, index \\ nil, options \\ [])
 
-
-  # Private: prepares the tape or tapes
-  defp prep_tape(txns, tapes \\ [], config)
-
-  defp prep_tape(%Transaction{} = tx, tapes, config) do
-    case prep_tape([tx], tapes, config) do
-      {:ok, [tape]} -> {:ok, tape}
-      error -> error
-    end
+  def prep_tape(%Transaction{} = tx, index, options) when is_list(options) do
+    {_vm, config} = get_state(options)
+    prep_tape(tx, index, config)
   end
 
-  defp prep_tape([], tapes, _config),
-    do: {:ok, Enum.reverse(tapes)}
-
-  defp prep_tape([%Transaction{} = tx | txns], tapes, config)
-    when is_list(tapes)
-  do
+  def prep_tape(%Transaction{} = tx, index, config) when is_map(config) do
     op_adapter = adapter_with_opts(config.op_adapter)
     {cache, cache_opts} = adapter_with_opts(config.cache)
     aliases = Map.get(config, :aliases, %{})
 
-    with  {:ok, tape} <- Tape.from_bpu(tx),
+    with  {:ok, tape} <- Tape.from_bpu(tx, index),
           refs <- Tape.get_op_refs(tape, aliases),
           {:ok, ops} <- cache.fetch_ops(refs, cache_opts, op_adapter),
           tape <- Tape.set_cell_ops(tape, ops, aliases)
     do
-      prep_tape(txns, [tape | tapes], config)
+      {:ok, tape}
     else
-      error ->
-        if config.strict, do: error, else: prep_tape(txns, tapes, config)
+      error -> error
     end
   end
+
+
+  @doc """
+  As `prep_tape/3`, but returns the tape or raises an exception.
+  """
+  @spec prep_tape!(Transaction.t, integer | nil, keyword) :: Tape.t
+  def prep_tape!(%Transaction{} = tx, index \\ nil, options \\ []) do
+    case prep_tape(tx, index, options) do
+      {:ok, tape} -> tape
+      {:error, error} -> raise error
+    end
+  end
+
+
+  @doc """
+  Prepare the tapes from the given list of transactions.
+  """
+  @spec prep_tapes([Transaction.t, ...], map | keyword, list) ::
+    {:ok, [Tape.t, ...]} |
+    {:error, String.t}
+  def prep_tapes(txns, config \\ [], tapes \\ [])
+
+  def prep_tapes([], _config, tapes),
+    do: {:ok, Enum.reverse(tapes)}
+
+  def prep_tapes(txns, options, tapes) when is_list(options) do
+    {_vm, config} = get_state(options)
+    prep_tapes(txns, config, tapes)
+  end
+
+  def prep_tapes([%Transaction{} = tx | txns], config, tapes)
+    when is_map(config)
+  do
+    case prep_tape(tx, nil, config) do
+      {:ok, tape} -> prep_tapes(txns, config, [tape | tapes])
+      error ->
+        if config.strict, do: error, else: prep_tapes(txns, config, tapes)
+    end
+  end
+
+
+  @doc """
+  Returns the current version number.
+  """
+  @spec version() :: String.t
+  def version, do: @version
 
 
   # Private: Returns the adapter and options in a tuple pair

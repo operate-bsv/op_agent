@@ -12,6 +12,7 @@ defmodule Operate.VM.Extension.Agent do
     |> VM.set_function!("agent.exec", fn _vm, args -> apply(__MODULE__, :exec, args) end)
     |> VM.set_function!("agent.load_tape", fn _vm, args -> apply(__MODULE__, :load_tape, args) end)
     |> VM.set_function!("agent.load_tapes_by", fn _vm, args -> apply(__MODULE__, :load_tapes_by, args) end)
+    |> VM.set_function!("agent.local_tape", fn vm, args -> apply(__MODULE__, :local_tape, [vm | args]) end)
     |> VM.set_function!("agent.run_tape", fn _vm, args -> apply(__MODULE__, :run_tape, args) end)
   end
 
@@ -47,6 +48,17 @@ defmodule Operate.VM.Extension.Agent do
     opts = VM.decode(opts) |> VM.parse_opts
     VM.decode(query)
     |> Operate.load_tapes_by!(opts)
+  end
+
+
+  @doc """
+  Loads a tape by the given txid and returns the tape
+  """
+  def local_tape(vm, index, opts \\ %{}) do
+    opts = VM.decode(opts) |> VM.parse_opts
+    VM.get!(vm, "ctx.tx")
+    |> Util.restruct
+    |> Operate.prep_tape!(index, opts)
   end
 
   
