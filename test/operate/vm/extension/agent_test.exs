@@ -132,8 +132,10 @@ defmodule Operate.VM.Extension.AgentTest do
       end
       """
 
-      tape = File.read!("test/mocks/agent_local_tape.json")
+      tape = File.read!("test/mocks/operate_load_tape_indexed.json")
       |> Jason.decode!
+      |> Map.get("u")
+      |> List.first
       |> Operate.BPU.Transaction.from_map
       |> Operate.prep_tape!(0)
 

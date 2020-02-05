@@ -41,6 +41,31 @@ defmodule OperateTest do
   end
 
 
+  describe "Operate.load_tape/1 using txid with output index" do
+    setup do
+      Tesla.Mock.mock fn env ->
+        cond do
+          String.match?(env.url, ~r/bob.planaria.network/) ->
+            File.read!("test/mocks/operate_load_tape_indexed.json") |> Jason.decode! |> Tesla.Mock.json
+          String.match?(env.url, ~r/api.operatebsv.org/) ->
+            File.read!("test/mocks/agent_local_tape_load_ops.json") |> Jason.decode! |> Tesla.Mock.json
+        end
+      end
+      :ok
+    end
+
+    test "must load and run correct tape" do
+      {:ok, tape1} = Operate.load_tape!("abcdef/1")
+      |> Operate.run_tape
+      {:ok, tape2} = Operate.load_tape!("abcdef/2")
+      |> Operate.run_tape
+
+      assert tape1.result == %{"baz" => "qux"}
+      assert tape2.result == %{"quux" => "garply"}
+    end
+  end
+
+
   describe "Operate.load_tapes_by/1" do
     setup do
       Tesla.Mock.mock fn env ->

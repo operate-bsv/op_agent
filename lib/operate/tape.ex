@@ -54,6 +54,9 @@ defmodule Operate.Tape do
     end
   end
 
+  def from_bpu(%BPU.Transaction{} = tx, index) when is_binary(index),
+    do: from_bpu(tx, String.to_integer(index))
+
   def from_bpu(%BPU.Transaction{} = tx, index) when is_integer(index) do
     with  output when not is_nil(output) <- Enum.at(tx.out, index),
           true <- op_return_output?(output),
