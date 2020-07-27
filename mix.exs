@@ -60,8 +60,9 @@ defmodule Operate.MixProject do
       {:bsv, "~> 0.2"},
       {:con_cache, "~> 0.14"},
       {:ex_doc, "~> 0.21", only: [:dev, :publish], runtime: false},
-      {:jason, "~> 1.1"},
-      {:tesla, "~> 1.2"},
+      {:jason, "~> 1.2"},
+      {:terminus, "~> 0.0.3"},
+      {:tesla, "~> 1.3"},
       luerl_dep(Mix.env)
     ]
   end

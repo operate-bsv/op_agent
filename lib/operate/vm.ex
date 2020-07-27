@@ -21,7 +21,7 @@ defmodule Operate.VM do
     Operate.VM.Extension.JSON,
     Operate.VM.Extension.String
   ]
-  
+
 
   @doc """
   Initliazes a new VM state.
@@ -47,7 +47,7 @@ defmodule Operate.VM do
     |> extend(extensions)
   end
 
-  
+
   @doc """
   Extends the VM state with the given module or modules.
 
@@ -105,7 +105,7 @@ defmodule Operate.VM do
 
   @doc """
   As `get/2`, but returns the result or raises an exception.
-  
+
   ## Examples
 
       iex> Operate.VM.init
@@ -146,7 +146,7 @@ defmodule Operate.VM do
 
   def set(vm, path, value, options) when is_binary(path),
     do: set(vm, String.split(path, "."), value, options)
-  
+
   def set(vm, path, value, options) when is_atom(path),
     do: set(vm, [path], value, options)
 
@@ -259,7 +259,7 @@ defmodule Operate.VM do
   def eval(vm, code) do
     case :luerl.eval(code, vm) do
       {:ok, result} -> {:ok, decode(result)}
-      {:error, err} ->
+      {:error, err, _stack} ->
         {:error, "Lua Error: #{inspect err}"}
     end
   end
@@ -267,7 +267,7 @@ defmodule Operate.VM do
 
   @doc """
   As `eval/2`, but returns the result or raises an exception.
-  
+
   ## Examples
 
       iex> Operate.VM.init
@@ -294,7 +294,7 @@ defmodule Operate.VM do
       {_result, vm} = :luerl.do(code, vm)
       {:ok, vm}
     rescue
-      err -> 
+      err ->
         {:error, "Lua Error: #{inspect err}"}
     end
   end
@@ -343,7 +343,7 @@ defmodule Operate.VM do
       {result, _vm} = :luerl.call_function(path, args, vm)
       {:ok, decode(result)}
     rescue
-      err -> 
+      err ->
         {:error, "Lua Error: #{inspect err}"}
     end
   end
@@ -351,7 +351,7 @@ defmodule Operate.VM do
 
   @doc """
   As `call/3`, but returns the result or raises an exception.
-  
+
   ## Examples
 
       iex> Operate.VM.init
@@ -510,5 +510,5 @@ defmodule Operate.VM do
     end
     |> set_deep_tables(rest, next_path)
   end
-  
+
 end
