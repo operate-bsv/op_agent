@@ -59,7 +59,7 @@ defmodule Operate.VM.Extension.Context do
   end
 
   @doc """
-  Fetches the current tape from the context tx.
+  Fetches the cell from the context tx.
   """
   def get_cell(vm, index) when is_integer(index) do
     with {:ok, tape_index} when is_integer(tape_index) <- VM.get(vm, "ctx.tape_index"),
