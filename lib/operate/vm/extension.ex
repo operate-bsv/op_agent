@@ -38,5 +38,5 @@ defmodule Operate.VM.Extension do
   end
 
   @doc "Extends the given VM state, returning the modified state."
-  @callback extend(VM.vt) :: VM.vt
+  @callback extend(VM.t) :: VM.t
 end

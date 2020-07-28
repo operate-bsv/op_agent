@@ -38,7 +38,7 @@ defmodule Operate.MixProject do
       ],
       package: [
         name: "operate",
-        files: ~w(lib .formatter.exs mix.exs README.md LICENSE.md),
+        files: ~w(lib .formatter.exs mix.exs README.md LICENSE),
         licenses: ["MIT"],
         links: %{
           "GitHub" => "https://github.com/operate-bsv/op_agent",
@@ -60,7 +60,7 @@ defmodule Operate.MixProject do
     [
       {:bsv, "~> 0.2"},
       {:con_cache, "~> 0.14"},
-      {:ex_doc, "~> 0.21", only: [:dev, :publish], runtime: false},
+      {:ex_doc, "~> 0.22", only: [:dev, :publish], runtime: false},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.1", only: :test},
       {:terminus, "~> 0.0.5"},
