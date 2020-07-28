@@ -2,7 +2,7 @@
 
 ![Hex.pm](https://img.shields.io/hexpm/v/operate?color=informational)
 ![License](https://img.shields.io/github/license/operate-bsv/op_agent?color=informational)
-![Build Status](https://img.shields.io/github/workflow/status/operate-bsv/operate_agent/Elixir%20CI)
+![Build Status](https://img.shields.io/github/workflow/status/operate-bsv/op_agent/Elixir%20CI)
 
 **Operate | Agent** is an Elixir agent used to load and run programs (known as "tapes") encoded in Bitcoin SV transactions.
 
@@ -87,6 +87,6 @@ strict: true
 
 ## License
 
-[MIT License](https://github.com/operate-bsv/op_agent/blob/master/LICENSE.md).
+Operate is open source and released under the [Apache-2 License](https://github.com/operate-bsv/op_agent/blob/master/LICENSE).
 
-© Copyright 2019 Chronos Labs Ltd.
+© Copyright 2019-2020 Chronos Labs Ltd.
