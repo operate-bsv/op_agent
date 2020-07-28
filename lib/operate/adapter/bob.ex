@@ -15,7 +15,7 @@ defmodule Operate.Adapter.Bob do
   plug Tesla.Middleware.BaseUrl, "https://bob.planaria.network/q/1GgmC7Cg782YtQ6R9QkM58voyWeQJmJJzG/"
   plug Tesla.Middleware.JSON
 
-  
+
   def fetch_tx(txid, options \\ []) do
     api_key = Keyword.get(options, :api_key)
     path = encode_query(%{

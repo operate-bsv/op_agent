@@ -96,7 +96,7 @@ defmodule Operate.Adapter do
   """
   @callback fetch_tx(String.t, keyword) ::
     {:ok, Operate.Tape.t} |
-    {:error, String.t}
+    {:error, Exception.t}
 
 
   @doc """
@@ -111,7 +111,7 @@ defmodule Operate.Adapter do
   """
   @callback fetch_tx_by(map, keyword) ::
     {:ok, [Operate.Tape.t, ...]} |
-    {:error, String.t}
+    {:error, Exception.t}
 
 
   @doc """
@@ -126,7 +126,7 @@ defmodule Operate.Adapter do
   """
   @callback fetch_ops(list, keyword) ::
     {:ok, [Operate.Op.t, ...]} |
-    {:error, String.t}
+    {:error, Exception.t}
 
 
   @doc """

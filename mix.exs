@@ -6,6 +6,7 @@ defmodule Operate.MixProject do
       app: :operate,
       version: "0.1.0-beta.8",
       elixir: "~> 1.9",
+      elixirc_paths: elixirc_paths(Mix.env),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       name: "Operate",
@@ -61,7 +62,8 @@ defmodule Operate.MixProject do
       {:con_cache, "~> 0.14"},
       {:ex_doc, "~> 0.21", only: [:dev, :publish], runtime: false},
       {:jason, "~> 1.2"},
-      {:terminus, "~> 0.0.3"},
+      {:plug_cowboy, "~> 2.1", only: :test},
+      {:terminus, "~> 0.0.5"},
       {:tesla, "~> 1.3"},
       luerl_dep(Mix.env)
     ]
@@ -70,5 +72,8 @@ defmodule Operate.MixProject do
   defp luerl_dep(:publish), do: {:luerl, "~> 0.4"}
   defp luerl_dep(_),
     do: {:luerl, github: "rvirding/luerl", branch: "develop"}
+
+  defp elixirc_paths(:test), do: elixirc_paths(:default) ++ ["test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
 end
