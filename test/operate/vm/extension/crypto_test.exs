@@ -67,6 +67,7 @@ defmodule Operate.VM.Extension.CryptoTest do
 
 
   describe "Operate.VM.Extension.Crypto.rsa_encrypt/3 and Operate.VM.Extension.Crypto.rsa_decrypt/3" do
+    @tag :rsa
     test "must encrypt with public key and decrypt with private key", ctx do
       script = """
       enc_data = crypto.rsa.encrypt('hello world', rsa_pub_key)
@@ -75,6 +76,7 @@ defmodule Operate.VM.Extension.CryptoTest do
       assert VM.eval!(ctx.vm, script) == "hello world"
     end
 
+    @tag :rsa
     test "must encrypt with private key and decrypt with public key", ctx do
       script = """
       enc_data = crypto.rsa.encrypt('hello world', rsa_priv_key)
@@ -86,6 +88,7 @@ defmodule Operate.VM.Extension.CryptoTest do
 
 
   describe "Operate.VM.Extension.Crypto.rsa_sign/3 and Operate.VM.Extension.Crypto.rsa_verify/4" do
+    @tag :rsa
     test "must sign and verify message", ctx do
       script = """
       sig = crypto.rsa.sign('hello world', rsa_priv_key)
@@ -94,6 +97,7 @@ defmodule Operate.VM.Extension.CryptoTest do
       assert VM.eval!(ctx.vm, script) == true
     end
 
+    @tag :rsa
     test "wont verify when different message", ctx do
       script = """
       sig = crypto.rsa.sign('hello world', rsa_priv_key)
