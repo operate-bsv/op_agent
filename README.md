@@ -1,5 +1,9 @@
 # Operate | Agent
 
+![Hex.pm](https://img.shields.io/hexpm/v/operate?color=informational)
+![License](https://img.shields.io/github/license/operate-bsv/op_agent?color=informational)
+![Build Status](https://img.shields.io/github/workflow/status/operate-bsv/operate_agent/Elixir%20CI)
+
 **Operate | Agent** is an Elixir agent used to load and run programs (known as "tapes") encoded in Bitcoin SV transactions.
 
 ## About Operate
