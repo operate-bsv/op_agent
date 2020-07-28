@@ -40,6 +40,8 @@ defmodule Operate.Adapter.Terminus do
   Converts the map from the Planaria HTTP response to a `t:Operate.BPU.Transaction.t/0`.
   """
   @spec to_bpu(map) :: BPU.Transaction.t | [BPU.Transaction.t, ...]
+  def to_bpu(nil), do: nil
+
   def to_bpu(%{:u => u, :c => c}),
     do: u ++ c |> Enum.map(&to_bpu/1)
 

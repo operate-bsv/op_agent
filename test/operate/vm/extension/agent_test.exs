@@ -3,12 +3,18 @@ defmodule Operate.VM.Extension.AgentTest do
   alias Operate.VM
   doctest Operate.VM.Extension.Agent
 
+  @host "http://localhost:8088"
+  @token "test"
+
+
   setup_all do
-    {:ok, _pid} = Operate.start_link(aliases: %{
+    tape_adapter = {Operate.Adapter.Terminus, [host: @host, token: @token]}
+    aliases = %{
       "19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut" => "6232de04", # b
       "1PuQa7K62MiKCtssSLKy1kh56WWU7MtUR5" => "1fec30d4", # map
       "15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva" => "a3a83843"  # aip
-    })
+    }
+    {:ok, _pid} = Operate.start_link(tape_adapter: tape_adapter, aliases: aliases)
     %{ vm: VM.init }
   end
 
@@ -17,8 +23,6 @@ defmodule Operate.VM.Extension.AgentTest do
     setup do
       Tesla.Mock.mock fn env ->
         cond do
-          String.match?(env.url, ~r/bob.planaria.network/) ->
-            File.read!("test/mocks/agent_exec_get_tape.json") |> Jason.decode! |> Tesla.Mock.json
           String.match?(env.url, ~r/api.operatebsv.org/) ->
             File.read!("test/mocks/agent_exec_get_ops.json") |> Jason.decode! |> Tesla.Mock.json
         end
@@ -42,8 +46,6 @@ defmodule Operate.VM.Extension.AgentTest do
     setup do
       Tesla.Mock.mock fn env ->
         cond do
-          String.match?(env.url, ~r/bob.planaria.network/) ->
-            File.read!("test/mocks/agent_exec_get_tape.json") |> Jason.decode! |> Tesla.Mock.json
           String.match?(env.url, ~r/api.operatebsv.org/) ->
             File.read!("test/mocks/agent_exec_get_ops.json") |> Jason.decode! |> Tesla.Mock.json
         end
@@ -108,7 +110,7 @@ defmodule Operate.VM.Extension.AgentTest do
       """
       res = VM.eval!(ctx.vm, script)
       assert Enum.map(res, & &1["app"]) == ["tonicpow", "twetch", "twetch"]
-    end 
+    end
   end
 
 

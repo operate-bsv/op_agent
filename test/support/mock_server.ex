@@ -12,8 +12,12 @@ defmodule MockServer do
   post "/block" do
     with ["test"] <- get_req_header(conn, "token") do
       body = case conn.body_params do
-        %{"q" => %{"find" => %{"tx.h" => _}}} ->
+        %{"q" => %{"find" => %{"tx.h" => "abcdef"}}} ->
+          File.read!("test/mocks/bitbus_fetch_tx_indexed.jsonnd")
+        %{"q" => %{"find" => %{"tx.h" => "98be5010028302399999bfba0612ee51ea272e7a0eb3b45b4b8bef85f5317633"}}} ->
           File.read!("test/mocks/bitbus_fetch_tx.jsonnd")
+        %{"q" => %{"find" => %{"tx.h" => "65aa086b2c54d5d792973db425b70712a708a115cd71fb67bd780e8ad9513ac9"}}} ->
+          File.read!("test/mocks/bitbus_agent_exec_get_tape.jsonnd")
         %{"q" => %{"find" => %{"out.tape.cell" => _}}} ->
           File.read!("test/mocks/bitbus_fetch_tx_by.jsonnd")
       end
@@ -29,8 +33,12 @@ defmodule MockServer do
   post "crawl" do
     with ["test"] <- get_req_header(conn, "token") do
       body = case conn.body_params do
-        %{"q" => %{"find" => %{"tx.h" => _}}} ->
+        %{"q" => %{"find" => %{"tx.h" => "abcdef"}}} ->
+          File.read!("test/mocks/bitsocket_fetch_tx_indexed.jsonnd")
+        %{"q" => %{"find" => %{"tx.h" => "98be5010028302399999bfba0612ee51ea272e7a0eb3b45b4b8bef85f5317633"}}} ->
           File.read!("test/mocks/bitsocket_fetch_tx.jsonnd")
+        %{"q" => %{"find" => %{"tx.h" => "65aa086b2c54d5d792973db425b70712a708a115cd71fb67bd780e8ad9513ac9"}}} ->
+          File.read!("test/mocks/bitsocket_agent_exec_get_tape.jsonnd")
         %{"q" => %{"find" => %{"out.tape.cell" => _}}} ->
           File.read!("test/mocks/bitsocket_fetch_tx_by.jsonnd")
       end
