@@ -4,7 +4,7 @@ defmodule Operate.MixProject do
   def project do
     [
       app: :operate,
-      version: "0.1.0-beta.9",
+      version: "0.1.0-beta.10",
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env),
       start_permanent: Mix.env() == :prod,

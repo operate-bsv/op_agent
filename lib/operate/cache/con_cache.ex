@@ -43,10 +43,11 @@ defmodule Operate.Cache.ConCache do
 
   def fetch_ops(refs, _options \\ [], {adapter, adapter_opts}) do
     cached_ops = refs
-    |> Enum.map(& ConCache.get(:operate, &1))
+    |> Enum.map(& ConCache.get(:operate, "p:#{&1}"))
+    |> Enum.reject(& is_nil(&1))
 
     cached_refs = cached_ops
-    |> Enum.map(& &1["ref"])
+    |> Enum.map(& &1.ref)
 
     uncached_refs = refs
     |> Enum.reject(& &1 in cached_refs)
@@ -57,14 +58,11 @@ defmodule Operate.Cache.ConCache do
     end
 
     with {:ok, ops} <- uncached_ops do
-      Enum.each(ops, fn op ->
-        key = "p:#{ op["ref"] }"
-        ConCache.put(:operate, key, op)
-      end)
+      Enum.each(ops, & ConCache.put(:operate, "p:#{ &1.ref }", &1))
       {:ok, Enum.concat(cached_ops, ops)}
     else
       error -> error
     end
   end
-  
+
 end
