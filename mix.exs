@@ -4,7 +4,7 @@ defmodule Operate.MixProject do
   def project do
     [
       app: :operate,
-      version: "0.1.0-beta.10",
+      version: "0.1.0-beta.11",
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env),
       start_permanent: Mix.env() == :prod,
@@ -63,7 +63,7 @@ defmodule Operate.MixProject do
       {:ex_doc, "~> 0.22", only: [:dev, :publish], runtime: false},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.1", only: :test},
-      {:terminus, "~> 0.0.5"},
+      {:terminus, "~> 0.1"},
       {:tesla, "~> 1.3"},
       luerl_dep(Mix.env)
     ]

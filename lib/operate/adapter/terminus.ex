@@ -15,11 +15,17 @@ defmodule Operate.Adapter.Terminus do
   def fetch_tx(txid, options \\ []) do
     host = Keyword.get(options, :host, :bob)
     token = Keyword.get(options, :token)
+    use_bitfs = Keyword.get(options, :use_bitfs, true)
 
     case Terminus.Omni.find(txid, host: host, token: token) do
       {:ok, tx} ->
-        {:ok, to_bpu(tx)}
-      error -> error
+        tx = tx
+        |> fetch_bitfs_data(use_bitfs)
+        |> to_bpu
+        {:ok, tx}
+
+      error ->
+        error
     end
   end
 
@@ -27,11 +33,17 @@ defmodule Operate.Adapter.Terminus do
   def fetch_tx_by(query, options \\ []) when is_map(query) do
     host = Keyword.get(options, :host, :bob)
     token = Keyword.get(options, :token)
+    use_bitfs = Keyword.get(options, :use_bitfs, true)
 
     case Terminus.Omni.fetch(query, host: host, token: token) do
-      {:ok, res} ->
-        {:ok, to_bpu(res)}
-      error -> error
+      {:ok, %{:u => u, :c => c}} ->
+        txns = u ++ c
+        |> Enum.map(& fetch_bitfs_data(&1, use_bitfs))
+        |> Enum.map(&to_bpu/1)
+        {:ok, txns}
+
+      error ->
+        error
     end
   end
 
@@ -41,9 +53,6 @@ defmodule Operate.Adapter.Terminus do
   """
   @spec to_bpu(map) :: BPU.Transaction.t | [BPU.Transaction.t, ...]
   def to_bpu(nil), do: nil
-
-  def to_bpu(%{:u => u, :c => c}),
-    do: u ++ c |> Enum.map(&to_bpu/1)
 
   def to_bpu(tx) do
     txid = get_in(tx, ["tx", "h"])
@@ -59,5 +68,10 @@ defmodule Operate.Adapter.Terminus do
     |> Map.put("out", outputs)
     |> BPU.Transaction.from_map
   end
+
+
+  # TODO
+  defp fetch_bitfs_data(%{} = tx, false), do: tx
+  defp fetch_bitfs_data(%{} = tx, true), do: Terminus.BitFS.scan_tx(tx)
 
 end

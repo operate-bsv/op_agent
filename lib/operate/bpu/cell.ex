@@ -20,8 +20,8 @@ defmodule Operate.BPU.Cell do
   #  ops: String.t | nil
   #}
 
-  @cell_keys [:i, :ii, :b, :lb, :s, :ls, :op, :ops]
-  
+  @cell_keys [:i, :ii, :b, :lb, :s, :ls, :d, :f, :op, :ops]
+
 
   @doc """
   Converts the given map or list of maps into a `t:Operate.BPU.Cell.t/0`.
@@ -44,7 +44,7 @@ defmodule Operate.BPU.Cell do
       cell: cell_data_from_map(params.cell),
     ])
   end
-  
+
 
   defp cell_data_from_map(source) when is_list(source),
     do: source |> Enum.map(&cell_data_from_map/1)
@@ -55,7 +55,7 @@ defmodule Operate.BPU.Cell do
       {:cont, cell_attribute({key, value}, params)}
     end)
   end
-  
+
 
   defp cell_attribute({_k, nil}, params), do: params
 
@@ -64,6 +64,9 @@ defmodule Operate.BPU.Cell do
 
   defp cell_attribute({k, v}, params) when k in [:s, :ls],
     do: Map.put(params, :s, v)
+
+  defp cell_attribute({k, v}, params) when k == :d,
+    do: Map.put(params, :b, Base.encode64(v))
 
   defp cell_attribute({k, v}, params),
     do: Map.put(params, k, v)
