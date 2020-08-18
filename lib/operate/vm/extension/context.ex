@@ -43,16 +43,22 @@ defmodule Operate.VM.Extension.Context do
   end
 
   @doc """
-  Fetches the current tape from the context tx.
+  Fetches the tape from the context tx.
   """
-  def get_tape(vm) do
-    with {:ok, index} when is_integer(index) <- VM.get(vm, "ctx.tape_index"),
-         output when is_map(output) <- tx_output(vm, index)
-    do
+  def get_tape(vm, index) when is_integer(index) do
+    with output when is_map(output) <- tx_output(vm, index) do
       [_ | tape] = Enum.reduce(output["tape"], [], fn %{"cell" => cells}, data ->
         normalize_cells(cells) ++ data
       end)
       Enum.reverse(tape)
+    else
+      _err -> nil
+    end
+  end
+
+  def get_tape(vm) do
+    with {:ok, index} when is_integer(index) <- VM.get(vm, "ctx.tape_index") do
+      get_tape(vm, index)
     else
       _err -> nil
     end
