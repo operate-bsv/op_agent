@@ -47,9 +47,10 @@ defmodule Operate.Cell do
     with {:ok, str} <- Base.decode64(head.b),
          params when is_list(params) <- Enum.map(tail, &normalize_param/1)
     do
-      ref = case String.valid?(str) do
-        true  -> str
-        false -> Base.encode16(str, case: :lower)
+      # TODO - in future use h attribute of BOB2
+      ref = case byte_size(str) do
+        4 -> Base.encode16(str, case: :lower)
+        _ -> str
       end
 
       cell = struct(__MODULE__, [

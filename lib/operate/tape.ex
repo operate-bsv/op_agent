@@ -143,7 +143,7 @@ defmodule Operate.Tape do
     state = Keyword.get(options, :state, nil)
     strict = Keyword.get(options, :strict, true)
     vm = vm
-    |> VM.set!("tx", tape.tx)
+    |> VM.set!("tx", tape.tx) # TODO - remove tx in v 0.1.0
     |> VM.set!("ctx.tx", tape.tx)
     |> VM.set!("ctx.tape_index", tape.index)
     
