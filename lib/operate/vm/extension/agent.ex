@@ -4,7 +4,7 @@ defmodule Operate.VM.Extension.Agent do
   """
   use Operate.VM.Extension
   alias Operate.{Util, VM}
-  
+
 
   def extend(vm) do
     vm
@@ -61,7 +61,7 @@ defmodule Operate.VM.Extension.Agent do
     |> Operate.prep_tape!(index, opts)
   end
 
-  
+
   @doc """
   Runs the given tape, and returns the result
   """

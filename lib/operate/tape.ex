@@ -146,7 +146,7 @@ defmodule Operate.Tape do
     |> VM.set!("tx", tape.tx) # TODO - remove tx in v 0.1.0
     |> VM.set!("ctx.tx", tape.tx)
     |> VM.set!("ctx.tape_index", tape.index)
-    
+
     case Enum.reduce_while(tape.cells, state, fn(cell, state) ->
       case Cell.exec(cell, vm, state: state) do
         {:ok, result}   -> {:cont, result}
@@ -227,5 +227,4 @@ defmodule Operate.Tape do
       false -> cell
     end
   end
-  
 end

@@ -42,14 +42,14 @@ defmodule Operate.Cell do
       true -> head
       false ->
         for {key, val} <- head, into: %{}, do: {String.to_atom(key), val}
-    end    
+    end
 
     with {:ok, str} <- Base.decode64(head.b),
          params when is_list(params) <- Enum.map(tail, &normalize_param/1)
     do
       # TODO - in future use h attribute of BOB2
       ref = case byte_size(str) do
-        4 -> Base.encode16(str, case: :lower)
+        s when s == 4 or s == 32 -> Base.encode16(str, case: :lower)
         _ -> str
       end
 
@@ -62,7 +62,7 @@ defmodule Operate.Cell do
       {:ok, cell}
     else
       error -> error
-    end 
+    end
   end
 
 
@@ -109,7 +109,7 @@ defmodule Operate.Cell do
     end
   end
 
-  
+
   @doc """
   As `exec/3`, but returns the result or raises an exception.
 
@@ -162,5 +162,5 @@ defmodule Operate.Cell do
       _ -> true
     end
   end
-  
+
 end
