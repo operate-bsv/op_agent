@@ -212,8 +212,12 @@ defmodule Operate.VM do
     when is_function(callback)
   do
     func = fn args, vm ->
-      result = callback.(vm, args)
-      {[result], vm}
+      case callback.(vm, args) do
+        result when is_tuple(result) ->
+          {Tuple.to_list(result), vm}
+        result ->
+          {[result], vm}
+      end
     end
     set(vm, path, func, options)
   end

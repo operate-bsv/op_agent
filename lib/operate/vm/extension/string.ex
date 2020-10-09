@@ -1,11 +1,11 @@
 defmodule Operate.VM.Extension.String do
   @moduledoc """
-  Extends the VM state with implementations of Lua's `string.pack` and 
+  Extends the VM state with implementations of Lua's `string.pack` and
   `string.unpack` functions.
   """
   use Operate.VM.Extension
   alias Operate.VM
-  
+
 
   def extend(vm) do
     vm
@@ -79,7 +79,7 @@ defmodule Operate.VM.Extension.String do
   defp do_unpack(fmt, n, value, result \\ [])
 
   defp do_unpack(fmt, n, value, result) when fmt == "" or value == "",
-    do: [n | result] |> Enum.reverse
+    do: [n | result] |> Enum.reverse |> List.to_tuple
 
   defp do_unpack(fmt, n, value, result) when is_binary(fmt),
     do: parse_format(fmt) |> do_unpack(n, value, result)
@@ -199,5 +199,5 @@ defmodule Operate.VM.Extension.String do
     [_, fmt] = String.split(fmt, match, parts: 2)
     {opts, fmt}
   end
-  
+
 end
