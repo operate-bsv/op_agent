@@ -1,8 +1,12 @@
 # Operate | Agent
 
-![Hex.pm](https://img.shields.io/hexpm/v/operate?color=informational)
-![License](https://img.shields.io/github/license/operate-bsv/op_agent?color=informational)
-![Build Status](https://img.shields.io/github/workflow/status/operate-bsv/op_agent/Elixir%20CI)
+<!-- MDOC !-->
+
+[![hex.pm](https://img.shields.io/hexpm/v/operate.svg)](https://hex.pm/packages/operate)
+[![hex.pm](https://img.shields.io/hexpm/dt/operate.svg)](https://hex.pm/packages/operate)
+[![hex.pm](https://img.shields.io/hexpm/l/operate.svg)](https://hex.pm/packages/operate)
+[![github.com](https://img.shields.io/github/last-commit/operate-bsv/op_agent.svg)](https://github.com/operate-bsv/op_agent)
+[![github.com](https://img.shields.io/github/workflow/status/operate-bsv/op_agent/Elixir%20CI)](https://github.com/operate-bsv/op_agent/actions?query=workflow%3A"Elixir+CI")
 
 **Operate | Agent** is an Elixir agent used to load and run programs (known as "tapes") encoded in Bitcoin SV transactions.
 
@@ -10,7 +14,7 @@
 
 Operate is a toolset to help developers build applications, games and services on top of Bitcoin (SV). It lets you write functions, called "Ops", and enables transactions to become small but powerful programs, capable of delivering new classes of services layered over Bitcoin.
 
-More infomation:
+More information:
 
 * [Project website](https://www.operatebsv.org)
 * [Full documentation](https://hexdocs.pm/operate)
