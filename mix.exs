@@ -58,7 +58,7 @@ defmodule Operate.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:bsv, "~> 0.2"},
+      {:bsv, "~> 0.3"},
       {:con_cache, "~> 0.14"},
       {:ex_doc, "~> 0.22", only: [:dev, :publish], runtime: false},
       {:jason, "~> 1.2"},

@@ -104,7 +104,7 @@ defmodule Operate.Tape do
   def set_cell_ops(%__MODULE__{} = tape, [%Op{} = op | tail], aliases) do
     refs = case Enum.filter(aliases, fn {_k, v} -> v == op.ref end) do
       [] -> [op.ref]
-      res -> Keyword.keys(res)
+      res -> Enum.map(res, & elem(&1, 0))
     end
 
     cells = tape.cells
