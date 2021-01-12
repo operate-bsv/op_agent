@@ -10,7 +10,7 @@
   "gen_stage": {:hex, :gen_stage, "1.0.0", "51c8ae56ff54f9a2a604ca583798c210ad245f415115453b773b621c49776df5", [:mix], [], "hexpm", "1d9fc978db5305ac54e6f5fec7adf80cd893b1000cf78271564c516aa2af7706"},
   "jason": {:hex, :jason, "1.2.1", "12b22825e22f468c02eb3e4b9985f3d0cb8dc40b9bd704730efa11abd2708c44", [:mix], [{:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm", "b659b8571deedf60f79c5a608e15414085fa141344e2716fbd6988a084b5f993"},
   "libsecp256k1": {:hex, :libsecp256k1, "0.1.10", "d27495e2b9851c7765129b76c53b60f5e275bd6ff68292c50536bf6b8d091a4d", [:make, :mix], [{:mix_erlang_tasks, "0.1.0", [hex: :mix_erlang_tasks, repo: "hexpm", optional: false]}], "hexpm", "09ea06239938571124f7f5a27bc9ac45dfb1cfc2df40d46ee9b59c3d51366652"},
-  "luerl": {:git, "https://github.com/rvirding/luerl.git", "465df30479e51bb858e70fd2380b49c404980535", [branch: "develop"]},
+  "luerl": {:git, "https://github.com/rvirding/luerl.git", "1b0699cc80df4e3c0318e5b8a6b9ac39384a297e", [branch: "develop"]},
   "makeup": {:hex, :makeup, "1.0.3", "e339e2f766d12e7260e6672dd4047405963c5ec99661abdc432e6ec67d29ef95", [:mix], [{:nimble_parsec, "~> 0.5", [hex: :nimble_parsec, repo: "hexpm", optional: false]}], "hexpm", "2e9b4996d11832947731f7608fed7ad2f9443011b3b479ae288011265cdd3dad"},
   "makeup_elixir": {:hex, :makeup_elixir, "0.14.1", "4f0e96847c63c17841d42c08107405a005a2680eb9c7ccadfd757bd31dabccfb", [:mix], [{:makeup, "~> 1.0", [hex: :makeup, repo: "hexpm", optional: false]}], "hexpm", "f2438b1a80eaec9ede832b5c41cd4f373b38fd7aa33e3b22d9db79e640cbde11"},
   "mime": {:hex, :mime, "1.3.1", "30ce04ab3175b6ad0bdce0035cba77bba68b813d523d1aac73d9781b4d193cf8", [:mix], [], "hexpm", "6cbe761d6a0ca5a31a0931bf4c63204bceb64538e664a8ecf784a9a6f3b875f1"},
