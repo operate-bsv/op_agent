@@ -1,85 +1,9 @@
 defmodule Operate do
-  @moduledoc """
-  Load and run Operate programs (known as "tapes") encoded in Bitcoin SV
-  transactions.
+  @moduledoc "README.md"
+             |> File.read!()
+             |> String.split("<!-- MDOC !-->")
+             |> Enum.fetch!(1)
 
-  Operate is a toolset to help developers build applications, games and services
-  on top of Bitcoin (SV). It lets you write functions, called "Ops", and enables
-  transactions to become small but powerful programs, capable of delivering new
-  classes of services layered over Bitcoin.
-
-  ## Installation
-
-  The package is bundled with `libsecp256k1` NIF bindings. `libtool`, `automake`
-  and `autogen` are required in order for the package to compile.
-
-  The package can be installed by adding `operate` to your list of dependencies
-  in `mix.exs`.
-
-  **The most recent `luerl` package published on `hex.pm` is based on Lua 5.2
-  which may not be compatible with all Ops. It is recommended to override the
-  `luerl` dependency with the latest development version to benefit from Lua 5.3.**
-
-      def deps do
-        [
-          {:operate, "~> #{ Mix.Project.config[:version] }"},
-          {:luerl, github: "rvirding/luerl", branch: "develop", override: true}
-        ]
-      end
-
-  ## Quick start
-
-  The agent can be used straight away without starting any processes. This will
-  run without caching so should only be used for testing and kicking the tyres.
-
-      {:ok, tape} = Operate.load_tape(txid)
-      {:ok, tape} = Operate.run_tape(tape)
-
-      tape.result
-
-  See `load_tape/2` and `run_tape/2`.
-
-  ## Process supervision
-
-  To enable caching the agent should be started as part of your applications
-  process supervision tree.
-
-      children = [
-        {Operate, [
-          cache: Operate.Cache.ConCache,
-        ]},
-        {ConCache, [
-          name: :operate,
-          ttl_check_interval: :timer.minutes(1),
-          global_ttl: :timer.minutes(10),
-          touch_on_read: true
-        ]}
-      ]
-
-      Supervisor.start_link(children, strategy: :one_for_one)
-
-  ## Configuration
-
-  Operate can be configured with the following options. Additionally, any of
-  these options can be passed to `load_tape/2` and `run_tape/2` to override
-  the configuration.
-
-  * `:tape_adapter` - The adapter module used to fetch the tape transaction.
-  * `:op_adaapter` - The adapter module used to fetch the tape's Ops.
-  * `:cache` - The cache module used for caching tapes and Ops.
-  * `:extensions` - A list of extension modules to extend the VM state.
-  * `:aliases` - A map of references to alias functions to alternative references.
-  * `:strict` - Set `false` to disable strict mode and ignore missing and/or erring functions.
-
-  The default configuration:
-
-      tape_adapter: Operate.Adapter.Bob,
-      op_adapter: Operate.Adapter.OpApi,
-      cache: Operate.Cache.NoCache,
-      extensions: [],
-      aliases: %{},
-      strict: true
-  """
   use Agent
   alias Operate.BPU.Transaction
   alias Operate.{Tape, VM}

@@ -1,21 +1,24 @@
 defmodule Operate.MixProject do
   use Mix.Project
 
+  @source_url "https://github.com/operate-bsv/op_agent"
+
   def project do
     [
       app: :operate,
       version: "0.1.0-beta.15",
       elixir: "~> 1.9",
-      elixirc_paths: elixirc_paths(Mix.env),
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       name: "Operate",
       description: "Operate | Agent is an Elixir agent used to load and run Bitcoin programs.",
-      source_url: "https://github.com/operate-bsv/op_agent",
+      source_url: @source_url,
       docs: [
         main: "Operate",
+        source_url: @source_url,
         groups_for_modules: [
-          "Extensions": [
+          Extensions: [
             Operate.VM.Extension,
             Operate.VM.Extension.Agent,
             Operate.VM.Extension.Base,
@@ -24,16 +27,16 @@ defmodule Operate.MixProject do
             Operate.VM.Extension.JSON,
             Operate.VM.Extension.String
           ],
-          "Adapters": [
+          Adapters: [
             Operate.Adapter,
             Operate.Adapter.Bob,
             Operate.Adapter.OpApi
           ],
-          "Caches": [
+          Caches: [
             Operate.Cache,
             Operate.Cache.ConCache,
             Operate.Cache.NoCache
-          ],
+          ]
         ]
       ],
       package: [
@@ -41,21 +44,19 @@ defmodule Operate.MixProject do
         files: ~w(lib .formatter.exs mix.exs README.md LICENSE),
         licenses: ["MIT"],
         links: %{
-          "GitHub" => "https://github.com/operate-bsv/op_agent",
+          "GitHub" => @source_url,
           "Website" => "https://www.operatebsv.org"
         }
       ]
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger]
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:bsv, "~> 0.3"},
@@ -65,15 +66,15 @@ defmodule Operate.MixProject do
       {:plug_cowboy, "~> 2.1", only: :test},
       {:terminus, "~> 0.1"},
       {:tesla, "~> 1.3"},
-      luerl_dep(Mix.env)
+      luerl_dep(Mix.env())
     ]
   end
 
   defp luerl_dep(:publish), do: {:luerl, "~> 0.4"}
+
   defp luerl_dep(_),
     do: {:luerl, github: "rvirding/luerl", branch: "develop"}
 
   defp elixirc_paths(:test), do: elixirc_paths(:default) ++ ["test/support"]
   defp elixirc_paths(_), do: ["lib"]
-
 end
